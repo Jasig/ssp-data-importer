@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- db-backed repo commented out for prototype testing -->
+    <!-- Use most of the defaults, but externalize @table-prefix to ensure flexibility around non-default schemas
+    (which we know SSP deployments in the wild use). -->
+    <!--<batch:job-repository id="jobRepository" table-prefix="${batch.table.prefix}"/>-->
+
+    <bean id="jobRepository"
+          class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean" />
+
+</beans>

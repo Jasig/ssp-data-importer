@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- We're going with XML config since the vast majority of config examples in the reference docs use XML.
+     Multiple files because we're trying to split up contexts into smaller, cohesive units which may need to be
+     swapped out, especially during testing. Individual bean def will generally assume some other "supervisor" file,
+     such as this one, takes care of loading dependencies. -->
+
+    <import resource="datasource-context.xml" />
+    <import resource="jobrepository-context.xml" />
+    <import resource="joblauncher-context.xml" />
+    <import resource="importdatajob-context.xml" />
+
+</beans>

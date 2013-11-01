@@ -1,0 +1,89 @@
+package org.jasig.ssp.util.dataimport.job.csv;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jasig.ssp.util.dataimport.job.domain.RawItem;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.LineCallbackHandler;
+import org.springframework.batch.item.file.LineMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.validation.BindException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements LineCallbackHandler, FieldSetMapper<RawItem> {
+
+    private DefaultLineMapper<RawItem> lineMapper;
+    private String[] columnNames;
+
+    public RawItemCsvReader() {
+        setLinesToSkip(1);
+        setSkippedLinesCallback(this);
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        // not in constructor to ensure we invoke the override
+        final DefaultLineMapper<RawItem> lineMapper = new DefaultLineMapper<RawItem>();
+        setLineMapper(lineMapper);
+    }
+
+    /**
+     * Satisfies {@link LineCallbackHandler} contract and and Acts as the {@code skippedLinesCallback}.
+     *
+     * @param line
+     */
+    @Override
+    public void handleLine(String line) {
+        // TODO parameterize delims
+        this.columnNames = line.split(DelimitedLineTokenizer.DELIMITER_COMMA);
+        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
+        lineTokenizer.setNames(columnNames);
+        getLineMapper().setLineTokenizer(lineTokenizer);
+        getLineMapper().setFieldSetMapper(this);
+    }
+
+    /**
+     * Provides acces to an otherwise hidden field in parent class. We need this because we have to reconfigure
+     * the {@link LineMapper} based on file contents.
+     * @param lineMapper
+     */
+    @Override
+    public void setLineMapper(LineMapper<RawItem> lineMapper) {
+        if ( !(lineMapper instanceof DefaultLineMapper) ) {
+            throw new IllegalArgumentException("Must specify a DefaultLineMapper");
+        }
+        this.lineMapper = (DefaultLineMapper)lineMapper;
+        super.setLineMapper(lineMapper);
+    }
+
+    private DefaultLineMapper getLineMapper() {
+        return this.lineMapper;
+    }
+
+    /**
+     * Satisfies {@link FieldSetMapper} contract.
+     * @param fs
+     * @return
+     * @throws BindException
+     */
+    @Override
+    public RawItem mapFieldSet(FieldSet fs) throws BindException {
+        if ( fs == null ) {
+            return null;
+        }
+        Map<String,String> record = new LinkedHashMap<String, String>();
+        for (String columnName : this.columnNames) {
+            record.put(columnName, StringUtils.trimToNull(fs.readString(columnName)));
+        }
+        RawItem item = new RawItem();
+        item.setRecord(record);
+        // TODO for now we're not worrying about setting the Resource b/c we happen to know the wrapping
+        // MultiResourceItemReader will do it for us and there's no accessible getter on our super class. But
+        // would be better to do it here.
+        return item;
+    }
+}
