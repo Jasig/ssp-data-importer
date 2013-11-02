@@ -22,7 +22,7 @@
     <bean id="rawCsvItemProcessor" class="org.jasig.ssp.util.dataimport.job.processor.RawItemEchoProcessor" />
 
     <!-- TODO This just prints to std out. Need a real file writing impl. -->
-    <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.dataimport.job.csv.RawItemAndBeanCsvWriter"
+    <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.dataimport.job.csv.RawItemCsvWriter"
           scope="step" /> <!-- Dummy impl needs to be scoped to the step so it can reset itself on execution -->
 
     <!-- TODO these are both just dummy impls for the prototype -->
