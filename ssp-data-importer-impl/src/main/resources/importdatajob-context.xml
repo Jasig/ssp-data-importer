@@ -53,7 +53,7 @@
 
         <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
         to another set of files -->
-        <batch:step id="filterRawItems"> <!--next="writeProcessedItems"> --> <!-- stop here for prototype -->
+        <batch:step id="filterRawItems"> <!--next="writeFilteredItems"> --> <!-- stop here for prototype -->
             <batch:tasklet>
                 <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
                 step. Note that this limit applies separately to reads, processes, and writes. -->
@@ -74,7 +74,7 @@
         </batch:step>
 
         <!-- Read validated files, write output to temp tables, bulk upsert into corresponding "real" SSP tables -->
-        <!--<batch:step id="writeProcessedItems">-->
+        <!--<batch:step id="writeFilteredItems">-->
             <!--&lt;!&ndash; TODO &ndash;&gt;-->
         <!--</batch:step>-->
         <!-- === End Core Job Step Definition == -->
