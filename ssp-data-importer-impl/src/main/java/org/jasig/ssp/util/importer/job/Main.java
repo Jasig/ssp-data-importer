@@ -1,4 +1,4 @@
-package org.jasig.ssp.util.importer.job.job;
+package org.jasig.ssp.util.importer.job;
 
 import org.springframework.batch.core.launch.support.CommandLineJobRunner;
 

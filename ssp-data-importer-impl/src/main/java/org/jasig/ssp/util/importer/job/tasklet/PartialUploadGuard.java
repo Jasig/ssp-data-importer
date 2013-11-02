@@ -1,4 +1,4 @@
-package org.jasig.ssp.util.importer.job.job.tasklet;
+package org.jasig.ssp.util.importer.job.tasklet;
 
 
 import org.springframework.batch.core.StepContribution;

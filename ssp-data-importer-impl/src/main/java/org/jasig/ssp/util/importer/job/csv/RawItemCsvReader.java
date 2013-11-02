@@ -1,7 +1,7 @@
-package org.jasig.ssp.util.importer.job.job.csv;
+package org.jasig.ssp.util.importer.job.csv;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jasig.ssp.util.importer.job.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.LineMapper;

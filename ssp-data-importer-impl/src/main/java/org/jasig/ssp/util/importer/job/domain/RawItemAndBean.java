@@ -1,4 +1,4 @@
-package org.jasig.ssp.util.importer.job.job.domain;
+package org.jasig.ssp.util.importer.job.domain;
 
 import org.springframework.core.io.Resource;
 
