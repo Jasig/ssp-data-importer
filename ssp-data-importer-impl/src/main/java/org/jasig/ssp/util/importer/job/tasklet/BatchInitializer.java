@@ -1,4 +1,4 @@
-package org.jasig.ssp.util.dataimport.job.tasklet;
+package org.jasig.ssp.util.importer.job.job.tasklet;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;

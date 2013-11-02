@@ -1,7 +1,7 @@
-package org.jasig.ssp.util.dataimport.job.processor;
+package org.jasig.ssp.util.importer.job.job.processor;
 
 
-import org.jasig.ssp.util.dataimport.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.job.domain.RawItem;
 import org.springframework.batch.item.ItemProcessor;
 
 /**

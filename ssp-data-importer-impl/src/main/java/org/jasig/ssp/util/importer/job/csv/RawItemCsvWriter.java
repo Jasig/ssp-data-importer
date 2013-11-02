@@ -1,7 +1,6 @@
-package org.jasig.ssp.util.dataimport.job.csv;
+package org.jasig.ssp.util.importer.job.job.csv;
 
-import org.jasig.ssp.util.dataimport.job.domain.RawItem;
-import org.jasig.ssp.util.dataimport.job.domain.RawItemAndBean;
+import org.jasig.ssp.util.importer.job.job.domain.RawItem;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.io.Resource;
 

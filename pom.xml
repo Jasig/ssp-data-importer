@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jasig.ssp.util.import</groupId>
-    <artifactId>ssp-data-import</artifactId>
+    <groupId>org.jasig.ssp.util.importer</groupId>
+    <artifactId>ssp-data-importer</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -69,11 +69,11 @@
     </build>
 
     <modules>
-        <module>ssp-data-import-impl</module>
+        <module>ssp-data-importer-impl</module>
 
         <!-- This is what we'll use to output tars and zips of the impl plus all its dependencies as what amounts to
         an executable -->
-        <!--<module>ssp-data-import-assembly</module>-->
+        <!--<module>ssp-data-importer-assembly</module>-->
     </modules>
     
 </project>

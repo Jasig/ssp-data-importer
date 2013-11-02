@@ -16,18 +16,18 @@
           <!--p:resources="file://Users/dmccallum/dev1/ssp-data-import/src/ssp-data-import/ssp-data-import-impl/src/main/resources/prototype-input/*">-->
 
     </bean>
-    <bean id="singleRawCsvItemReader" class="org.jasig.ssp.util.dataimport.job.csv.RawItemCsvReader" />
+    <bean id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.job.csv.RawItemCsvReader" />
 
     <!-- TODO Use RawItemToBeanProcessor or similer instead. Just using the dumb echo impl for prototype -->
-    <bean id="rawCsvItemProcessor" class="org.jasig.ssp.util.dataimport.job.processor.RawItemEchoProcessor" />
+    <bean id="rawCsvItemProcessor" class="org.jasig.ssp.util.importer.job.job.processor.RawItemEchoProcessor" />
 
     <!-- TODO This just prints to std out. Need a real file writing impl. -->
-    <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.dataimport.job.csv.RawItemCsvWriter"
+    <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.importer.job.job.csv.RawItemCsvWriter"
           scope="step" /> <!-- Dummy impl needs to be scoped to the step so it can reset itself on execution -->
 
     <!-- TODO these are both just dummy impls for the prototype -->
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.dataimport.job.tasklet.PartialUploadGuard" />
-    <bean id="batchInitializer" class="org.jasig.ssp.util.dataimport.job.tasklet.BatchInitializer" />
+    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.job.tasklet.PartialUploadGuard" />
+    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.job.tasklet.BatchInitializer" />
 
     <batch:job id="importJob" restartable="false">
 
