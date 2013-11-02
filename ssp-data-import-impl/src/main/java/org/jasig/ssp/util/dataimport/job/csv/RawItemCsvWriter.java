@@ -20,20 +20,24 @@ public class RawItemCsvWriter implements ItemWriter<RawItem> {
         // As written, this only works if the bean is step-scoped. Might be a bit challenging even in a
         // FlatFileItemWriter subclass to write an item-based header row.
         if ( items == null ) {
-            currentResource = null;
-            orderedHeaders = null;
+            this.currentResource = null;
+            this.orderedHeaders = null;
             return;
         }
-        if ( currentResource == null || !(currentResource.equals(items.get(0).getResource())) ) {
-            if ( currentResource != null ) {
-                say("");
-            }
-            orderedHeaders = writeHeader(items);
+        if ( currentResource == null ) {
+            this.orderedHeaders = writeHeader(items.get(0));
+            this.currentResource = items.get(0).getResource();
         }
         for ( RawItem item : items ) {
+            Resource itemResource = item.getResource();
+            if ( !(this.currentResource.equals(itemResource)) ) {
+                say();
+                this.orderedHeaders = writeHeader(item);
+                this.currentResource = itemResource;
+            }
             StringBuilder sb = new StringBuilder();
             final Map<String,String> record = item.getRecord();
-            for ( String header : orderedHeaders ) {
+            for ( String header : this.orderedHeaders ) {
                 sb.append(record.get(header)).append(",");
             }
             sb.setLength(sb.length() - 1); // trim comma
@@ -41,8 +45,8 @@ public class RawItemCsvWriter implements ItemWriter<RawItem> {
         }
     }
 
-    private String[] writeHeader(List<? extends RawItem> items) {
-        Map<String,String> firstRecord = items.get(0).getRecord();
+    private String[] writeHeader(RawItem item) {
+        Map<String,String> firstRecord = item.getRecord();
         StringBuilder sb = new StringBuilder();
         List<String> headerColumns = new ArrayList<String>();
         for ( String key : firstRecord.keySet() ) {
@@ -56,5 +60,9 @@ public class RawItemCsvWriter implements ItemWriter<RawItem> {
 
     private void say(Object message) {
         System.out.println(message);
+    }
+
+    private void say() {
+        say("");
     }
 }
