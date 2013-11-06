@@ -11,6 +11,7 @@
      swapped out, especially during testing. Individual bean def will generally assume some other "supervisor" file,
      such as this one, takes care of loading dependencies. -->
 
+    <import resource="config-context.xml" />
     <import resource="datasource-context.xml" />
     <import resource="jobrepository-context.xml" />
     <import resource="joblauncher-context.xml" />

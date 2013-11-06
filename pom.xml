@@ -26,6 +26,7 @@
         <spring.framework.version>3.2.0.RELEASE</spring.framework.version>
         <spring.batch.version>2.2.2.RELEASE</spring.batch.version>
         <logback.version>1.0.13</logback.version>
+        <slf4j.version>1.6.4</slf4j.version>
         <compiler.target.version>1.6</compiler.target.version>
         <compiler.source.version>1.6</compiler.source.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,6 +61,16 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

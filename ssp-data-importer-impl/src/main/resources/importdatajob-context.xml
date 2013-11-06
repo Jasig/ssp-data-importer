@@ -23,7 +23,8 @@
 
     <!-- TODO This just prints to std out. Need a real file writing impl. -->
     <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
-          scope="step" /> <!-- Dummy impl needs to be scoped to the step so it can reset itself on execution -->
+          scope="step"
+          p:preamble="${exists.only.for.testing.1}" /> <!-- Dummy impl needs to be scoped to the step so it can reset itself on execution -->
 
     <!-- TODO these are both just dummy impls for the prototype -->
     <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard" />

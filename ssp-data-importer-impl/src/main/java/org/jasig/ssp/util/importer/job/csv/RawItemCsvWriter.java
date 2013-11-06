@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class RawItemCsvWriter implements ItemWriter<RawItem> {
 
+    private String preamble;
     private Resource currentResource;
     private String[] orderedHeaders = null;
 
@@ -53,6 +54,9 @@ public class RawItemCsvWriter implements ItemWriter<RawItem> {
             headerColumns.add(key);
         }
         sb.setLength(sb.length() - 1); // trim comma
+        if ( preamble != null ) {
+            say("PREAMBLE: " + preamble);
+        }
         say(sb);
         return headerColumns.toArray(new String[headerColumns.size()]);
     }
@@ -63,5 +67,13 @@ public class RawItemCsvWriter implements ItemWriter<RawItem> {
 
     private void say() {
         say("");
+    }
+
+    public String getPreamble() {
+        return preamble;
+    }
+
+    public void setPreamble(String preamble) {
+        this.preamble = preamble;
     }
 }
