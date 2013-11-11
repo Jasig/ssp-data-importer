@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- step-scoped because I believe we want the resources expression to be re-evaluated on each execution. I.e.
+        check for new files each time. -->
+    <bean id="compositeRawCsvItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader"
+          scope="step"
+          p:delegate-ref="singleRawCsvItemReader"
+          p:resources="classpath:/prototype-input/*"> <!-- this would be parameterized to point at monitored path -->
+          <!--p:resources="file://Users/dmccallum/dev1/ssp-data-import/src/ssp-data-import/ssp-data-import-impl/src/main/resources/prototype-input/*">-->
+
+    </bean>
+    <bean id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" />
+
+    <!-- TODO Use RawItemToBeanProcessor or similer instead. Just using the dumb echo impl for prototype -->
+    <bean id="rawCsvItemProcessor" class="org.jasig.ssp.util.importer.job.processor.RawItemEchoProcessor" />
+
+    <!-- TODO This just prints to std out. Need a real file writing impl. -->
+    <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
+          scope="step"
+          p:preamble="${exists.only.for.testing.1}" /> <!-- Dummy impl needs to be scoped to the step so it can reset itself on execution -->
+
+    <!-- TODO these are both just dummy impls for the prototype -->
+    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard" />
+    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer" />
+
+    <batch:job id="importJob" restartable="false">
+
+        <!-- === Start Core Job Step Definition == -->
+        <!-- Make sure we don't accidentally process a partial upload -->
+        <batch:step id="guardPartialUploads" next="initializeBatch">
+            <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
+            workflow involved -->
+            <batch:tasklet ref="partialUploadGuard"></batch:tasklet>
+        </batch:step>
+
+        <!-- Another step might be need here if we have to guard against concurrent executions (I think the framework
+        takes care of that for us, esp if we're using a db-backed JobRepository.) -->
+        <!--<batch:step id="guardConcurrentExecution">-->
+        <!--</batch:step>-->
+
+        <!-- Make sure we have a clean working directory, copy new files into it. -->
+        <batch:step id="initializeBatch" next="filterRawItems">
+            <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
+            workflow involved -->
+            <batch:tasklet ref="batchInitializer"></batch:tasklet>
+        </batch:step>
+
+        <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
+        to another set of files -->
+        <batch:step id="filterRawItems"> <!--next="writeFilteredItems"> --> <!-- stop here for prototype -->
+            <batch:tasklet>
+                <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
+                step. Note that this limit applies separately to reads, processes, and writes. -->
+                <batch:chunk reader="compositeRawCsvItemReader" processor="rawCsvItemProcessor" writer="processedCsvItemWriter"
+                             commit-interval="50">
+
+                    <!-- List out exceptions which should result in a record simply being skipped, up to some
+                    configurable limit set on the chunk above -->
+                    <!--<batch:skippable-exception-classes>-->
+                        <!--<include class="java.lang.Exception"/>-->
+                        <!--<exclude class="java.io.FileNotFoundException"/>-->
+                    <!--</batch:skippable-exception-classes>-->
+
+                    <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
+                    <!--<batch:listeners></batch:listeners>-->
+                </batch:chunk>
+            </batch:tasklet>
+        </batch:step>
+
+        <!-- Read validated files, write output to temp tables, bulk upsert into corresponding "real" SSP tables -->
+        <!--<batch:step id="writeFilteredItems">-->
+            <!--&lt;!&ndash; TODO &ndash;&gt;-->
+        <!--</batch:step>-->
+        <!-- === End Core Job Step Definition == -->
+
+
+        <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
+        free by using or extending DefaultJobParametersValidator -->
+        <!--<batch:validator ref="importJobValidator" />-->
+
+
+        <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
+         the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
+         in that event. -->
+        <!--<batch:listeners></batch:listeners>-->
+    </batch:job>
+
+</beans>
