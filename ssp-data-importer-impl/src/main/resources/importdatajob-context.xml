@@ -12,14 +12,48 @@
     <bean id="compositeRawCsvItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader"
           scope="step"
           p:delegate-ref="singleRawCsvItemReader"
-          p:resources="classpath:/prototype-input/*"> <!-- this would be parameterized to point at monitored path -->
+          p:resources="${batch.tables.input.folder}"> <!-- this would be parameterized to point at monitored path -->
           <!--p:resources="file://Users/dmccallum/dev1/ssp-data-import/src/ssp-data-import/ssp-data-import-impl/src/main/resources/prototype-input/*">-->
 
     </bean>
+
     <bean id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" />
 
-    <!-- TODO Use RawItemToBeanProcessor or similer instead. Just using the dumb echo impl for prototype -->
-    <bean id="rawCsvItemProcessor" class="org.jasig.ssp.util.importer.job.processor.RawItemEchoProcessor" />
+
+        <!-- Internationalization (i18n) - Overwrites the default name of Spring. -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages"/>
+    </bean>
+
+
+    <!-- Validations (also uses the messageSource defined above) -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+
+    <bean id="columnMetadataRepository" class="org.jarbframework.constraint.metadata.database.JdbcColumnMetadataRepository">
+        <constructor-arg name="dataSource" ref ="dataSource"/>
+    </bean>
+
+    <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
+
+    <bean id="rawItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.RawItemValidateProcessor" >
+        <property name="metadataRepository" ref="metadataRepository" />
+    </bean>
+
+    <bean id="rawItemEchoProcessor"
+        class="org.jasig.ssp.util.importer.job.processor.RawItemEchoProcessor">
+    </bean>
+
+    <bean id="rawCsvItemProcessor"
+      class="org.springframework.batch.item.support.CompositeItemProcessor">
+        <property name="delegates">
+             <list>
+                 <ref local="rawItemValidateProcessor"/>
+                 <ref local="rawItemEchoProcessor"/>
+             </list>
+       </property>
+    </bean>
 
     <!-- TODO This just prints to std out. Need a real file writing impl. -->
     <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
@@ -59,14 +93,15 @@
                 <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
                 step. Note that this limit applies separately to reads, processes, and writes. -->
                 <batch:chunk reader="compositeRawCsvItemReader" processor="rawCsvItemProcessor" writer="processedCsvItemWriter"
-                             commit-interval="50">
+                             commit-interval="50" skip-limit="100">
 
                     <!-- List out exceptions which should result in a record simply being skipped, up to some
                     configurable limit set on the chunk above -->
-                    <!--<batch:skippable-exception-classes>-->
-                        <!--<include class="java.lang.Exception"/>-->
+                    <batch:skippable-exception-classes>
+                        <batch:include class="java.lang.Exception"/>
                         <!--<exclude class="java.io.FileNotFoundException"/>-->
-                    <!--</batch:skippable-exception-classes>-->
+                        <batch:include class="org.springframework.beans.factory.BeanCreationException"/>
+                    </batch:skippable-exception-classes>
 
                     <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                     <!--<batch:listeners></batch:listeners>-->

@@ -9,6 +9,7 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.validation.BindException;
 
 import java.util.LinkedHashMap;
@@ -38,12 +39,17 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Lin
      */
     @Override
     public void handleLine(String line) {
-        // TODO parameterize delims
+        getLineMapper().setLineTokenizer(getTokenizer(line));
+        getLineMapper().setFieldSetMapper(this);
+    }
+
+    private LineTokenizer getTokenizer(String line){
         this.columnNames = line.split(DelimitedLineTokenizer.DELIMITER_COMMA);
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
+        lineTokenizer.setQuoteCharacter(DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER);
+        lineTokenizer.setStrict(false);
         lineTokenizer.setNames(columnNames);
-        getLineMapper().setLineTokenizer(lineTokenizer);
-        getLineMapper().setFieldSetMapper(this);
+        return lineTokenizer;
     }
 
     /**

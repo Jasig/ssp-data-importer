@@ -7,11 +7,11 @@
 
     <!-- "Real" db resources commented out to simplify testing the prototype -->
 
-    <!--<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
-                <!--p:driverClassName="${batch.jdbc.driver}"-->
-                <!--p:url="${batch.jdbc.url}"-->
-                <!--p:username="${batch.jdbc.user}"-->
-                <!--p:password="${batch.jdbc.password}"/>-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+                p:driverClassName="${batch.jdbc.driver}"
+                p:url="${batch.jdbc.url}"
+                p:username="${batch.jdbc.user}"
+                p:password="${batch.jdbc.password}"/>
 
     <!--<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"-->
                 <!--p:dataSource-ref="batchDataSource"/>-->

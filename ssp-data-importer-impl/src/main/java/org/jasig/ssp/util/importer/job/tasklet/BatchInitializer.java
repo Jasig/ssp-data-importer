@@ -12,4 +12,6 @@ public class BatchInitializer implements Tasklet {
         // cleaning out the latter first
         return RepeatStatus.FINISHED;
     }
+
+
 }
