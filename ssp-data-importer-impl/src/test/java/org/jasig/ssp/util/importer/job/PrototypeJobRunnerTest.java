@@ -20,12 +20,6 @@ public class PrototypeJobRunnerTest {
 	@Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
-    private JdbcTemplate simpleJdbcTemplate;
-
-    @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.simpleJdbcTemplate = new JdbcTemplate(dataSource);
-    }
 
     @Test
     public void testJob() throws Exception {
