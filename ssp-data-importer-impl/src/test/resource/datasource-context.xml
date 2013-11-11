@@ -5,28 +5,29 @@
        xsi:schemaLocation="
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- "Real" db resources commented out to simplify testing the prototype -->
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-                p:driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                p:url="jdbc:sqlserver://tonysqlserver.cidz9lza9lx8.us-west-2.rds.amazonaws.com\\SQLEXPRESS:1433;databaseName=ssp"
-                p:username="tonysqlserver"
-                p:password="adminadmin"/>
+    <!--<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
+                <!--p:driverClassName="${batch.jdbc.driver}"-->
+                <!--p:url="${batch.jdbc.url}"-->
+                <!--p:username="${batch.jdbc.user}"-->
+                <!--p:password="${batch.jdbc.password}"/>-->
 
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
-                p:dataSource-ref="dataSource"/>
+    <!--<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"-->
+                <!--p:dataSource-ref="batchDataSource"/>-->
 
-    <bean id="sspDataSource" class="org.apache.commons.dbcp.BasicDataSource"
-                p:driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                p:url="jdbc:sqlserver://tonysqlserver.cidz9lza9lx8.us-west-2.rds.amazonaws.com\\SQLEXPRESS:1433;databaseName=ssp"
-                p:username="tonysqlserver"
-                p:password="adminadmin"/>
-                
-    <bean id="sspTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
-          p:dataSource-ref="sspDataSource"/>
+    <!--<bean id="sspDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
+          <!--p:driverClassName="${batch.ssp.jdbc.driver}"-->
+          <!--p:url="${batch.ssp.jdbc.url}"-->
+          <!--p:username="${batch.ssp.jdbc.user}"-->
+          <!--p:password="${batch.ssp.jdbc.password}" />-->
 
-<!-- 
+    <!--<bean id="sspTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"-->
+          <!--p:dataSource-ref="sspDataSource"/>-->
+
+
+    <!-- Still need transaction managers for the prototype-->
     <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
     <bean id="sspTransactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
- -->
 
 </beans>
