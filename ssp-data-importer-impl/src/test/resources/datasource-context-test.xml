@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+           xmlns:p="http://www.springframework.org/schema/p"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd">
+
+    <bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+                p:driverClassName="${batch.jdbc.driver}"
+                p:url="${batch.jdbc.url}"
+                p:username="${batch.jdbc.user}"
+                p:password="${batch.jdbc.password}"/>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+                p:dataSource-ref="batchDataSource"/>
+
+    <bean id="sspDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          p:driverClassName="${batch.ssp.jdbc.driver}"
+          p:url="${batch.ssp.jdbc.url}"
+          p:username="${batch.ssp.jdbc.user}"
+          p:password="${batch.ssp.jdbc.password}" />
+
+    <bean id="sspTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="sspDataSource"/>
+
+ 
+ <beans profile="sqlserver">
+    <jdbc:initialize-database data-source="batchDataSource" >
+        <jdbc:script location="classpath:sql/sqlserver/sqlserver-2.1.0-drop.sql"/>
+        <jdbc:script location="classpath:sql/sqlserver/sqlserver-2.1.0-create.sql"/>
+    </jdbc:initialize-database>
+ </beans>
+ 
+ <beans profile="postgres">
+    <jdbc:initialize-database data-source="batchDataSource" >
+        <jdbc:script location="classpath:sql/postgres/postgres-2.1.0-drop.sql"/>
+        <jdbc:script location="classpath:sql/postgres/postgres-2.1.0-create.sql"/>
+    </jdbc:initialize-database>
+ </beans>
+ 
+</beans>

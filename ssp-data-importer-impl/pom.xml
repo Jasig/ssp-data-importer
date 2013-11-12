@@ -59,7 +59,12 @@
             <version>4.9</version>
             <scope>test</scope>
         </dependency>
-
+		<!-- Persistence -->
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.1-901.jdbc4</version>
+		</dependency>
         <!-- Groovy used in test environment -->
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
