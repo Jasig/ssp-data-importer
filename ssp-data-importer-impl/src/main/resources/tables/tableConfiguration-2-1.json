@@ -1,0 +1,121 @@
+[{"tableName":"external_term",
+    "fileName":"external_term.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalTerm",
+    "naturalKeys":	["term_code"]},
+
+{"tableName":"external_person",
+    "fileName":"external_person.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalPerson",
+    "naturalKeys":["school_id"]},
+
+{"tableName":"external_course_program",
+    "fileName":"external_course_program.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourseProgram"},
+
+{"tableName":"external_faculty_course_roster",
+    "fileName":"external_faculty_course_roster.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalFacultyCourseRoster"},
+
+{"tableName":"external_faculty_course",
+    "fileName":"external_faculty_course.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.FacultyCourse",
+    "naturalKeys":["school_id"]},
+
+{"tableName":"external_student_test",
+    "fileName":"external_student_test.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentTest",
+    "naturalKeys":["school_id","test_code","sub_test_code","test_date"]},
+
+{"tableName":"external_student_transcript_course",
+    "fileName":"external_student_transcript_course.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentTranscriptCourse",
+    "naturalKeys":[]},
+
+{"tableName":"external_student_academic_program",
+    "fileName":"external_student_academic_program.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentAcademicProgram",
+    "naturalKeys":["school_id","degree_code","program_code"]},
+
+{"tableName":"external_registration_status_by_term",
+    "fileName":"external_registration_status_by_term.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.RegistrationStatusByTerm",
+    "naturalKeys":	["school_id", "term_code"]},
+
+{"tableName":"external_student_transcript",
+    "fileName":"external_student_transcript.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentTranscript",
+    "naturalKeys":	["school_id"]},
+
+{"tableName":"external_course",
+    "fileName":"external_course.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourse",
+    "naturalKeys":["school_id"]},
+
+{"tableName":"external_course_program",
+    "fileName":"external_course_program.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourseProgram"},
+
+{"tableName":"external_course_requisite",
+    "fileName":"external_course_requisite.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourseRequisite"},
+
+{"tableName":"external_course_tag",
+    "fileName":"external_course_tag.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourseTag",
+    "naturalKeys":["school_id"]},
+
+{"tableName":"external_course_program",
+    "fileName":"external_course_program.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourseProgram",
+    "naturalKeys":[]},
+
+{"tableName":"external_course_requisite",
+    "fileName":"external_course_requisite.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourseRequisite",
+    "naturalKeys":[]},
+
+{"tableName":"external_course_tag",
+    "fileName":"external_course_tag.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalCourse",
+    "naturalKeys":[]},
+
+
+{"tableName":"external_department",
+    "fileName":"external_department.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalDepartment",
+    "naturalKeys":["code"]},
+
+{"tableName":"external_division",
+    "fileName":"external_division.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalDivision",
+    "naturalKeys":["code"]},
+
+{"tableName":"external_person_note",
+    "fileName":"external_person_note.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalPersonNote",
+    "naturalKeys":["code"]},
+
+{"tableName":"external_person_planning_status",
+    "fileName":"external_person_planning_status.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalPersonPlanningStatus",
+    "naturalKeys":["school_id"]},
+
+{"tableName":"external_program",
+    "fileName":"external_program.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalProgram",
+    "naturalKeys":[]},
+
+{"tableName":"external_student_financial_aid",
+    "fileName":"external_student_financial_aid.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentFinancialAid",
+    "naturalKeys":[]},
+
+{"tableName":"external_student_transcript_course",
+    "fileName":"external_student_transcript_course.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentTranscriptCourse",
+    "naturalKeys":[]},
+
+{"tableName":"external_student_transcript_term",
+    "fileName":"external_student_transcript_term.csv",
+    "fullyQualifiedClassName":"org.jasig.ssp.model.external.ExternalStudentTranscriptTerm",
+    "naturalKeys":[]}]
