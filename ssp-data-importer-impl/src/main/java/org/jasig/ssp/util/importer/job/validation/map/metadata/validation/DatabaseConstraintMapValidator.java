@@ -112,5 +112,9 @@ public class DatabaseConstraintMapValidator {
     public void setColumnMetadataRepository(TableColumnMetaDataRepository columnMetadataRepository) {
         this.columnMetadataRepository = columnMetadataRepository;
     }
+    
+    public TableColumnMetaDataRepository getColumnMetadataRepository() {
+        return this.columnMetadataRepository;
+    }
 
 }
