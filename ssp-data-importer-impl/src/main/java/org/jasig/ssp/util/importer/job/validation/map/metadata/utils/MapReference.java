@@ -1,13 +1,10 @@
 package org.jasig.ssp.util.importer.job.validation.map.metadata.utils;
 
-import static org.apache.commons.lang3.StringUtils.substringAfter;
-import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.jarbframework.utils.Asserts.hasText;
 import static org.jarbframework.utils.Asserts.notNull;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -34,9 +31,6 @@ public class MapReference {
             return name;
         }
 
-        public String getSimpleName() {
-            return isNestedProperty() ? substringAfterLast(name, PROPERTY_SEPARATOR) : name;
-        }
 
         public Map<String,String> getTableMap() {
             return tableMap;
@@ -46,18 +40,6 @@ public class MapReference {
             return tableName;
         }
 
-        public boolean isNestedProperty() {
-            return name.contains(PROPERTY_SEPARATOR);
-        }
-
-        public String getNestedName() {
-            return isNestedProperty() ? substringAfter(name, PROPERTY_SEPARATOR) : name;
-        }
-
-
-        public String[] getPath() {
-            return StringUtils.split(name, PROPERTY_SEPARATOR);
-        }
 
         @Override
         public boolean equals(Object obj) {

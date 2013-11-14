@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.jarbframework.constraint.metadata.database.ColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.DatabaseConstraintMapValidationContext;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapViolation;
 
 class MapLengthValidationRule implements MapValueValidationRule {
 
@@ -13,10 +14,7 @@ class MapLengthValidationRule implements MapValueValidationRule {
     @Override
     public void validate(String propertyValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
         if (lengthExceeded(propertyValue, columnMetadata)) {
-            context.buildViolationWithTemplate(MapReference, LENGTH_VIOLATION_TEMPLATE)
-                        .attribute("max", columnMetadata.getMaximumLength())
-                        .value(propertyValue)
-                            .addToContext();
+            context.addViolation(new MapViolation(MapReference, LENGTH_VIOLATION_TEMPLATE));
         }
     }
 

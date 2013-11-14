@@ -5,6 +5,7 @@ import javax.validation.ValidatorFactory;
 import org.jarbframework.constraint.metadata.database.ColumnMetadataRepository;
 import org.jarbframework.utils.orm.SchemaMapper;
 import org.jarbframework.utils.spring.SpringBeanFinder;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableColumnMetaDataRepository;
 
 /**
  * Constructs {@link DatabaseConstraintValidator} beans.
@@ -30,11 +31,7 @@ public class DatabaseConstraintMapValidatorFactory {
      */
     public DatabaseConstraintMapValidator build() {
         DatabaseConstraintMapValidator validator = new DatabaseConstraintMapValidator();
-        //validator.setSchemaMapper(beanFinder.findBean(SchemaMapper.class, null, DEFAULT_SCHEMA_MAPPER_ID));
-        validator.setColumnMetadataRepository(beanFinder.findBean(ColumnMetadataRepository.class, null, DEFAULT_COLUMN_METADATA_REPOSITORY_ID));
-
-        ValidatorFactory validatorFactory = beanFinder.findBean(ValidatorFactory.class, null, DEFAULT_VALIDATOR_FACTORY_ID);
-        validator.setMessageInterpolator(validatorFactory.getMessageInterpolator());
+        validator.setColumnMetadataRepository(beanFinder.findBean(TableColumnMetaDataRepository.class, null, DEFAULT_COLUMN_METADATA_REPOSITORY_ID));
         return validator;
     }
 

@@ -20,11 +20,10 @@ public class MapConstraintValidatorContext implements
 
     private final List<MessageAndPath> messageAndPaths = new ArrayList<MessageAndPath>( 3 );
     private boolean defaultDisabled = false;
-    private MapConstraintDescriptor mapDescriptor;
+    private DatabaseConstraintMapValidationContext context;
 
 
-    public MapConstraintValidatorContext(MapConstraintDescriptor mapDescriptor) {
-        this.mapDescriptor = mapDescriptor;
+    public MapConstraintValidatorContext() {
     }
 
 
@@ -38,7 +37,7 @@ public class MapConstraintValidatorContext implements
     @Override
     public String getDefaultConstraintMessageTemplate() {
         // TODO Auto-generated method stub
-        return mapDescriptor.getMessage();
+        return null;
     }
 
 
@@ -49,6 +48,20 @@ public class MapConstraintValidatorContext implements
         return null;
     }
 
+    public void setContext(DatabaseConstraintMapValidationContext context){
+        this.context = context;
+    }
 
+    public List<MapViolation> getViolations(){
+        return context.getViolations();
+    }
+
+    public String buildViolationMessage(){
+        StringBuilder violationMessage = new StringBuilder();
+        for(MapViolation violation:context.getViolations()){
+            violationMessage.append(violation.buildMessage());
+        }
+        return violationMessage.toString();
+    }
 
 }

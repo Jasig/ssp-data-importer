@@ -8,9 +8,9 @@ public class NotNullConstraintMapValidationStep implements DatabaseConstraintMap
     private static final String NOT_NULL_VIOLATION_TEMPLATE = "{javax.validation.constraints.NotNull.message}";
 
     @Override
-    public void validate(String propertyValue, MapReference propertyRef, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
-        if (propertyValue == null && isValueExpected(propertyRef, columnMetadata)) {
-            context.buildViolationWithTemplate(propertyRef, NOT_NULL_VIOLATION_TEMPLATE).addToContext();
+    public void validate(Object propertyValue, MapReference mapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
+        if (propertyValue == null && isValueExpected(mapReference, columnMetadata)) {
+            context.addViolation(new MapViolation(mapReference, NOT_NULL_VIOLATION_TEMPLATE));
         }
     }
 

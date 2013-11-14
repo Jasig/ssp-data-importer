@@ -7,6 +7,7 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.MapConstraintDesc
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapConstraintValidatorContext;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.util.StringUtils;
 
 
 
@@ -19,11 +20,12 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
         item.getRecord();
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
+
         MapReference mapReference = new MapReference(item.getRecord(), tableName[0], null);
-        Boolean isValid = metadataRepository.getRepository().isValid(mapReference,
-                new  MapConstraintValidatorContext( new MapConstraintDescriptor()));
+        MapConstraintValidatorContext validationContext = new  MapConstraintValidatorContext();
+        Boolean isValid = metadataRepository.getRepository().isValid(mapReference, validationContext);
         if(isValid == false){
-            throw new Exception("bean not valid");
+            throw new Exception("line not valid" + validationContext.buildViolationMessage());
         }
         return item;
     }

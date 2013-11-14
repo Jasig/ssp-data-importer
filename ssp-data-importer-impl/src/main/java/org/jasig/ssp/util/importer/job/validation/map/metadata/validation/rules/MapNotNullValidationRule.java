@@ -3,6 +3,7 @@ package org.jasig.ssp.util.importer.job.validation.map.metadata.validation.rules
 import org.jarbframework.constraint.metadata.database.ColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.DatabaseConstraintMapValidationContext;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapViolation;
 
 class MapNotNullValidationRule implements MapValueValidationRule {
 
@@ -11,7 +12,7 @@ class MapNotNullValidationRule implements MapValueValidationRule {
     @Override
     public void validate(String propertyValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
         if (propertyValue == null && valueIsExpected(MapReference, columnMetadata)) {
-            context.buildViolationWithTemplate(MapReference, NOT_NULL_VIOLATION_TEMPLATE).addToContext();
+            context.addViolation(new MapViolation(MapReference, NOT_NULL_VIOLATION_TEMPLATE));
         }
     }
 

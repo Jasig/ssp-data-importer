@@ -11,9 +11,13 @@ import javax.validation.MessageInterpolator;
 
 import org.jarbframework.constraint.metadata.database.ColumnMetadata;
 import org.jarbframework.constraint.metadata.database.ColumnMetadataRepository;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.database.MapColumnMetadata;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableColumnMetaDataRepository;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jarbframework.utils.orm.ColumnReference;
 import org.jarbframework.utils.orm.SchemaMapper;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,13 +46,8 @@ public class DatabaseConstraintMapValidator {
     private final List<DatabaseConstraintMapValidationStep> validationSteps;
 
     /** Retrieves the column meta-data that we use for validation **/
-    private ColumnMetadataRepository columnMetadataRepository;
+    private TableColumnMetaDataRepository columnMetadataRepository;
 
-    /** Used to build violation messages **/
-    private MapViolationMessageBuilder messageBuilder;
-
-    /** Maps bean properties to database columns, for which we query meta-data **/
-    private SchemaMapper schemaMapper;
 
     /**
      * Construct a new {@link DatabaseConstraintValidator}.
@@ -68,9 +67,22 @@ public class DatabaseConstraintMapValidator {
      * @return whether the bean is valid, or not
      */
     public boolean isValid(MapReference tableMapReference, ConstraintValidatorContext validatorContext) {
-        DatabaseConstraintMapValidationContext validation = new DatabaseConstraintMapValidationContext(validatorContext, messageBuilder);
+        DatabaseConstraintMapValidationContext validation = new DatabaseConstraintMapValidationContext();
+        ((MapConstraintValidatorContext)validatorContext).setContext(validation);
+        if(!validateKeys( tableMapReference, validation))
+            return validation.isValid();
         validateMap(tableMapReference, validation);
         return validation.isValid();
+    }
+
+    private Boolean validateKeys(MapReference tableMapReference, DatabaseConstraintMapValidationContext validation){
+            TableReference tableReference = new TableReference(tableMapReference.getTableName());
+            TableMetadata tableMetadata = columnMetadataRepository.getTableMetadata(tableReference);
+            if(!tableMetadata.hasKeys(tableMapReference.getTableMap())){
+                validation.addViolation(new MapViolation(tableMapReference, "Header does not contain keys"));
+                return false;
+            }
+           return true;
     }
 
     private void validateMap(MapReference tableMapReference, DatabaseConstraintMapValidationContext validation) {
@@ -85,7 +97,8 @@ public class DatabaseConstraintMapValidator {
         if (columnReference != null) {
             ColumnMetadata columnMetadata = columnMetadataRepository.getColumnMetadata(columnReference);
             if (columnMetadata != null) {
-                String propertyValue = tableMapReference.getTableMap().get(mapReference.getName());
+                String columnValue = tableMapReference.getTableMap().get(mapReference.getName());
+                Object propertyValue = ((MapColumnMetadata)columnMetadata).convertValueToType(columnValue, mapReference, validation);
                 for (DatabaseConstraintMapValidationStep validationStep : validationSteps) {
                     validationStep.validate(propertyValue, mapReference, columnMetadata, validation);
                 }
@@ -95,15 +108,8 @@ public class DatabaseConstraintMapValidator {
         }
     }
 
-    public void setMessageInterpolator(MessageInterpolator messageInterpolator) {
-        messageBuilder = new MapViolationMessageBuilder(messageInterpolator);
-    }
 
-    public void setSchemaMapper(SchemaMapper schemaMapper) {
-        this.schemaMapper = schemaMapper;
-    }
-
-    public void setColumnMetadataRepository(ColumnMetadataRepository columnMetadataRepository) {
+    public void setColumnMetadataRepository(TableColumnMetaDataRepository columnMetadataRepository) {
         this.columnMetadataRepository = columnMetadataRepository;
     }
 

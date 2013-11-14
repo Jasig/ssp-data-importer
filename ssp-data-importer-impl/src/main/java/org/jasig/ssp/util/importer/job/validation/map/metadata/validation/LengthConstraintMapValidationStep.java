@@ -10,12 +10,9 @@ public class LengthConstraintMapValidationStep implements DatabaseConstraintMapV
     private static final String LENGTH_VIOLATION_TEMPLATE = "{org.jarb.validation.DatabaseConstraint.Length.message}";
 
     @Override
-    public void validate(String propertyValue, MapReference propertyRef, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
-        if (isLengthExceeded(propertyValue, columnMetadata)) {
-            context.buildViolationWithTemplate(propertyRef, LENGTH_VIOLATION_TEMPLATE)
-                    .attribute("max", columnMetadata.getMaximumLength())
-                    .value(propertyValue)
-                        .addToContext();
+    public void validate(Object columnValue, MapReference mapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
+        if (isLengthExceeded(columnValue, columnMetadata)) {
+            context.addViolation(new MapViolation(mapReference, LENGTH_VIOLATION_TEMPLATE));
         }
     }
 
