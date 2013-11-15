@@ -1,7 +1,5 @@
 package org.jasig.ssp.util.importer.job;
 
-import javax.sql.DataSource;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -17,10 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class PrototypeJobRunnerTest {
 
 	@Autowired
-    private JobLauncherTestUtils jobLauncherTestUtils;
-	 
-	@Autowired
-	private DataSource batchDataSource;
+    private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 
     @Test
     public void testJob() throws Exception {

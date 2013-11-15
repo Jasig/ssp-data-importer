@@ -13,8 +13,8 @@
                 p:username="${batch.jdbc.user}"
                 p:password="${batch.jdbc.password}"/>
 
-    <!--<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"-->
-                <!--p:dataSource-ref="batchDataSource"/>-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+                p:dataSource-ref="dataSource"/>
 
     <!--<bean id="sspDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
           <!--p:driverClassName="${batch.ssp.jdbc.driver}"-->
@@ -27,7 +27,6 @@
 
 
     <!-- Still need transaction managers for the prototype-->
-    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
-    <bean id="sspTransactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+    <!--<bean id="sspTransactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" /> -->
 
 </beans>

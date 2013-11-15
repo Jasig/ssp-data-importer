@@ -11,7 +11,7 @@ public class CachingTableColumnMetadataRepository implements
         TableColumnMetaDataRepository {
      /** Maintains all constraint meta-data in memory **/
     private final MapTableColumnMetadataRepository columnMetadataCache = new MapTableColumnMetadataRepository();
-
+ 
 
     /** Capable of filling our cache with constraint meta-data **/
     private final TableColumnMetaDataRepository columnMetadataRepository;
@@ -26,7 +26,7 @@ public class CachingTableColumnMetadataRepository implements
 
     @Override
     public MapColumnMetadata getColumnMetadata(ColumnReference columnReference) {
-        MapColumnMetadata columnMetadata = columnMetadataCache.getColumnMetadata(columnReference);
+        MapColumnMetadata columnMetadata = getColumnMetadataCache().getColumnMetadata(columnReference);
         if (columnMetadata == null) {
             columnMetadata = lookupAndCacheColumnMetadata(columnReference);
         }
@@ -35,7 +35,7 @@ public class CachingTableColumnMetadataRepository implements
 
     @Override
     public TableMetadata getTableMetadata(TableReference tableReference) {
-        TableMetadata tableMetadata = columnMetadataCache.getTableMetadata(tableReference);
+        TableMetadata tableMetadata = getColumnMetadataCache().getTableMetadata(tableReference);
         if (tableMetadata == null) {
             tableMetadata = lookupAndCacheTableMetadata(tableReference);
         }
@@ -45,7 +45,7 @@ public class CachingTableColumnMetadataRepository implements
     private MapColumnMetadata lookupAndCacheColumnMetadata(ColumnReference columnReference) {
         MapColumnMetadata columnMetadata = columnMetadataRepository.getColumnMetadata(columnReference);
         if (columnMetadata != null) {
-            columnMetadataCache.addColumnMetadata(columnMetadata);
+            getColumnMetadataCache().addColumnMetadata(columnMetadata);
         }
         return columnMetadata;
     }
@@ -53,7 +53,7 @@ public class CachingTableColumnMetadataRepository implements
     private TableMetadata lookupAndCacheTableMetadata(TableReference tableReference) {
         TableMetadata tableMetadata = columnMetadataRepository.getTableMetadata(tableReference);
         if (tableMetadata != null) {
-            columnMetadataCache.addTableMetadata(tableMetadata);
+            getColumnMetadataCache().addTableMetadata(tableMetadata);
         }
         return tableMetadata;
     }
@@ -63,7 +63,12 @@ public class CachingTableColumnMetadataRepository implements
      * whenever the table structure has changed during runtime.
      */
     public void clearCache() {
-        columnMetadataCache.removeAll();
+        getColumnMetadataCache().removeAll();
     }
+
+    public MapTableColumnMetadataRepository getColumnMetadataCache() {
+        return columnMetadataCache;
+    }
+
 
 }

@@ -25,7 +25,7 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
         MapConstraintValidatorContext validationContext = new  MapConstraintValidatorContext();
         Boolean isValid = metadataRepository.getRepository().isValid(mapReference, validationContext);
         if(isValid == false){
-            throw new Exception("line not valid" + validationContext.buildViolationMessage());
+         //   throw new Exception("line not valid" + validationContext.buildViolationMessage());
         }
         return item;
     }

@@ -30,7 +30,7 @@ public class MapTableColumnMetadataRepository implements
      * @return the same repository instance, for chaining
      */
     public MapTableColumnMetadataRepository addColumnMetadata(MapColumnMetadata columnMetadata) {
-        columnMetadataMap.put(columnMetadata.getColumnReference(), columnMetadata);
+        getColumnMetadataMap().put(columnMetadata.getColumnReference(), columnMetadata);
         return this;
     }
 
@@ -40,7 +40,7 @@ public class MapTableColumnMetadataRepository implements
      * @return the same repository instance, for chaining
      */
     public MapTableColumnMetadataRepository addTableMetadata(TableMetadata tableMetadata) {
-        tableMetadataMap.put(tableMetadata.getTableReference(), tableMetadata);
+        getTableMetadataMap().put(tableMetadata.getTableReference(), tableMetadata);
         return this;
     }
 
@@ -49,19 +49,26 @@ public class MapTableColumnMetadataRepository implements
      * @return the same repository instance, for chaining
      */
     public MapTableColumnMetadataRepository removeAll() {
-        columnMetadataMap.clear();
-        tableMetadataMap.clear();
+        getColumnMetadataMap().clear();
+        getTableMetadataMap().clear();
         return this;
     }
 
     @Override
     public MapColumnMetadata getColumnMetadata(ColumnReference columnReference) {
-        return columnMetadataMap.get(columnReference);
+        return getColumnMetadataMap().get(columnReference);
     }
 
     @Override
     public TableMetadata getTableMetadata(TableReference tableReference) {
-        return tableMetadataMap.get(tableReference);
+        return getTableMetadataMap().get(tableReference);
+    }
+    
+    public Map<ColumnReference, MapColumnMetadata> getColumnMetadataMap() {
+        return columnMetadataMap;
+    }
+    public Map<TableReference, TableMetadata> getTableMetadataMap() {
+        return tableMetadataMap;
     }
 
 }

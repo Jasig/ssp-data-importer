@@ -26,6 +26,30 @@
     <bean id="databaseConstraintRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.CachingTableColumnMetadataRepository">
         <constructor-arg name="columnMetadataRepository" ref ="tableMetaDataRepository"/>
     </bean>
+    <bean id="compositeFilteredCsvItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader"
+          scope="step"
+          p:delegate-ref="singleFilteredCsvItemReader"
+          p:resources="${batch.tables.input.folder}"> <!-- this would be parameterized to point at monitored path -->
+          <!--p:resources="file://Users/dmccallum/dev1/ssp-data-import/src/ssp-data-import/ssp-data-import-impl/src/main/resources/prototype-input/*">-->
+
+    </bean>
+    
+    <bean id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" />
+
+        <!-- Internationalization (i18n) - Overwrites the default name of Spring. -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages"/>
+    </bean>
+
+
+    <!-- Validations (also uses the messageSource defined above) -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+
+    <bean id="columnMetadataRepository" class="org.jarbframework.constraint.metadata.database.JdbcColumnMetadataRepository">
+        <constructor-arg name="dataSource" ref ="dataSource"/>
+    </bean>
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
 
@@ -37,6 +61,26 @@
         class="org.jasig.ssp.util.importer.job.processor.RawItemEchoProcessor">
     </bean>
 
+    <bean id="processedCsvItemProcessor"
+      class="org.springframework.batch.item.support.CompositeItemProcessor">
+        <property name="delegates">
+             <list>
+                 <ref local="processedItemValidateProcessor"/>
+                 <ref local="processedItemEchoProcessor"/>
+             </list>
+       </property>
+    </bean>
+    
+    <bean id="rawItemValidateProcessorListener"
+      class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
+    </bean>
+    <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor" >
+    </bean>
+
+    <bean id="processedItemEchoProcessor"
+        class="org.jasig.ssp.util.importer.job.processor.ProcessedItemEchoProcessor">
+    </bean>
+
     <bean id="rawCsvItemProcessor"
       class="org.springframework.batch.item.support.CompositeItemProcessor">
         <property name="delegates">
@@ -46,20 +90,26 @@
              </list>
        </property>
     </bean>
-
-    <bean id="rawItemValidateProcessorListener"
-      class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
-    </bean>
-
-    <!-- TODO This just prints to std out. Need a real file writing impl. -->
     <bean id="processedCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
           scope="step"
           p:preamble="${exists.only.for.testing.1}" /> <!-- Dummy impl needs to be scoped to the step so it can reset itself on execution -->
+    
+
+	
+<!-- 
+    <bean id="stagingTablesItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
+          scope="step"
+          p:preamble="${exists.only.for.testing.1}" /> Dummy impl needs to be scoped to the step so it can reset itself on execution -->
+
 
     <!-- TODO these are both just dummy impls for the prototype -->
     <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard" />
-    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer" />
-
+    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"/>
+    <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
+   		  p:dataSource-ref="dataSource">
+        <property name="metadataRepository" ref="metadataRepository" />
+    </bean>
+    
     <batch:job id="importJob" restartable="false">
 
         <!-- === Start Core Job Step Definition == -->
@@ -84,18 +134,18 @@
 
         <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
         to another set of files -->
-        <batch:step id="filterRawItems"> <!--next="writeFilteredItems"> --> <!-- stop here for prototype -->
+        <batch:step id="filterRawItems" next="stageFilteredItems">  <!-- stop here for prototype -->
             <batch:tasklet>
                 <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
                 step. Note that this limit applies separately to reads, processes, and writes. -->
                 <batch:chunk reader="compositeRawCsvItemReader" processor="rawCsvItemProcessor" writer="processedCsvItemWriter"
-                             commit-interval="50" skip-limit="100">
+                             commit-interval="50" skip-limit="1">
 
                     <!-- List out exceptions which should result in a record simply being skipped, up to some
                     configurable limit set on the chunk above -->
                     <batch:skippable-exception-classes>
                         <batch:include class="java.lang.Exception"/>
-                        <!--<exclude class="java.io.FileNotFoundException"/>-->
+                        <batch:include class="org.postgresql.util.PSQLException"/>
                         <batch:include class="org.springframework.beans.factory.BeanCreationException"/>
                     </batch:skippable-exception-classes>
 
@@ -107,10 +157,33 @@
             </batch:tasklet>
         </batch:step>
 
-        <!-- Read validated files, write output to temp tables, bulk upsert into corresponding "real" SSP tables -->
-        <!--<batch:step id="writeFilteredItems">-->
-            <!--&lt;!&ndash; TODO &ndash;&gt;-->
-        <!--</batch:step>-->
+
+        <!-- Read validated files, write output to staging tables -->
+        <batch:step id="stageFilteredItems" > <!--  next="writeFilteredItems"> -->
+        
+  
+            <batch:tasklet>
+                <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
+                step. Note that this limit applies separately to reads, processes, and writes. -->
+                <batch:chunk reader="compositeFilteredCsvItemReader" processor="processedCsvItemProcessor" writer="stagingTableItemWriter"
+                             commit-interval="10" skip-limit="100">
+
+                    <!-- List out exceptions which should result in a record simply being skipped, up to some
+                    configurable limit set on the chunk above -->
+                    <batch:skippable-exception-classes>
+                        <batch:include class="java.lang.Exception"/>
+                        <!--<exclude class="java.io.FileNotFoundException"/>-->
+                    </batch:skippable-exception-classes>
+
+                    <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
+		   		     <batch:listeners>
+					     <batch:listener ref="stagingTableTruncator" />
+				     </batch:listeners> 
+		         </batch:chunk>
+                
+            </batch:tasklet>
+              
+        </batch:step>
         <!-- === End Core Job Step Definition == -->
 
 
@@ -126,3 +199,4 @@
     </batch:job>
 
 </beans>
+
