@@ -21,11 +21,6 @@ public class StagingTableTruncator implements StepExecutionListener {
 
     @Override
     public ExitStatus afterStep(StepExecution arg0) {
-        return ExitStatus.COMPLETED;
-    }
-
-    @Override
-    public void beforeStep(StepExecution arg0) {
         try {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             dataSource.getConnection().setAutoCommit(true);
@@ -38,7 +33,13 @@ public class StagingTableTruncator implements StepExecutionListener {
         } catch (SQLException e) {
             System.out.println(e.getStackTrace());
         }
-        System.out.println("DONE TRUNCATE");
+        System.out.println("DONE TRUNCATE");        
+        return ExitStatus.COMPLETED;
+    }
+
+    @Override
+    public void beforeStep(StepExecution arg0) {
+
 
     }
 

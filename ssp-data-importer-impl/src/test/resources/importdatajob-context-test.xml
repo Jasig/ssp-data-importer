@@ -149,9 +149,7 @@
             <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
             workflow involved -->
             <batch:tasklet ref="batchInitializer"></batch:tasklet>
-            		   		     <batch:listeners>
-					     <batch:listener ref="stagingTableTruncator" />
-				     </batch:listeners> 
+
         </batch:step>
  
         <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
@@ -174,6 +172,7 @@
                     <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                     <batch:listeners>
                         <batch:listener ref="rawItemValidateProcessorListener" />
+					    <batch:listener ref="stagingTableTruncator" />
                     </batch:listeners>
                 </batch:chunk>
             </batch:tasklet>
