@@ -94,6 +94,7 @@ SET ANSI_PADDING ON
 ;
 
 CREATE TABLE [dbo].[stg_external_course](
+	[batch_id] [bigint],
 	[code] [nvarchar](50) NOT NULL,
 	[formatted_course] [nvarchar](35) NULL,
 	[subject_abbreviation] [nvarchar](10) NULL,
@@ -130,6 +131,7 @@ ALTER TABLE [dbo].[stg_external_course] ADD  CONSTRAINT [DF_stg_external_course_
 
 
 CREATE TABLE [dbo].[stg_external_course_program](
+	[batch_id] [bigint],
 	[course_code] [nvarchar](50) NOT NULL,
 	[program_code] [nvarchar](50) NOT NULL,
 	[program_name] [nvarchar](100) NOT NULL,
@@ -157,6 +159,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_course_requisite](
+	[batch_id] [bigint],
 	[requiring_course_code] [nvarchar](50) NOT NULL,
 	[required_course_code] [nvarchar](50) NOT NULL,
 	[required_formatted_course] [nvarchar](35) NOT NULL,
@@ -187,6 +190,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_course_tag](
+	[batch_id] [bigint],
 	[course_code] [nvarchar](50) NOT NULL,
 	[tag] [nvarchar](100) NOT NULL,
 PRIMARY KEY CLUSTERED 
@@ -213,6 +217,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_course_term](
+	[batch_id] [bigint],
 	[course_code] [nvarchar](50) NOT NULL,
 	[term_code] [nvarchar](25) NOT NULL,
 PRIMARY KEY CLUSTERED 
@@ -239,6 +244,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_department](
+	[batch_id] [bigint],
 	[code] [nvarchar](50) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 PRIMARY KEY CLUSTERED 
@@ -263,6 +269,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_division](
+	[batch_id] [bigint],
 	[code] [nvarchar](50) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 PRIMARY KEY CLUSTERED 
@@ -287,14 +294,24 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_faculty_course](
+	[batch_id] [bigint],
 	[faculty_school_id] [nvarchar](50) NOT NULL,
 	[term_code] [nvarchar](25) NOT NULL,
 	[formatted_course] [nvarchar](35) NOT NULL,
 	[title] [nvarchar](100) NOT NULL,
-	[section_code] [nvarchar](128) NULL,
-	[section_number] [nvarchar](10) NULL
+	[section_code] [nvarchar](128) NOT NULL,
+	[section_number] [nvarchar](10) NULL,
+	PRIMARY KEY CLUSTERED 
+(
+	[faculty_school_id] ASC,
+	[section_code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[faculty_school_id] ASC,
+	[section_code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-
 ;
 
 USE [ssp]
@@ -307,6 +324,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_faculty_course_roster](
+	[batch_id] [bigint],
 	[faculty_school_id] [nvarchar](50) NOT NULL,
 	[school_id] [nvarchar](50) NOT NULL,
 	[first_name] [nvarchar](50) NOT NULL,
@@ -316,10 +334,19 @@ CREATE TABLE [dbo].[stg_external_faculty_course_roster](
 	[term_code] [nvarchar](25) NOT NULL,
 	[formatted_course] [nvarchar](35) NOT NULL,
 	[status_code] [nvarchar](2) NULL,
-	[section_code] [nvarchar](128) NULL,
-	[section_number] [nvarchar](10) NULL
+	[section_code] [nvarchar](128) NOT NULL,
+	[section_number] [nvarchar](10) NULL,
+	PRIMARY KEY CLUSTERED 
+(
+	[school_id] ASC,
+	[section_code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[school_id] ASC,
+	[section_code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-
 ;
 
 USE [ssp]
@@ -335,6 +362,7 @@ SET ANSI_PADDING ON
 ;
 
 CREATE TABLE [dbo].[stg_external_person](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[username] [nvarchar](50) NOT NULL,
 	[first_name] [nvarchar](50) NOT NULL,
@@ -399,6 +427,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_person_note](
+	[batch_id] [bigint],
 	[code] [nvarchar](50) NOT NULL,
 	[school_id] [nvarchar](50) NOT NULL,
 	[note_type] [nvarchar](35) NOT NULL,
@@ -428,6 +457,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_person_planning_status](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[status] [nvarchar](8) NOT NULL,
 	[status_reason] [nvarchar](255) NULL,
@@ -452,6 +482,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_program](
+	[batch_id] [bigint],
 	[code] [nvarchar](50) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 PRIMARY KEY CLUSTERED 
@@ -476,6 +507,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_registration_status_by_term](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[term_code] [nvarchar](25) NOT NULL,
 	[registered_course_count] [int] NOT NULL,
@@ -504,6 +536,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_student_academic_program](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[degree_code] [nvarchar](10) NOT NULL,
 	[degree_name] [nvarchar](100) NOT NULL,
@@ -538,6 +571,7 @@ SET ANSI_PADDING ON
 ;
 
 CREATE TABLE [dbo].[stg_external_student_financial_aid](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[financial_aid_gpa] [decimal](9, 2) NOT NULL,
 	[gpa_20_b_hrs_needed] [decimal](9, 2) NULL,
@@ -577,6 +611,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_student_test](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[test_name] [nvarchar](50) NOT NULL,
 	[test_code] [nvarchar](25) NOT NULL,
@@ -610,6 +645,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_student_transcript](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[credit_hours_for_gpa] [decimal](9, 2) NULL,
 	[credit_hours_earned] [decimal](9, 2) NULL,
@@ -646,6 +682,7 @@ SET ANSI_PADDING ON
 ;
 
 CREATE TABLE [dbo].[stg_external_student_transcript_course](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[subject_abbreviation] [nvarchar](10) NOT NULL,
 	[number] [nvarchar](15) NOT NULL,
@@ -695,6 +732,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_student_transcript_term](
+	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
 	[credit_hours_for_gpa] [decimal](9, 2) NULL,
 	[credit_hours_earned] [decimal](9, 2) NULL,
@@ -728,6 +766,7 @@ SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE [dbo].[stg_external_term](
+	[batch_id] [bigint],
 	[name] [nvarchar](80) NOT NULL,
 	[code] [nvarchar](25) NOT NULL,
 	[start_date] [date] NULL,

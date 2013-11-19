@@ -7,7 +7,7 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.Databa
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
+ 
 public class MetadataConfigurations implements ApplicationContextAware {
     JdbcColumnMetadataRepository repository;
 

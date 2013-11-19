@@ -17,30 +17,49 @@
 
     </bean>
 
+   
     <bean id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" />
+    
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1"/>
+    </bean>
 
     <bean id="tableMetaDataRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.JdbcTableColumnMetadataRepository">
         <constructor-arg name="dataSource" ref ="dataSource"/>
     </bean>
 
+    <bean id="compositeTableWriter"
+      class="org.springframework.batch.item.support.CompositeItemWriter" >
+        <property name="delegates">
+             <list>
+                 <ref local="stagingTableItemWriter"/>
+                 <ref local="externalTableUpsertItemWriter"/>
+             </list>
+       </property>
+    </bean>
+    
     <bean id="databaseConstraintRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.CachingTableColumnMetadataRepository">
         <constructor-arg name="columnMetadataRepository" ref ="tableMetaDataRepository"/>
     </bean>
     <bean id="compositeFilteredCsvItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader"
           scope="step"
-          p:delegate-ref="singleFilteredCsvItemReader"
-          p:resources="${batch.tables.input.folder}"> <!-- this would be parameterized to point at monitored path -->
-          <!--p:resources="file://Users/dmccallum/dev1/ssp-data-import/src/ssp-data-import/ssp-data-import-impl/src/main/resources/prototype-input/*">-->
-
+          p:delegate-ref="singleFilteredCsvItemReader">
+    <property name="resources" value="#{stepExecutionContext[fileName]}"/>
     </bean>
     
-    <bean id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" />
+    <bean id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" >
+    </bean>
 
         <!-- Internationalization (i18n) - Overwrites the default name of Spring. -->
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
         <property name="basename" value="messages"/>
     </bean>
 
+    
+	<bean id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner"
+	>
+	    <property name="resources" value="${batch.tables.input.folder}"/>
+    </bean>
 
     <!-- Validations (also uses the messageSource defined above) -->
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
@@ -111,7 +130,7 @@
     </bean>
     
     <batch:job id="importJob" restartable="false">
-
+  
         <!-- === Start Core Job Step Definition == -->
         <!-- Make sure we don't accidentally process a partial upload -->
         <batch:step id="guardPartialUploads" next="initializeBatch">
@@ -130,12 +149,15 @@
             <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
             workflow involved -->
             <batch:tasklet ref="batchInitializer"></batch:tasklet>
+            		   		     <batch:listeners>
+					     <batch:listener ref="stagingTableTruncator" />
+				     </batch:listeners> 
         </batch:step>
-
+ 
         <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
         to another set of files -->
         <batch:step id="filterRawItems" next="stageFilteredItems">  <!-- stop here for prototype -->
-            <batch:tasklet>
+			<batch:tasklet>
                 <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
                 step. Note that this limit applies separately to reads, processes, and writes. -->
                 <batch:chunk reader="compositeRawCsvItemReader" processor="rawCsvItemProcessor" writer="processedCsvItemWriter"
@@ -156,34 +178,14 @@
                 </batch:chunk>
             </batch:tasklet>
         </batch:step>
-
-
-        <!-- Read validated files, write output to staging tables -->
-        <batch:step id="stageFilteredItems" > <!--  next="writeFilteredItems"> -->
-        
-  
-            <batch:tasklet>
-                <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
-                step. Note that this limit applies separately to reads, processes, and writes. -->
-                <batch:chunk reader="compositeFilteredCsvItemReader" processor="processedCsvItemProcessor" writer="stagingTableItemWriter"
-                             commit-interval="10" skip-limit="100">
-
-                    <!-- List out exceptions which should result in a record simply being skipped, up to some
-                    configurable limit set on the chunk above -->
-                    <batch:skippable-exception-classes>
-                        <batch:include class="java.lang.Exception"/>
-                        <!--<exclude class="java.io.FileNotFoundException"/>-->
-                    </batch:skippable-exception-classes>
-
-                    <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
-		   		     <batch:listeners>
-					     <batch:listener ref="stagingTableTruncator" />
-				     </batch:listeners> 
-		         </batch:chunk>
-                
-            </batch:tasklet>
-              
+		<batch:step id="stageFilteredItems" >
+             <batch:partition step="stageFilteredItemsSlave" partitioner="partitioner" >
+                <batch:handler task-executor="taskExecutor" grid-size="1"/>
+            </batch:partition> 
+            
         </batch:step>
+        <!-- Read validated files, write output to staging tables -->
+
         <!-- === End Core Job Step Definition == -->
 
 
@@ -197,6 +199,30 @@
          in that event. -->
         <!--<batch:listeners></batch:listeners>-->
     </batch:job>
+        <batch:step id="stageFilteredItemsSlave" > <!--  next="writeFilteredItems"> -->
+  
+  
+            <batch:tasklet>
+                <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
+                step. Note that this limit applies separately to reads, processes, and writes. -->
+                <batch:chunk reader="compositeFilteredCsvItemReader" processor="processedCsvItemProcessor" writer="compositeTableWriter"
+                         commit-interval="10" skip-limit="1">
+                    <!-- List out exceptions which should result in a record simply being skipped, up to some
+                    configurable limit set on the chunk above -->
+                    <batch:skippable-exception-classes>
+                        <batch:include class="java.lang.Exception"/>
+                        <!--<exclude class="java.io.FileNotFoundException"/>-->
+                    </batch:skippable-exception-classes>
 
+                    <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
+		   		     <batch:listeners>
+					     <batch:listener ref="stagingTableItemWriter" />
+					     <batch:listener ref="externalTableUpsertItemWriter" />
+				     </batch:listeners> 
+		         </batch:chunk>
+                
+            </batch:tasklet>
+              
+        </batch:step>
 </beans>
 

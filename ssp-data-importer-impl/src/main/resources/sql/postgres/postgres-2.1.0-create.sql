@@ -131,6 +131,7 @@ GRANT ALL ON TABLE BATCH_JOB_EXECUTION_CONTEXT TO ssp;
 
 
 CREATE TABLE stg_external_course (
+	batch_id BIGINT ,
     code character varying(50) NOT NULL,
     formatted_course character varying(35) NOT NULL,
     subject_abbreviation character varying(10) NOT NULL,
@@ -150,6 +151,7 @@ CREATE TABLE stg_external_course (
 
 
 CREATE TABLE stg_external_course_program (
+	batch_id BIGINT ,
     course_code character varying(50) NOT NULL,
     program_code character varying(50) NOT NULL,
     program_name character varying(100) NOT NULL
@@ -159,6 +161,7 @@ CREATE TABLE stg_external_course_program (
 
 
 CREATE TABLE stg_external_course_requisite (
+	batch_id BIGINT ,
     requiring_course_code character varying(50) NOT NULL,
     required_course_code character varying(50) NOT NULL,
     required_formatted_course character varying(35) NOT NULL,
@@ -169,6 +172,7 @@ CREATE TABLE stg_external_course_requisite (
 
 
 CREATE TABLE stg_external_course_tag (
+	batch_id BIGINT ,
     course_code character varying(50) NOT NULL,
     tag character varying(100) NOT NULL
 );
@@ -176,6 +180,7 @@ CREATE TABLE stg_external_course_tag (
 
 
 CREATE TABLE stg_external_course_term (
+	batch_id BIGINT ,
     course_code character varying(50) NOT NULL,
     term_code character varying(25) NOT NULL
 );
@@ -183,12 +188,14 @@ CREATE TABLE stg_external_course_term (
 
 
 CREATE TABLE stg_external_department (
+	batch_id BIGINT ,
     code character varying(50) NOT NULL,
     name character varying(100) NOT NULL
 );
 
 
 CREATE TABLE stg_external_division (
+	batch_id BIGINT ,
     code character varying(50) NOT NULL,
     name character varying(100) NOT NULL
 );
@@ -196,6 +203,7 @@ CREATE TABLE stg_external_division (
 
 
 CREATE TABLE stg_external_faculty_course (
+	batch_id BIGINT ,
     faculty_school_id character varying(50) NOT NULL,
     term_code character varying(25) NOT NULL,
     formatted_course character varying(35) NOT NULL,
@@ -208,6 +216,7 @@ CREATE TABLE stg_external_faculty_course (
 
 
 CREATE TABLE stg_external_faculty_course_roster (
+	batch_id BIGINT ,
     faculty_school_id character varying(50) NOT NULL,
     school_id character varying(50) NOT NULL,
     first_name character varying(50) NOT NULL,
@@ -224,6 +233,7 @@ CREATE TABLE stg_external_faculty_course_roster (
 
 
 CREATE TABLE stg_external_person (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     username character varying(50) NOT NULL,
     first_name character varying(50) NOT NULL,
@@ -261,6 +271,7 @@ CREATE TABLE stg_external_person (
 
 
 CREATE TABLE stg_external_person_note (
+	batch_id BIGINT ,
     code character varying(50) NOT NULL,
     school_id character varying(50) NOT NULL,
     note_type character varying(35) NOT NULL,
@@ -274,6 +285,7 @@ CREATE TABLE stg_external_person_note (
 
 
 CREATE TABLE stg_external_person_planning_status (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     status character varying(8) NOT NULL,
     status_reason character varying(255)
@@ -282,12 +294,14 @@ CREATE TABLE stg_external_person_planning_status (
 
 
 CREATE TABLE stg_external_program (
+	batch_id BIGINT ,
     code character varying(50) NOT NULL,
     name character varying(100) NOT NULL
 );
 
 
 CREATE TABLE stg_external_registration_status_by_term (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     term_code character varying(25) NOT NULL,
     registered_course_count integer NOT NULL,
@@ -295,6 +309,7 @@ CREATE TABLE stg_external_registration_status_by_term (
 );
 
 CREATE TABLE stg_external_student_academic_program (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     degree_code character varying(10) NOT NULL,
     degree_name character varying(100) NOT NULL,
@@ -306,6 +321,7 @@ CREATE TABLE stg_external_student_academic_program (
 
 
 CREATE TABLE stg_external_student_financial_aid (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     financial_aid_gpa numeric(9,2) NOT NULL,
     gpa_20_b_hrs_needed numeric(9,2),
@@ -322,6 +338,7 @@ CREATE TABLE stg_external_student_financial_aid (
 
 
 CREATE TABLE stg_external_student_test (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     test_name character varying(50),
     test_code character varying(25) NOT NULL,
@@ -336,6 +353,7 @@ CREATE TABLE stg_external_student_test (
 
 
 CREATE TABLE stg_external_student_transcript (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     credit_hours_for_gpa numeric(9,2),
     credit_hours_earned numeric(9,2),
@@ -351,6 +369,7 @@ CREATE TABLE stg_external_student_transcript (
 
 
 CREATE TABLE stg_external_student_transcript_course (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     subject_abbreviation character varying(10) NOT NULL,
     number character varying(15) NOT NULL,
@@ -374,6 +393,7 @@ CREATE TABLE stg_external_student_transcript_course (
 
 
 CREATE TABLE stg_external_student_transcript_term (
+	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
     credit_hours_for_gpa numeric(9,2),
     credit_hours_earned numeric(9,2),
@@ -388,6 +408,7 @@ CREATE TABLE stg_external_student_transcript_term (
 
 
 CREATE TABLE stg_external_term (
+	batch_id BIGINT ,
     name character varying(80) NOT NULL,
     code character varying(25) NOT NULL,
     start_date date NOT NULL,

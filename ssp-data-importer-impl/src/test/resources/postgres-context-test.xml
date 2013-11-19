@@ -8,10 +8,20 @@
             http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+
+
+    
 	<bean id="stagingTableItemWriter" class="org.jasig.ssp.util.importer.job.staging.PostgresStagingTableWriter"
 	      scope="step"
 	      p:dataSource-ref="dataSource" >
         <property name="metadataRepository" ref="metadataRepository" />
 	</bean>
+	
+	<bean id="externalTableUpsertItemWriter" class="org.jasig.ssp.util.importer.job.staging.PostgresExternalTableUpsertWriter"
+	      scope="step"
+	      p:dataSource-ref="dataSource" >
+        <property name="metadataRepository" ref="metadataRepository" />
+	</bean>
+		
 </beans>
 

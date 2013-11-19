@@ -13,4 +13,13 @@
 	      p:dataSource-ref="dataSource" >
         <property name="metadataRepository" ref="metadataRepository" />
 	</bean>
+	
+	<bean id="externalTableUpsertItemWriter" class="org.jasig.ssp.util.importer.job.staging.SqlServerExternalTableUpsertWriter"
+	      scope="step"
+	      p:dataSource-ref="dataSource" >
+        <property name="metadataRepository" ref="metadataRepository" />
+	</bean>
+			
+	
+	
 </beans>

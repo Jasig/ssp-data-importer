@@ -2,6 +2,9 @@ package org.jasig.ssp.util.importer.job.staging;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.step.item.Chunk;
+import org.springframework.batch.core.step.item.ChunkProvider;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.LineMapper;
@@ -92,4 +95,5 @@ public class ProcessedItemCsvReader extends FlatFileItemReader<RawItem> implemen
         // would be better to do it here.
         return item;
     }
+
 }

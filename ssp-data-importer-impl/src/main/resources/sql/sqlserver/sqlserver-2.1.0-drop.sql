@@ -11,6 +11,7 @@ DROP TABLE  dbo.BATCH_STEP_EXECUTION_SEQ ;
 DROP TABLE  dbo.BATCH_JOB_EXECUTION_SEQ ;
 DROP TABLE  dbo.BATCH_JOB_SEQ ;
 
+
 --Staging tables
 
 DROP TABLE  dbo.stg_external_course ;

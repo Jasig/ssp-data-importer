@@ -1,9 +1,14 @@
 package org.jasig.ssp.util.importer.job.staging;
 
-import org.jarbframework.utils.orm.ColumnReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.database.MapColumnMetadata;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -13,19 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-public class PostgresStagingTableWriter implements ItemWriter<RawItem>, StepExecutionListener {
+public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>, StepExecutionListener {
 
     private Resource currentResource;
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
+
    
     @Autowired
     private DataSource dataSource;
@@ -35,82 +34,80 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>, StepExec
         
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         List<String> batchedStatements = new ArrayList<String>();
+        
         String fileName = items.get(0).getResource().getFilename();
         String[] tableName = fileName.split("\\.");
         
-        Integer batchStart = (Integer) (stepExecution.getExecutionContext().get("batchStart") == null ? null :  stepExecution.getExecutionContext().get("batchStart"));
-        Integer batchStop = (Integer) (stepExecution.getExecutionContext().get("batchStop") == null ? null : stepExecution.getExecutionContext().get("batchStop"));
-        Object currentEntity = stepExecution.getExecutionContext().get("currentEntity");
-            
+        Object batchStart = stepExecution.getExecutionContext().get("batchStart");
+        Object batchStop = stepExecution.getExecutionContext().get("batchStop");
         
-        if(currentEntity == null || !currentEntity.equals(tableName[0]))
-        {
-            batchStart = 0;
-            batchStop = items.size()-1;
-            currentEntity = tableName[0];
-            stepExecution.getExecutionContext().put("currentEntity", tableName[0]);
-            stepExecution.getExecutionContext().put("batchStart", batchStart);
-            stepExecution.getExecutionContext().put("batchStop", batchStop);           
-        }
-        else
-        {
-            batchStart = batchStop;
-            batchStop = (Integer)batchStop + items.size();
-            stepExecution.getExecutionContext().put("batchStart", batchStart);
-            stepExecution.getExecutionContext().put("batchStop", batchStop);
-        }   	
-        
-        
+        RawItem item = items.get(0);
         if ( currentResource == null ) {
             this.orderedHeaders = writeHeader(items.get(0));
             this.currentResource = items.get(0).getResource();
         }
-        
-        for ( RawItem item : items ) {
             Resource itemResource = item.getResource();
             if ( !(this.currentResource.equals(itemResource)) ) {
-            	say();
+                say();
                 this.orderedHeaders = writeHeader(item);
                 this.currentResource = itemResource;
             }
             StringBuilder insertSql = new StringBuilder();
-            insertSql.append("INSERT INTO stg_"+tableName[0]+" (batch_id,");
+            insertSql.append(" MERGE INTO "+tableName[0]+" as target ");
+            insertSql.append(" USING stg_"+tableName[0]+" as source ON ");
             
-            StringBuilder valuesSqlBuilder = new StringBuilder();
-            valuesSqlBuilder.append(" VALUES ( "+batchStart+",");
-            final Map<String,String> record = item.getRecord();
-            for ( String header : this.orderedHeaders ) {
-                String value;
-                Integer sqlType = metadataRepository.getRepository().getColumnMetadataRepository().getColumnMetadata(new ColumnReference(tableName[0], header)).getJavaSqlType();
-                if(isQuotedType(sqlType))
-                {
-                    value = "'" +  record.get(header) + "'";
-                }
-                else
-                {
-                    value =record.get(header);
-                }
-                insertSql.append(header).append(",");
-                valuesSqlBuilder.append(value).append(",");
+            List<String> tableKeys = metadataRepository.getRepository().getColumnMetadataRepository().getTableMetadata(new TableReference(tableName[0])).getTableKeys();
+            if(tableKeys.isEmpty())
+            {
+                tableKeys = metadataRepository.getRepository().getColumnMetadataRepository().getTableMetadata(new TableReference("stg_"+tableName[0])).getTableKeys();
+            } 
+            for (String key : tableKeys) {
+                insertSql.append("target."+key+" = source."+key+",");
             }
             insertSql.setLength(insertSql.length() - 1); // trim comma
-            valuesSqlBuilder.setLength(valuesSqlBuilder.length() - 1); // trim comma
+            
+            insertSql.append(" WHEN NOT MATCHED ");
+            
+            insertSql.append(" AND source.batch_id >= "+batchStart+" and source.batch_id <= "+batchStop);
+
+            insertSql.append(" THEN ");
+            insertSql.append(" INSERT ( ");
+            
+            StringBuilder valuesSqlBuilder = new StringBuilder();
+            valuesSqlBuilder.append(" VALUES ( ");
+            for ( String header : this.orderedHeaders ) {
+
+                insertSql.append(header).append(",");
+                valuesSqlBuilder.append("source."+header).append(",");
+            }
+            insertSql.setLength(insertSql.length() - 1); // trim comma
             insertSql.append(")");
-            valuesSqlBuilder.append(");");
+            valuesSqlBuilder.setLength(valuesSqlBuilder.length() - 1); // trim comma
             insertSql.append(valuesSqlBuilder);
+            insertSql.append(")");
+
+            insertSql.append(" WHEN MATCHED ");
+            
+            insertSql.append(" AND source.batch_id >= "+batchStart+" and source.batch_id <= "+batchStop);
+
+            insertSql.append(" THEN ");
+            insertSql.append(" UPDATE  ");
+            insertSql.append(" SET  ");
+
+            for ( String header : this.orderedHeaders ) {
+                if(tableKeys.indexOf(header) < 0 ) {
+                insertSql.append("target."+header+"=source."+header).append(",");
+                }
+            }
+            insertSql.setLength(insertSql.length() - 1); // trim comma
+            insertSql.append(";");
+          
             batchedStatements.add(insertSql.toString());
-            batchStart++;
-            say(insertSql);
-        }
-        stepExecution.getExecutionContext().put("batchStart", batchStart);
+           say(insertSql);
      //   jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
-        say("******CHUNK POSTGRES******");
+        say("******UPSERT******"+" batch start:"+batchStart+" batchstop:"+ batchStop);
     }
 
-    private boolean isQuotedType(Integer sqlType) {
-        return Types.CHAR == sqlType || Types.DATE == sqlType || Types.LONGNVARCHAR == sqlType || Types.LONGVARCHAR == sqlType || Types.NCHAR == sqlType || Types.NVARCHAR == sqlType
-                || Types.TIME == sqlType   || Types.TIMESTAMP== sqlType    || Types.VARCHAR == sqlType;
-    }
 
     private String[] writeHeader(RawItem item) {
         Map<String,String> firstRecord = item.getRecord();
@@ -148,19 +145,27 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>, StepExec
         this.metadataRepository = metadataRepository;
     }
 
-
-    @Override
-    public void beforeStep(StepExecution arg0) {
-           this.stepExecution = arg0;        
+    public StepExecution getStepExecution() {
+        return stepExecution;
     }
 
-    @Override
-    public ExitStatus afterStep(StepExecution arg0) {
-        return ExitStatus.COMPLETED;
+    public void setStepExecution(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
     }
     
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
     }
+
+    @Override
+    public ExitStatus afterStep(StepExecution arg0) {
+       return  ExitStatus.COMPLETED;
+    }
+
+    @Override
+    public void beforeStep(StepExecution arg0) {
+        this.stepExecution = arg0;
+    }    
+    
 }
