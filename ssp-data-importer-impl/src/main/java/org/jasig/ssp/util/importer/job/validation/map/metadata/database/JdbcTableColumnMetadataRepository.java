@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -207,9 +208,12 @@ public class JdbcTableColumnMetadataRepository implements
          */
         private TableMetadata mapToTableMetadata(TableReference tableReference, ResultSet resultSet) throws SQLException {
             TableMetadata tableMetadata = new TableMetadata(tableReference);
-            if(resultSet.next()) {
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+
+            while(resultSet.next()) {
                 tableMetadata.addKey(resultSet.getString("COLUMN_NAME"));
             }
+            resultSet.close();
             return tableMetadata;
         }
 
