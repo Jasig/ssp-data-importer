@@ -18,92 +18,100 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>, StepExecutionListener {
+public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>,
+        StepExecutionListener {
 
     private Resource currentResource;
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
 
-   
     @Autowired
     private DataSource dataSource;
 
     @Override
     public void write(List<? extends RawItem> items) throws Exception {
-        
+
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         List<String> batchedStatements = new ArrayList<String>();
-        
-        String sp = items.get(0).getResource().getFilename();
-        String[] tableName = sp.split("\\.");
-        
-        Object batchStart = stepExecution.getExecutionContext().get("batchStart");
+
+        String fileName = items.get(0).getResource().getFilename();
+        String[] fileNameSplit = fileName.split("\\.");
+        String tableName = fileNameSplit[0];
+
+        Object batchStart = stepExecution.getExecutionContext().get(
+                "batchStart");
         Object batchStop = stepExecution.getExecutionContext().get("batchStop");
-        
+
         RawItem item = items.get(0);
-        if ( currentResource == null ) {
+        if (currentResource == null) {
             this.orderedHeaders = writeHeader(items.get(0));
             this.currentResource = items.get(0).getResource();
         }
-            Resource itemResource = item.getResource();
-            if ( !(this.currentResource.equals(itemResource)) ) {
-                say();
-                this.orderedHeaders = writeHeader(item);
-                this.currentResource = itemResource;
-            }
-            StringBuilder updateSql = new StringBuilder();
-            updateSql.append(" UPDATE "+tableName[0]+" AS target ");
-            updateSql.append(" SET ");
-            for ( String header : this.orderedHeaders ) {
-                updateSql.append(header+"=source."+header+",");
-            }
-            updateSql.deleteCharAt(updateSql.lastIndexOf(","));
-            updateSql.append(" FROM stg_"+tableName[0]+" AS source WHERE ");
-            List<String> tableKeys = metadataRepository.getRepository().getColumnMetadataRepository().getTableMetadata(new TableReference(tableName[0])).getTableKeys();
-            if(tableKeys.isEmpty())
-            {
-                metadataRepository.getRepository().getColumnMetadataRepository().getTableMetadata(new TableReference("stg_"+tableName[0])).getTableKeys();
-            }
-            for (String key : tableKeys) {
-                updateSql.append(" target."+key+" = source."+key+" AND ");
-            }
-            updateSql.append(" source.batch_id >= "+batchStart+" and source.batch_id <= "+batchStop+";");
-            batchedStatements.add(updateSql.toString());
-            say(updateSql);
-            
-            
-            StringBuilder insertSql = new StringBuilder();
-            
-            insertSql.append(" INSERT INTO "+tableName[0]);
-            insertSql.append(" SELECT ");
-            for ( String header : this.orderedHeaders ) {
-                insertSql.append(" source."+header).append(",");
-            }           
-            insertSql.setLength(insertSql.length() - 1); // trim comma
-            insertSql.append(" FROM stg_"+tableName[0]+" AS source ");
-            insertSql.append(" LEFT OUTER JOIN "+tableName[0]+" AS target ON ");
-            for (String key : tableKeys) {
-                insertSql.append(" source."+key+" = target."+key);
-            }
-            insertSql.append(" WHERE ");
-            for (String key : tableKeys) {
-                insertSql.append(" target."+key+" IS NULL AND ");
-            }
-            insertSql.append(" source.batch_id >= "+batchStart+" and source.batch_id <= "+batchStop+"");
-            
-            batchedStatements.add(insertSql.toString());
-            say(insertSql);
-        //jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
-        say("******UPSERT******"+" batch start:"+batchStart+" batchstop:"+ batchStop);
+        Resource itemResource = item.getResource();
+        if (!(this.currentResource.equals(itemResource))) {
+            say();
+            this.orderedHeaders = writeHeader(item);
+            this.currentResource = itemResource;
+        }
+        StringBuilder updateSql = new StringBuilder();
+        updateSql.append(" UPDATE " + tableName + " AS target SET ");
+        for (String header : this.orderedHeaders) {
+            updateSql.append(header + "=source." + header + ",");
+        }
+        updateSql.deleteCharAt(updateSql.lastIndexOf(","));
+        updateSql.append(" FROM stg_" + tableName + " AS source WHERE ");
+        List<String> tableKeys = metadataRepository.getRepository()
+                .getColumnMetadataRepository()
+                .getTableMetadata(new TableReference(tableName)).getTableKeys();
+
+        // There are a few external tables that don't (yet) have natural keys,
+        // in these cases we've enforced the key on the staging table
+        // so in cases where the external table does not have any keys, we look
+        // towards the corresponding staging table for them
+        if (tableKeys.isEmpty()) {
+            metadataRepository.getRepository().getColumnMetadataRepository()
+                    .getTableMetadata(new TableReference("stg_" + tableName))
+                    .getTableKeys();
+        }
+        for (String key : tableKeys) {
+            updateSql.append(" target." + key + " = source." + key + " AND ");
+        }
+        updateSql.append(" source.batch_id >= " + batchStart
+                + " and source.batch_id <= " + batchStop + ";");
+        batchedStatements.add(updateSql.toString());
+        say(updateSql);
+
+        StringBuilder insertSql = new StringBuilder();
+        insertSql.append(" INSERT INTO " + tableName + " SELECT ");
+        for (String header : this.orderedHeaders) {
+            insertSql.append(" source." + header).append(",");
+        }
+        insertSql.setLength(insertSql.length() - 1); // trim comma
+        insertSql.append(" FROM stg_" + tableName + " AS source ");
+        insertSql.append(" LEFT OUTER JOIN " + tableName + " AS target ON ");
+        for (String key : tableKeys) {
+            insertSql.append(" source." + key + " = target." + key);
+        }
+        insertSql.append(" WHERE ");
+        for (String key : tableKeys) {
+            insertSql.append(" target." + key + " IS NULL AND ");
+        }
+        insertSql.append(" source.batch_id >= " + batchStart
+                + " and source.batch_id <= " + batchStop + "");
+
+        batchedStatements.add(insertSql.toString());
+        say(insertSql);
+        // jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+        say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
+                + batchStop);
     }
 
-
     private String[] writeHeader(RawItem item) {
-        Map<String,String> firstRecord = item.getRecord();
+        Map<String, String> firstRecord = item.getRecord();
         StringBuilder sb = new StringBuilder();
         List<String> headerColumns = new ArrayList<String>();
-        for ( String key : firstRecord.keySet() ) {
+        for (String key : firstRecord.keySet()) {
             sb.append(key).append(",");
             headerColumns.add(key);
         }
@@ -119,13 +127,13 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>, S
         say("");
     }
 
-	public DataSource getDataSource() {
-		return dataSource;
-	}
+    public DataSource getDataSource() {
+        return dataSource;
+    }
 
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public MetadataConfigurations getMetadataRepository() {
         return metadataRepository;
@@ -142,7 +150,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>, S
     public void setStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
     }
-    
+
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
@@ -150,12 +158,12 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>, S
 
     @Override
     public ExitStatus afterStep(StepExecution arg0) {
-       return  ExitStatus.COMPLETED;
+        return ExitStatus.COMPLETED;
     }
 
     @Override
     public void beforeStep(StepExecution arg0) {
         this.stepExecution = arg0;
-    }    
-    
+    }
+
 }
