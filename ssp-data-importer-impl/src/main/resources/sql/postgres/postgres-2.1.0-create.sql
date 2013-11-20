@@ -548,6 +548,18 @@ ALTER TABLE ONLY stg_external_term
 
 ALTER TABLE ONLY stg_external_term
     ADD CONSTRAINT stg_external_term_pkey PRIMARY KEY (code);
+    
+ALTER TABLE ONLY stg_external_faculty_course
+    ADD CONSTRAINT stg_external_faculty_course_pkey PRIMARY KEY (faculty_school_id, section_code);
+
+ALTER TABLE ONLY stg_external_faculty_course
+    ADD CONSTRAINT stg_external_faculty_course_unq UNIQUE (faculty_school_id, section_code);
+    
+ALTER TABLE ONLY stg_external_faculty_course_roster
+    ADD CONSTRAINT stg_external_faculty_course_roster_pkey PRIMARY KEY (school_id, section_code);
+
+ALTER TABLE ONLY stg_external_faculty_course_roster
+    ADD CONSTRAINT stg_stg_external_faculty_course_roster_unq UNIQUE (school_id, section_code);    
 
 
 

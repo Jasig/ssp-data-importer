@@ -35,8 +35,8 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>, S
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         List<String> batchedStatements = new ArrayList<String>();
         
-        String fileName = items.get(0).getResource().getFilename();
-        String[] tableName = fileName.split("\\.");
+        String sp = items.get(0).getResource().getFilename();
+        String[] tableName = sp.split("\\.");
         
         Object batchStart = stepExecution.getExecutionContext().get("batchStart");
         Object batchStop = stepExecution.getExecutionContext().get("batchStop");
@@ -52,58 +52,49 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>, S
                 this.orderedHeaders = writeHeader(item);
                 this.currentResource = itemResource;
             }
-            StringBuilder insertSql = new StringBuilder();
-            insertSql.append(" MERGE INTO "+tableName[0]+" as target ");
-            insertSql.append(" USING stg_"+tableName[0]+" as source ON ");
-            
+            StringBuilder updateSql = new StringBuilder();
+            updateSql.append(" UPDATE "+tableName[0]+" AS target ");
+            updateSql.append(" SET ");
+            for ( String header : this.orderedHeaders ) {
+                updateSql.append(header+"=source."+header+",");
+            }
+            updateSql.deleteCharAt(updateSql.lastIndexOf(","));
+            updateSql.append(" FROM stg_"+tableName[0]+" AS source WHERE ");
             List<String> tableKeys = metadataRepository.getRepository().getColumnMetadataRepository().getTableMetadata(new TableReference(tableName[0])).getTableKeys();
             if(tableKeys.isEmpty())
             {
                 metadataRepository.getRepository().getColumnMetadataRepository().getTableMetadata(new TableReference("stg_"+tableName[0])).getTableKeys();
             }
             for (String key : tableKeys) {
-                insertSql.append("target."+key+" = source."+key+",");
+                updateSql.append(" target."+key+" = source."+key+" AND ");
             }
-            insertSql.deleteCharAt(insertSql.lastIndexOf(","));
+            updateSql.append(" source.batch_id >= "+batchStart+" and source.batch_id <= "+batchStop+";");
+            batchedStatements.add(updateSql.toString());
+            say(updateSql);
             
-            insertSql.append(" WHEN NOT MATCHED ");
             
-            insertSql.append(" AND source.batch_id >= "+batchStart+" and source.batch_id =< "+batchStop);
-
-            insertSql.append(" THEN ");
-            insertSql.append(" INSERT ( ");
+            StringBuilder insertSql = new StringBuilder();
             
-            StringBuilder valuesSqlBuilder = new StringBuilder();
-            valuesSqlBuilder.append(" VALUES ( ");
+            insertSql.append(" INSERT INTO "+tableName[0]);
+            insertSql.append(" SELECT ");
             for ( String header : this.orderedHeaders ) {
-
-                insertSql.append(header).append(",");
-                valuesSqlBuilder.append("source."+header).append(",");
-            }
+                insertSql.append(" source."+header).append(",");
+            }           
             insertSql.setLength(insertSql.length() - 1); // trim comma
-            insertSql.append(")");
-            valuesSqlBuilder.setLength(valuesSqlBuilder.length() - 1); // trim comma
-            insertSql.append(valuesSqlBuilder);
-            insertSql.append(")");
-
-            insertSql.append(" WHEN MATCHED ");
+            insertSql.append(" FROM stg_"+tableName[0]+" AS source ");
+            insertSql.append(" LEFT OUTER JOIN "+tableName[0]+" AS target ON ");
+            for (String key : tableKeys) {
+                insertSql.append(" source."+key+" = target."+key);
+            }
+            insertSql.append(" WHERE ");
+            for (String key : tableKeys) {
+                insertSql.append(" target."+key+" IS NULL AND ");
+            }
+            insertSql.append(" source.batch_id >= "+batchStart+" and source.batch_id <= "+batchStop+"");
             
-            insertSql.append(" AND source.batch_id >= "+batchStart+" and source.batch_id =< "+batchStop);
-
-            insertSql.append(" THEN ");
-            insertSql.append(" UPDATE  ");
-            insertSql.append(" SET  ");
-
-            for ( String header : this.orderedHeaders ) {
-                if(tableKeys.indexOf(header) < 0 ) {
-                insertSql.append("target."+header+"=source."+header).append(",");
-                }
-            }
-            insertSql.setLength(insertSql.length() - 1); // trim comma
-           
             batchedStatements.add(insertSql.toString());
-           say(insertSql);
-       // jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+            say(insertSql);
+        //jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******UPSERT******"+" batch start:"+batchStart+" batchstop:"+ batchStop);
     }
 

@@ -36,26 +36,27 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>, StepExe
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         List<String> batchedStatements = new ArrayList<String>();
         String fileName = items.get(0).getResource().getFilename();
-        String[] tableName = fileName.split("\\.");
+        String[] fileNameSplit = fileName.split("\\.");
         
         Integer batchStart = (Integer) (stepExecution.getExecutionContext().get("batchStart") == null ? null :  stepExecution.getExecutionContext().get("batchStart"));
         Integer batchStop = (Integer) (stepExecution.getExecutionContext().get("batchStop") == null ? null : stepExecution.getExecutionContext().get("batchStop"));
         Object currentEntity = stepExecution.getExecutionContext().get("currentEntity");
             
         
-        if(currentEntity == null || !currentEntity.equals(tableName[0]))
+        String tableName = fileNameSplit[0];
+        if(currentEntity == null || !currentEntity.equals(tableName))
         {
             batchStart = 0;
             batchStop = items.size()-1;
-            currentEntity = tableName[0];
-            stepExecution.getExecutionContext().put("currentEntity", tableName[0]);
+            currentEntity = tableName;
+            stepExecution.getExecutionContext().put("currentEntity", tableName);
             stepExecution.getExecutionContext().put("batchStart", batchStart);
             stepExecution.getExecutionContext().put("batchStop", batchStop);           
         }
         else
         {
-            batchStart = batchStop;
-            batchStop = (Integer)batchStop + items.size();
+            batchStart = batchStop+1;
+            batchStop = (Integer)batchStart + items.size()-1;
             stepExecution.getExecutionContext().put("batchStart", batchStart);
             stepExecution.getExecutionContext().put("batchStop", batchStop);
         }       
@@ -74,14 +75,14 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>, StepExe
                 this.currentResource = itemResource;
             }
             StringBuilder insertSql = new StringBuilder();
-            insertSql.append("INSERT INTO stg_"+tableName[0]+" (batch_id,");
+            insertSql.append("INSERT INTO stg_"+tableName+" (batch_id,");
             
             StringBuilder valuesSqlBuilder = new StringBuilder();
             valuesSqlBuilder.append(" VALUES ( "+batchStart+",");
             final Map<String,String> record = item.getRecord();
             for ( String header : this.orderedHeaders ) {
                 String value;
-                Integer sqlType = metadataRepository.getRepository().getColumnMetadataRepository().getColumnMetadata(new ColumnReference(tableName[0], header)).getJavaSqlType();
+                Integer sqlType = metadataRepository.getRepository().getColumnMetadataRepository().getColumnMetadata(new ColumnReference(tableName, header)).getJavaSqlType();
                 if(isQuotedType(sqlType))
                 {
                     value = "'" +  record.get(header) + "'";
@@ -102,7 +103,6 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>, StepExe
             batchStart++;
             say(insertSql);
         }
-        stepExecution.getExecutionContext().put("batchStart", batchStart);
        // jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******CHUNK POSTGRES******");
     }

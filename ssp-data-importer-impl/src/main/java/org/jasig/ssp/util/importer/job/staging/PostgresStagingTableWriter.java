@@ -48,17 +48,17 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>, StepExec
             batchStart = 0;
             batchStop = items.size()-1;
             currentEntity = tableName[0];
-            stepExecution.getExecutionContext().put("currentEntity", tableName[0]);
+            stepExecution.getExecutionContext().put("currentEntity", currentEntity);
             stepExecution.getExecutionContext().put("batchStart", batchStart);
             stepExecution.getExecutionContext().put("batchStop", batchStop);           
         }
         else
         {
-            batchStart = batchStop;
-            batchStop = (Integer)batchStop + items.size();
+            batchStart = batchStop+1;
+            batchStop = (Integer)batchStart + items.size()-1;
             stepExecution.getExecutionContext().put("batchStart", batchStart);
             stepExecution.getExecutionContext().put("batchStop", batchStop);
-        }   	
+        }  	
         
         
         if ( currentResource == null ) {
@@ -102,8 +102,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>, StepExec
             batchStart++;
             say(insertSql);
         }
-        stepExecution.getExecutionContext().put("batchStart", batchStart);
-     //   jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+        //jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******CHUNK POSTGRES******");
     }
 
