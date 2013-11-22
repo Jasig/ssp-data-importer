@@ -3,29 +3,30 @@ package org.jasig.ssp.util.importer.job.tasklet;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.FileSystemUtils;
 
 public class BatchInitializer implements Tasklet {
 
     private Resource[] resources;
-    private Resource processDirectoryResource;
+    private Resource processDirectory;
+    private Resource upsertDirectory;
     private Boolean dulicateResources = false;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        File processDirectory = createDirectory();
+        createDirectory(upsertDirectory);
+        File directory = createDirectory(processDirectory);
         if(dulicateResources){
-            copyFiles(processDirectory);
+            copyFiles(directory);
         }else{
-            copyDeleteFiles(processDirectory);
+            copyDeleteFiles(directory);
         }
         return RepeatStatus.FINISHED;
     }
@@ -35,8 +36,12 @@ public class BatchInitializer implements Tasklet {
         this.resources = resources;
     }
 
-    public void setProcessDirectoryResource(Resource processDirectoryResource){
-        this.processDirectoryResource = processDirectoryResource;
+    public void setProcessDirectory(Resource processDirectory){
+        this.processDirectory = processDirectory;
+    }
+
+    public void setUpsertDirectory(Resource upsertDirectory){
+        this.upsertDirectory = upsertDirectory;
     }
 
     public Boolean getDulicateResources() {
@@ -47,10 +52,12 @@ public class BatchInitializer implements Tasklet {
         this.dulicateResources = dulicateResources;
     }
 
-    private File createDirectory() throws Exception{
-        File dir = processDirectoryResource.getFile();
-        if(!dir.exists())
-            if(!dir.mkdirs())
+    private File createDirectory(Resource directory) throws Exception{
+        File dir = directory.getFile();
+        if(dir.exists()){
+            FileSystemUtils.deleteRecursively(processDirectory.getFile());
+        }
+        if(!dir.mkdirs())
                 throw new Exception("process directory not createsd");
         return dir;
     }
@@ -64,7 +71,6 @@ public class BatchInitializer implements Tasklet {
                 throw new IOException("");
             }
         }
-
     }
 
     private void copyDeleteFiles(File processDirectory) throws IOException{

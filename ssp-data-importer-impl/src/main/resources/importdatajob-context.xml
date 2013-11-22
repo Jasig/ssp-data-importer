@@ -22,8 +22,14 @@
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
 
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"  p:resources="${batch.tables.input.files}"  p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
-    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer" p:resources="${batch.tables.input.files}"   p:dulicateResources="${batch.table.input.duplicate}" p:processDirectoryResource="${batch.tables.process.folder}"/>
+    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+                                p:resources="${batch.tables.input.files}"
+                                p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
+    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
+                                p:resources="${batch.tables.input.files}"
+                                p:dulicateResources="${batch.table.input.duplicate}"
+                                p:processDirectory="${batch.tables.process.folder}"
+                                p:upsertDirectory="${batch.tables.upsert.folder}"/>
 
     <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
     <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
@@ -48,7 +54,10 @@
             p:archiveDirectory="${batch.tables.archive.folder}"
             p:inputDirectory="${batch.tables.input.folder}"
             p:upsertDirectory="${batch.tables.upsert.folder}"
-            p:processDirectory="${batch.tables.process.folder}"/>
+            p:processDirectory="${batch.tables.process.folder}"
+            p:batchTitle="${batch.title}"
+            p:archiveFiles="${batch.tables.archive}"
+            p:retainInputFiles="${batch.table.input.duplicate}"/>
 
 
 
