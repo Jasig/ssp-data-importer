@@ -3,11 +3,11 @@ package org.jasig.ssp.util.importer.job.processor;
 
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.MapConstraintDescriptor;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapConstraintValidatorContext;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.util.StringUtils;
 
 
 
@@ -25,7 +25,10 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
         MapConstraintValidatorContext validationContext = new  MapConstraintValidatorContext();
         Boolean isValid = metadataRepository.getRepository().isValid(mapReference, validationContext);
         if(isValid == false){
-         //   throw new Exception("line not valid" + validationContext.buildViolationMessage());
+            if(validationContext.hasTableViolation())
+                throw new TableViolationException(validationContext);
+            else
+                throw new ViolationException(validationContext);
         }
         return item;
     }

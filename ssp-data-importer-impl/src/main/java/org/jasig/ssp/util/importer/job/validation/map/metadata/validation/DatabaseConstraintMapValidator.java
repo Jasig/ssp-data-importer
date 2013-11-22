@@ -18,6 +18,7 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReferenc
 import org.jarbframework.utils.orm.ColumnReference;
 import org.jarbframework.utils.orm.SchemaMapper;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.MissingPrimaryKeyViolation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,8 @@ public class DatabaseConstraintMapValidator {
             TableReference tableReference = new TableReference(tableMapReference.getTableName());
             TableMetadata tableMetadata = columnMetadataRepository.getTableMetadata(tableReference);
             if(!tableMetadata.hasKeys(tableMapReference.getTableMap())){
-                validation.addViolation(new MapViolation(tableMapReference, "Header does not contain keys"));
+                validation.addViolation(new MissingPrimaryKeyViolation(tableMapReference,
+                        tableMetadata.missingKeys(tableMapReference.getTableMap())));
                 return false;
             }
            return true;

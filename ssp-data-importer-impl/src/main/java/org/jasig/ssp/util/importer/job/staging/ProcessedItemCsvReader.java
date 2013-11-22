@@ -95,5 +95,4 @@ public class ProcessedItemCsvReader extends FlatFileItemReader<RawItem> implemen
         // would be better to do it here.
         return item;
     }
-
 }

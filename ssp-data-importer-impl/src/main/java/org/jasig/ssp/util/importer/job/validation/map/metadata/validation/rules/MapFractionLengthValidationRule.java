@@ -7,15 +7,14 @@ import org.jarbframework.constraint.validation.DatabaseConstraintValidationConte
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.DatabaseConstraintMapValidationContext;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapViolation;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.FractionLengthConstraintMapViolation;
 
 class MapFractionLengthValidationRule implements MapValueValidationRule {
 
-    private static final String FRACTION_LENGTH_TEMPLATE = "{org.jarb.validation.DatabaseConstraint.FractionLength.message}";
-
     @Override
-    public void validate(String columnValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
+    public void validate(Object columnValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
         if (fractionLengthExceeded(columnValue, columnMetadata)) {
-            context.addViolation(new MapViolation(MapReference, FRACTION_LENGTH_TEMPLATE));
+            context.addViolation(new FractionLengthConstraintMapViolation(MapReference, columnValue));
         }
     }
 

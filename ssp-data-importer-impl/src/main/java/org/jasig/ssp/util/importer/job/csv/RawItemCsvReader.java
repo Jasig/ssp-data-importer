@@ -10,6 +10,9 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.LineTokenizer;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.io.Resource;
 import org.springframework.validation.BindException;
 
 import java.util.LinkedHashMap;
@@ -19,6 +22,7 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Lin
 
     private DefaultLineMapper<RawItem> lineMapper;
     private String[] columnNames;
+    private Resource itemResource;
 
     public RawItemCsvReader() {
         setLinesToSkip(1);
@@ -50,6 +54,13 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Lin
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames(columnNames);
         return lineTokenizer;
+    }
+
+    @Override
+    public void setResource(Resource resource){
+        //No longer using MultiResource Reader
+        this.itemResource = resource;
+        super.setResource(resource);
     }
 
     /**
@@ -86,6 +97,7 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Lin
             record.put(columnName, StringUtils.trimToNull(fs.readString(columnName)));
         }
         RawItem item = new RawItem();
+        item.setResource(itemResource);
         item.setRecord(record);
         // TODO for now we're not worrying about setting the Resource b/c we happen to know the wrapping
         // MultiResourceItemReader will do it for us and there's no accessible getter on our super class. But

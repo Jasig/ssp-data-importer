@@ -13,6 +13,7 @@ import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.DatabaseConstraintMapValidationContext;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapViolation;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.UnableToParseMapViolation;
 
 public class MapColumnMetadata extends ColumnMetadata {
 
@@ -198,10 +199,10 @@ public class MapColumnMetadata extends ColumnMetadata {
             try{
             switch(javaSqlType){
                 case Types.BIGINT:
-                    propertyValue = Long.getLong(columnValue);
+                    propertyValue = Long.parseLong(columnValue);
                     break;
                 case Types.INTEGER:
-                    propertyValue = Integer.getInteger(columnValue);
+                    propertyValue = Integer.parseInt(columnValue);
                     break;
                 case Types.DECIMAL:
                 case Types.DOUBLE:
@@ -225,7 +226,8 @@ public class MapColumnMetadata extends ColumnMetadata {
 
             }
             }catch(Exception exception){
-                validation.addViolation(new MapViolation(mapReference, "Unable To Parse Value"));
+                validation.addViolation(new UnableToParseMapViolation(mapReference, columnValue));
+                propertyValue = columnValue;
             }
 
         }
@@ -236,24 +238,17 @@ public class MapColumnMetadata extends ColumnMetadata {
      * Date format pattern used to parse HTTP date headers in RFC 1123 format.
      */
     private static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    private static final String PATTERN_RFC1036 = "EEEE, dd-MMM-yy HH:mm:ss zzz";
+    private static final String PATTERN_ASCTIME = "EEE MMM d HH:mm:ss yyyy";
 
     private static final String PATTERN_BIRTH_DATE_1 = "yyyy-MM-dd";
     private static final String PATTERN_BIRTH_DATE_2 = "MM/dd/yy";
 
     private static final String PATTERN_TERM_DATE_1 = "MM/dd/yyyy HH:mm:ss";
     private static final String PATTERN_TERM_DATE_2 = "MM/dd/yyyy HH:mm";
+    private static final String PATTERN_TERM_DATE_3 = "yyyy-MM-dd HH:mm:ss";
+    private static final String PATTERN_TERM_DATE_4 = "MM-dd-yyyy HH:mm:ss";
 
-
-    /**
-     * Date format pattern used to parse HTTP date headers in RFC 1036 format.
-     */
-    private static final String PATTERN_RFC1036 = "EEEE, dd-MMM-yy HH:mm:ss zzz";
-
-    /**
-     * Date format pattern used to parse HTTP date headers in ANSI C
-     * <code>asctime() format.
-     */
-    private static final String PATTERN_ASCTIME = "EEE MMM d HH:mm:ss yyyy";
 
     private static final String[] DATE_PATTERNS = new String[] {
         PATTERN_RFC1036,
@@ -262,7 +257,9 @@ public class MapColumnMetadata extends ColumnMetadata {
         PATTERN_BIRTH_DATE_1,
         PATTERN_BIRTH_DATE_2,
         PATTERN_TERM_DATE_1,
-        PATTERN_TERM_DATE_2
+        PATTERN_TERM_DATE_2,
+        PATTERN_TERM_DATE_3,
+        PATTERN_TERM_DATE_4
     };
 
     private static final String TIME_PATTERN = "hh:mm:ss a";

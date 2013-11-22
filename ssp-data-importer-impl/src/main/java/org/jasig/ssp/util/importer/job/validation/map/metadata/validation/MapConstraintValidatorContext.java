@@ -18,7 +18,6 @@ public class MapConstraintValidatorContext implements
 
     //private static final Log log = LoggerFactory.make();
 
-    private final List<MessageAndPath> messageAndPaths = new ArrayList<MessageAndPath>( 3 );
     private boolean defaultDisabled = false;
     private DatabaseConstraintMapValidationContext context;
 
@@ -59,9 +58,29 @@ public class MapConstraintValidatorContext implements
     public String buildViolationMessage(){
         StringBuilder violationMessage = new StringBuilder();
         for(MapViolation violation:context.getViolations()){
-            violationMessage.append(violation.buildMessage());
+            violationMessage.append(violation.buildMessage() + " ");
         }
         return violationMessage.toString();
+    }
+
+    public String buildShortViolationMessage(){
+        StringBuilder violationMessage = new StringBuilder();
+        if(context.getViolations().size() > 0){
+            violationMessage.append("from table: " +
+                    context.getViolations().get(0).getTableName() + " ");
+        }
+        for(MapViolation violation:context.getViolations()){
+            violationMessage.append(violation.buildShortMessage() + " ");
+        }
+        return violationMessage.toString();
+    }
+
+    public Boolean hasTableViolation(){
+        for(MapViolation violation:context.getViolations()){
+            if(violation.isTableViolation())
+                return true;
+        }
+        return false;
     }
 
 }

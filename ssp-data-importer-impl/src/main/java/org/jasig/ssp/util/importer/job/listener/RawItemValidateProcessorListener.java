@@ -1,10 +1,14 @@
 package org.jasig.ssp.util.importer.job.listener;
 
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
 import org.springframework.batch.core.ItemProcessListener;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 public class RawItemValidateProcessorListener implements ItemProcessListener<RawItem, RawItem> {
 
+    Boolean hasTableViolation = false;
     @Override
     public void beforeProcess(RawItem item) {
         // TODO Auto-generated method stub
@@ -19,7 +23,16 @@ public class RawItemValidateProcessorListener implements ItemProcessListener<Raw
 
     @Override
     public void onProcessError(RawItem item, Exception e) {
-        System.out.println(e.getMessage());
+        if(!e.getClass().equals(TableViolationException.class) || hasTableViolation == false){
+            StepContext stepContext = StepSynchronizationManager.getContext();
+            Integer readCount = stepContext.getStepExecution().getReadCount();
+            Integer skipedCount = stepContext.getStepExecution().getSkipCount();
+            skipedCount = readCount + skipedCount;
+            System.out.println("line:" + skipedCount.toString() + " " + e.getMessage());
+        }
+        if(e.getClass().equals(TableViolationException.class) && hasTableViolation == false){
+            hasTableViolation = true;
+        }
     }
 
 }

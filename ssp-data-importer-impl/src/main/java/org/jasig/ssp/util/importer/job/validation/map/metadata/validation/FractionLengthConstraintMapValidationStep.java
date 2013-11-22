@@ -4,15 +4,14 @@ import java.math.BigDecimal;
 
 import org.jarbframework.constraint.metadata.database.ColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.FractionLengthConstraintMapViolation;
 
 public class FractionLengthConstraintMapValidationStep implements DatabaseConstraintMapValidationStep {
 
-    private static final String FRACTION_LENGTH_TEMPLATE = "{org.jarb.validation.DatabaseConstraint.FractionLength.message}";
-
     @Override
-    public void validate(Object propertyValue, MapReference mapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
-        if (isFractionLengthExceeded(propertyValue, columnMetadata)) {
-            context.addViolation(new MapViolation(mapReference, FRACTION_LENGTH_TEMPLATE));
+    public void validate(Object columnValue, MapReference mapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
+        if (isFractionLengthExceeded(columnValue, columnMetadata)) {
+            context.addViolation(new FractionLengthConstraintMapViolation(mapReference, columnValue));
         }
     }
 

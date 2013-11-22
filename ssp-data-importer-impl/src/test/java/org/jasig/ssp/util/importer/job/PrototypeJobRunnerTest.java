@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("/launch-context-test.xml")
 public class PrototypeJobRunnerTest {
 
-	@Autowired
+    @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 
     @Test

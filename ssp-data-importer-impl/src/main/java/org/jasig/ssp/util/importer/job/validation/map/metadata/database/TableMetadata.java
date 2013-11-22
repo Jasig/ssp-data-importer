@@ -33,6 +33,15 @@ public class TableMetadata {
         return true;
     }
 
+    public List<String> missingKeys(Map<String,String> tableMap){
+        List<String> missingKeys = new ArrayList<String>();
+        for(String tableKey: tableKeys){
+            if(!tableMap.containsKey(tableKey))
+                missingKeys.add(tableKey);
+        }
+        return missingKeys;
+    }
+
     public TableReference getTableReference(){
         return tableReference;
     }

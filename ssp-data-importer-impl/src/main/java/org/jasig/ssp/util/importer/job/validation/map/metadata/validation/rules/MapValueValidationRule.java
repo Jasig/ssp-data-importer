@@ -18,6 +18,6 @@ public interface MapValueValidationRule {
      * @param columnMetadata metadata of the column referenced by our property
      * @param validation the validation result in which violations are stored
      */
-    void validate(String propertyValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext validation);
+    void validate(Object propertyValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext validation);
 
 }

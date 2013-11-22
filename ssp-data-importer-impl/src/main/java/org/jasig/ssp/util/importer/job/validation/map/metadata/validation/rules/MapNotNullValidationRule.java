@@ -4,15 +4,14 @@ import org.jarbframework.constraint.metadata.database.ColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.DatabaseConstraintMapValidationContext;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapViolation;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.NotNullViolation;
 
 class MapNotNullValidationRule implements MapValueValidationRule {
 
-    private static final String NOT_NULL_VIOLATION_TEMPLATE = "{javax.validation.constraints.NotNull.message}";
-
     @Override
-    public void validate(String propertyValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
+    public void validate(Object propertyValue, MapReference MapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
         if (propertyValue == null && valueIsExpected(MapReference, columnMetadata)) {
-            context.addViolation(new MapViolation(MapReference, NOT_NULL_VIOLATION_TEMPLATE));
+            context.addViolation(new NotNullViolation(MapReference, propertyValue));
         }
     }
 

@@ -1,31 +1,20 @@
 package org.jasig.ssp.util.importer.job.validation.map.metadata.validation;
 
-import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 
-public class MapViolation {
-
-    private String violation;
-
-    private MapReference mapReference;
+public interface MapViolation {
 
 
+    public String getViolation();
 
-    public MapViolation(MapReference mapReference, String violation) {
-        super();
-        this.violation = violation;
-        this.mapReference = mapReference;
-    }
+    public void setViolation(String violation);
 
-    public String getViolation() {
-        return violation;
-    }
+    public String buildMessage();
 
-    public void setViolation(String violation) {
-        this.violation = violation;
-    }
+    /* can be anything but for writing out message without table name*/
+    public String buildShortMessage();
 
-    public String buildMessage(){
-        return mapReference.toString() + this.violation;
-    }
+    public String getTableName();
+
+    public Boolean isTableViolation();
 
 }

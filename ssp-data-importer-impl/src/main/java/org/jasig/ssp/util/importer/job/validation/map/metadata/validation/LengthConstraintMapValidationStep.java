@@ -4,15 +4,14 @@ import java.math.BigDecimal;
 
 import org.jarbframework.constraint.metadata.database.ColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.LengthConstraintMapViolation;
 
 public class LengthConstraintMapValidationStep implements DatabaseConstraintMapValidationStep {
-
-    private static final String LENGTH_VIOLATION_TEMPLATE = "{org.jarb.validation.DatabaseConstraint.Length.message}";
 
     @Override
     public void validate(Object columnValue, MapReference mapReference, ColumnMetadata columnMetadata, DatabaseConstraintMapValidationContext context) {
         if (isLengthExceeded(columnValue, columnMetadata)) {
-            context.addViolation(new MapViolation(mapReference, LENGTH_VIOLATION_TEMPLATE));
+            context.addViolation(new LengthConstraintMapViolation(mapReference, columnValue));
         }
     }
 
