@@ -195,38 +195,49 @@ public class MapColumnMetadata extends ColumnMetadata {
 
     public Object convertValueToType(String columnValue, MapReference mapReference, DatabaseConstraintMapValidationContext validation){
         Object propertyValue = null;
+        String typeAsString = "";
         if(columnValue != null){
             try{
             switch(javaSqlType){
                 case Types.BIGINT:
+                    typeAsString = "BIGINT";
                     propertyValue = Long.parseLong(columnValue);
                     break;
                 case Types.INTEGER:
+                    typeAsString = "INTEGER";
                     propertyValue = Integer.parseInt(columnValue);
                     break;
                 case Types.DECIMAL:
+                     typeAsString = "DECIMAL";
                 case Types.DOUBLE:
+                     typeAsString = "DOUBLE";
                 case Types.FLOAT:
+                     typeAsString = "FLOAT";
                 case Types.NUMERIC:
+                    typeAsString = "NUMERIC";
                     propertyValue = new BigDecimal(columnValue);
                     break;
 
                 case Types.DATE:
+                    typeAsString = "DATE";
                     propertyValue = DateUtils.parseDateStrictly(columnValue, DATE_PATTERNS);
                     break;
                 case Types.TIMESTAMP:
+                    typeAsString = "TIMESTAMP";
                     propertyValue = new java.sql.Timestamp(Long.getLong(columnValue));
                     break;
                 case Types.TIME:
+                    typeAsString = "TIME";
                     propertyValue = new Time( DateUtils.parseDateStrictly(columnValue, TIME_PATTERNS).getTime());
                     break;
                 default:
+                    typeAsString = javaSqlType.toString();
                     propertyValue = columnValue;
-
+                    break;
 
             }
             }catch(Exception exception){
-                validation.addViolation(new UnableToParseMapViolation(mapReference, columnValue));
+                validation.addViolation(new UnableToParseMapViolation(mapReference, columnValue, typeAsString));
                 propertyValue = columnValue;
             }
 

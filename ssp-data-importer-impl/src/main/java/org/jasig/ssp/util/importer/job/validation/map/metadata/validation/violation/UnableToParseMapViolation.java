@@ -4,7 +4,7 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReferenc
 
 public class UnableToParseMapViolation extends GenericMapViolation {
 
-    public UnableToParseMapViolation(MapReference mapReference, Object columnValue) {
-        super(mapReference, columnValue, "Unable to parse based on type");
+    public UnableToParseMapViolation(MapReference mapReference, Object columnValue, String javaSqlType) {
+        super(mapReference, columnValue, "Unable to parse based on type ("+ javaSqlType + ")");
     }
 }
