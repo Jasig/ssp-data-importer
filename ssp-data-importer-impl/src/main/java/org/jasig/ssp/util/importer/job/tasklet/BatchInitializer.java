@@ -23,6 +23,7 @@ public class BatchInitializer implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         createDirectory(upsertDirectory);
         File directory = createDirectory(processDirectory);
+
         if(dulicateResources){
             copyFiles(directory);
         }else{
@@ -53,12 +54,14 @@ public class BatchInitializer implements Tasklet {
     }
 
     private File createDirectory(Resource directory) throws Exception{
+
         File dir = directory.getFile();
+
         if(dir.exists()){
-            FileSystemUtils.deleteRecursively(processDirectory.getFile());
+            FileSystemUtils.deleteRecursively(directory.getFile());
         }
         if(!dir.mkdirs())
-                throw new Exception("process directory not createsd");
+                throw new Exception("Unable to create directory: " + directory.getDescription());
         return dir;
     }
 
@@ -68,7 +71,7 @@ public class BatchInitializer implements Tasklet {
             File dest =  new File(processDirectory, source.getName());
             int count = FileCopyUtils.copy(source, dest);
             if(count <= 0 ){
-                throw new IOException("");
+                throw new IOException("No files available for processing.");
             }
         }
     }

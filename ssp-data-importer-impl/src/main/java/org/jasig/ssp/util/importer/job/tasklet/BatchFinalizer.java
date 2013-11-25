@@ -90,7 +90,7 @@ public class BatchFinalizer implements JobExecutionListener {
     private void archive() throws IOException{
         if(archiveFiles.equals(ArchiveType.UNIQUE)){
             if(!retainInputFiles){
-                removeDuplicates(inputDirectory.getFile(), processDirectory.getFile());
+                removeDuplicates(processDirectory.getFile(),inputDirectory.getFile());
                 removeDuplicates(inputDirectory.getFile(), upsertDirectory.getFile());
             }
             removeDuplicates(processDirectory.getFile(), upsertDirectory.getFile());
@@ -108,7 +108,7 @@ public class BatchFinalizer implements JobExecutionListener {
         File[] srcFiles = srcDirectory.listFiles(csvFilter);
         for(File srcFile:srcFiles){
             for(File destFile:destFiles){
-                if(srcFile.getName().equals(destFile.getName())){
+                if(srcFile.getName().equals(destFile.getName()) && srcFile.length() == destFile.length()){
                     srcFile.delete();
                     break;
                 }
