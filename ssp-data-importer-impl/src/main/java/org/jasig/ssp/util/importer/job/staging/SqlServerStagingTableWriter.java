@@ -106,7 +106,7 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
             batchStart++;
             say(insertSql);
         }
-        // jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+        jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******CHUNK POSTGRES******");
     }
 

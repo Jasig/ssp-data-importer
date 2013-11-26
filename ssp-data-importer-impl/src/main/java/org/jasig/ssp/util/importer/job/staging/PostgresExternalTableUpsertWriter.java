@@ -1,6 +1,7 @@
 package org.jasig.ssp.util.importer.job.staging;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,18 +9,19 @@ import javax.sql.DataSource;
 
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.report.ReportEntry;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>,
-        StepExecutionListener {
+public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
 
     private Resource currentResource;
     private String[] orderedHeaders = null;
@@ -91,8 +93,9 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>,
         insertSql.append(" FROM stg_" + tableName + " AS source ");
         insertSql.append(" LEFT OUTER JOIN " + tableName + " AS target ON ");
         for (String key : tableKeys) {
-            insertSql.append(" source." + key + " = target." + key);
+            insertSql.append(" source." + key + " = target." + key+" AND");
         }
+        insertSql.setLength(insertSql.length() - 3); // trim comma
         insertSql.append(" WHERE ");
         for (String key : tableKeys) {
             insertSql.append(" target." + key + " IS NULL AND ");
@@ -102,9 +105,14 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>,
 
         batchedStatements.add(insertSql.toString());
         say(insertSql);
-        // jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
-        say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
-                + batchStop);
+        
+        int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+        Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
+                "numInsertedUpdated");
+        numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
+        numInsertedUpdated = numInsertedUpdated + results[0] + results[1];
+        stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
+
     }
 
     private String[] writeHeader(RawItem item) {
@@ -156,14 +164,5 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem>,
         this.stepExecution = stepExecution;
     }
 
-    @Override
-    public ExitStatus afterStep(StepExecution arg0) {
-        return ExitStatus.COMPLETED;
-    }
-
-    @Override
-    public void beforeStep(StepExecution arg0) {
-        this.stepExecution = arg0;
-    }
 
 }

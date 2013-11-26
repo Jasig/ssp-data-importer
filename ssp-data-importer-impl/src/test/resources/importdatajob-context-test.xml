@@ -20,15 +20,19 @@
     </bean>
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
+    
+    <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" />
+    
 
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"  p:resources="${batch.tables.input.files}"  p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
+    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+                                p:resources="${batch.tables.input.files}"
+                                p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
     <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
-                    p:resources="${batch.tables.input.files}"
-                    p:dulicateResources="${batch.table.input.duplicate}"
-                    p:processDirectory="${batch.tables.process.folder}"
-                    p:upsertDirectory="${batch.tables.upsert.folder}"
-                    />
+                                p:resources="${batch.tables.input.files}"
+                                p:dulicateResources="${batch.table.input.duplicate}"
+                                p:processDirectory="${batch.tables.process.folder}"
+                                p:upsertDirectory="${batch.tables.upsert.folder}"/>
 
     <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
     <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
@@ -47,7 +51,7 @@
       class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
     </bean>
 
-    <!-- BATCH CLEANUP -->
+    <!-- BATCH CLEANUP 
 
     <bean id="batchFinaliser" class="org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer"
             p:archiveDirectory="${batch.tables.archive.folder}"
@@ -57,7 +61,7 @@
             p:batchTitle="${batch.title}"
             p:archiveFiles="${batch.tables.archive}"
             p:retainInputFiles="${batch.table.input.duplicate}"/>
-
+-->
 
 
     <bean id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
@@ -103,7 +107,13 @@
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor" >
     </bean>
-
+    
+    <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener" >
+    </bean>
+     <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener" >
+    </bean>   
+     <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener" >
+    </bean>      
      <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
              p:dataSource-ref="dataSource">
         <property name="metadataRepository" ref="metadataRepository" />
@@ -144,6 +154,9 @@
              <batch:partition step="stageFilteredItemsSlave" partitioner="partitioner" >
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
+            <batch:listeners>
+            	<batch:listener ref="reportGenerator"/>
+            </batch:listeners>
         </batch:step>
         <!-- Read validated files, write output to staging tables -->
 
@@ -152,11 +165,11 @@
 
         <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
         free by using or extending DefaultJobParametersValidator -->
-        <!--<batch:validator ref="importJobValidator" />-->
+        <!--<batch:validator ref="importJobValidator" />
         <batch:listeners>
             <batch:listener ref="batchFinaliser"/>
          </batch:listeners>
-
+-->
         <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
          the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
          in that event. -->
@@ -180,12 +193,13 @@
 
                     <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                     <batch:listeners>
+                        <batch:listener ref="validationSkipListener" />
                         <batch:listener ref="rawItemValidateProcessorListener" />
                     </batch:listeners>
                 </batch:chunk>
             </batch:tasklet>
         </batch:step>
-    <batch:step id="stageFilteredItemsSlave" > <!--  next="writeFilteredItems"> -->
+    <batch:step id="stageFilteredItemsSlave" > 
         <batch:tasklet>
             <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
             step. Note that this limit applies separately to reads, processes, and writes. -->
@@ -194,15 +208,18 @@
                 <!-- List out exceptions which should result in a record simply being skipped, up to some
                 configurable limit set on the chunk above -->
                 <batch:skippable-exception-classes>
-                    <batch:include class="java.lang.Exception"/>
-                    <!--<exclude class="java.io.FileNotFoundException"/>-->
-                </batch:skippable-exception-classes>
-
+                        <batch:include class="java.lang.Exception"/>
+                        <batch:include class="org.postgresql.util.PSQLException"/>
+                        <batch:include class="java.sql.BatchUpdateException"/>
+                        <batch:include class="org.springframework.dao.DataIntegrityViolationException"/>
+                 </batch:skippable-exception-classes>
                 <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
-                    <batch:listeners>
+                <batch:listeners>
                      <batch:listener ref="stagingTableItemWriter" />
                      <batch:listener ref="externalTableUpsertItemWriter" />
-                 </batch:listeners>
+					 <batch:listener ref="stagingAndUpsertSkipListener" />
+					 <batch:listener ref="stagingAndUpsertListener" />
+                </batch:listeners>
              </batch:chunk>
 
         </batch:tasklet>

@@ -2,6 +2,7 @@ package org.jasig.ssp.util.importer.job.tasklet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -23,7 +24,6 @@ public class BatchInitializer implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         createDirectory(upsertDirectory);
         File directory = createDirectory(processDirectory);
-
         if(dulicateResources){
             copyFiles(directory);
         }else{
@@ -54,14 +54,11 @@ public class BatchInitializer implements Tasklet {
     }
 
     private File createDirectory(Resource directory) throws Exception{
-
         File dir = directory.getFile();
-
         if(dir.exists()){
-            FileSystemUtils.deleteRecursively(directory.getFile());
+            FileSystemUtils.deleteRecursively(dir);
         }
-        if(!dir.mkdirs())
-                throw new Exception("Unable to create directory: " + directory.getDescription());
+        Files.createDirectory(dir.toPath());
         return dir;
     }
 
@@ -71,7 +68,7 @@ public class BatchInitializer implements Tasklet {
             File dest =  new File(processDirectory, source.getName());
             int count = FileCopyUtils.copy(source, dest);
             if(count <= 0 ){
-                throw new IOException("No files available for processing.");
+                throw new IOException("");
             }
         }
     }

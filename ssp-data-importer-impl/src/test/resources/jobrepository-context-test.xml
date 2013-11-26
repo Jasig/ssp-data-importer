@@ -11,7 +11,9 @@
     (which we know SSP deployments in the wild use). -->
     <!--<batch:job-repository id="jobRepository" table-prefix="${batch.table.prefix}"/>-->
 
-    <bean id="jobRepository"
-          class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean" />
-
+    <batch:job-repository id="jobRepository"
+          data-source="dataSource"
+ 		  transaction-manager="transactionManager"
+    	  isolation-level-for-create="SERIALIZABLE"         
+          />
 </beans>

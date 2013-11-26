@@ -3,7 +3,10 @@ package org.jasig.ssp.util.importer.job.staging;
 import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.MapColumnMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -27,6 +30,8 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
+
+    Logger logger = LoggerFactory.getLogger(PostgresStagingTableWriter.class);
 
     @Autowired
     private DataSource dataSource;
@@ -89,7 +94,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
                         .getColumnMetadata(
                                 new ColumnReference(tableName[0], header))
                         .getJavaSqlType();
-                if (isQuotedType(sqlType)) {
+                if (isQuotedType(sqlType) && record.get(header) != null) {
                     value = "'" + record.get(header) + "'";
                 } else {
                     value = record.get(header);
@@ -107,7 +112,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
             batchStart++;
             say(insertSql);
         }
-        // jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+        jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******CHUNK POSTGRES******");
     }
 
@@ -133,6 +138,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
 
     private void say(Object message) {
         System.out.println(message);
+        logger.info(message.toString());
     }
 
     private void say() {
