@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.report.ReportEntry;
@@ -85,7 +86,13 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
         say(updateSql);
 
         StringBuilder insertSql = new StringBuilder();
-        insertSql.append(" INSERT INTO " + tableName + " SELECT ");
+        insertSql.append(" INSERT INTO " + tableName +"(");
+        for (String header : this.orderedHeaders) {
+            insertSql.append(header+","); 
+        }
+        insertSql.setLength(insertSql.length() - 1); // trim comma
+
+        insertSql.append(") SELECT ");
         for (String header : this.orderedHeaders) {
             insertSql.append(" source." + header).append(",");
         }
