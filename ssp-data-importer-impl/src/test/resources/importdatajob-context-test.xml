@@ -66,7 +66,7 @@
       class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
     </bean>
 
-  <!-- BATCH CLEANUP -->
+    <!-- BATCH CLEANUP -->
 
     <bean id="batchFinaliser" class="org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer"
             p:archiveDirectory="${batch.tables.archive.folder}"
@@ -78,7 +78,6 @@
             p:retainInputFiles="${batch.table.input.duplicate}"/>
 
 
-
     <bean id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
           scope="step"
           p:resource="#{stepExecutionContext[fileName]}" >
@@ -86,12 +85,12 @@
           <property name="appendAllowed" value="true" />
           <property name="lineAggregator">
                <bean class="org.jasig.ssp.util.importer.job.csv.RawItemLineAggregator">
-                    <property name="delimiter" value="," />
+                    <property name="delimiter" value="${batch.delimiter}" />
                </bean>
         </property>
          <property name="headerCallback">
             <bean class="org.jasig.ssp.util.importer.job.csv.RawItemFlatFileHeaderCallback">
-                    <property name="delimiter" value="," />
+                    <property name="delimiter" value="${batch.delimiter}" />
             </bean>
          </property>
     </bean>
@@ -103,10 +102,10 @@
         <property name="resources" value="#{stepExecutionContext[fileName]}"/>
     </bean>
 
-    <bean id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" >
+    <bean  scope="step" id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" >
     </bean>
 
-    <bean id="compositeTableWriter"
+    <bean  scope="step" id="compositeTableWriter"
         class="org.springframework.batch.item.support.CompositeItemWriter" >
         <property name="delegates">
              <list>
@@ -116,7 +115,7 @@
        </property>
     </bean>
 
-    <bean id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
+    <bean  scope="step" id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
         <property name="resources" value="${batch.tables.upsert.files}"/>
     </bean>
 
@@ -135,9 +134,6 @@
     </bean>
 
     <batch:job id="importJob" restartable="false">
-        <batch:listeners>
-           	<batch:listener ref="reportGenerator"/>
-        </batch:listeners>
         <!-- === Start Core Job Step Definition == -->
         <!-- Make sure we don't accidentally process a partial upload -->
         <batch:step id="guardPartialUploads" next="initializeBatch">
@@ -155,7 +151,7 @@
         <batch:step id="initializeBatch" next="filterRawItems">
             <batch:tasklet ref="batchInitializer"></batch:tasklet>
         </batch:step>
-
+ 
         <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
         to another set of files -->
          <batch:step id="filterRawItems" next="stageFilteredItems" >
@@ -180,6 +176,7 @@
         free by using or extending DefaultJobParametersValidator -->
         <batch:validator ref="importJobValidator" />
         <batch:listeners>
+           	<batch:listener ref="reportGenerator"/>
             <batch:listener ref="batchFinaliser"/>
          </batch:listeners>
 
