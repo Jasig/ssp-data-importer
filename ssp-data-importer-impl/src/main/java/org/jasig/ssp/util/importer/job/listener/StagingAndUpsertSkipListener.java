@@ -17,7 +17,7 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
 
     private StepExecution stepExecution;
     
-    Logger logger = LoggerFactory.getLogger(StagingAndUpsertSkipListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(StagingAndUpsertSkipListener.class);
     @Override
     public void onSkipInRead(Throwable t) {
         logger.error("ERROR on Upsert Read", t);
@@ -26,11 +26,11 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
     @SuppressWarnings("unchecked")
     @Override
     public void onSkipInWrite(RawItem item, Throwable t) {
-        logger.error("ERROR on Upsert Write", t);
+        logger.error("ERROR on Stage/Upsert Write", t);
         
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
-        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGE);
+        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGEUPSERT);
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)
         {
@@ -43,11 +43,11 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
     @SuppressWarnings("unchecked")
     @Override
     public void onSkipInProcess(RawItem item, Throwable t) {
-        logger.error("ERROR on Upsert Process", t);
+        logger.error("ERROR on Stage/Upsert Process", t);
         
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
-        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGE);
+        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGEUPSERT);
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)
         {

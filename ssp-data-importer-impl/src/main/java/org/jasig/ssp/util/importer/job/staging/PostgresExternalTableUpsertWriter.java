@@ -12,6 +12,8 @@ import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.report.ReportEntry;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -28,6 +30,9 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
+    
+    private static final Logger logger = LoggerFactory.getLogger(PostgresExternalTableUpsertWriter.class);
+
 
     @Autowired
     private DataSource dataSource;
@@ -135,7 +140,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
     }
 
     private void say(Object message) {
-        System.out.println(message);
+        logger.info(logger.toString());
     }
 
     private void say() {

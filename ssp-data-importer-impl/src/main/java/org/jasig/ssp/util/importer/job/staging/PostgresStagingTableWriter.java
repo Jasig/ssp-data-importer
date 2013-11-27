@@ -31,7 +31,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
 
-    Logger logger = LoggerFactory.getLogger(PostgresStagingTableWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(PostgresStagingTableWriter.class);
 
     @Autowired
     private DataSource dataSource;
@@ -137,7 +137,6 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
     }
 
     private void say(Object message) {
-        System.out.println(message);
         logger.info(message.toString());
     }
 

@@ -56,7 +56,4 @@
 		<appender-ref ref="errorFileAppender" />
 	</root>
 	
-	<root level="info">
-		<appender-ref ref="infoFileAppender" />
-	</root>
 </configuration>

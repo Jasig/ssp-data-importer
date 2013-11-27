@@ -10,6 +10,8 @@ import javax.sql.DataSource;
 import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -26,6 +28,8 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
+
+    private static final Logger logger = LoggerFactory.getLogger(SqlServerExternalTableUpsertWriter.class);
 
     @Autowired
     private DataSource dataSource;
@@ -131,7 +135,7 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
     }
 
     private void say(Object message) {
-        System.out.println(message);
+        logger.info(message.toString());
     }
 
     private void say() {

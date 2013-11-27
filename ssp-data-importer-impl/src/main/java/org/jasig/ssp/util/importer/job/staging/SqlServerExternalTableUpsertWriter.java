@@ -9,6 +9,8 @@ import javax.sql.DataSource;
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
@@ -21,17 +23,18 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
-        StepExecutionListener, JobExecutionListener {
+        StepExecutionListener {
 
     private Resource currentResource;
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
-
+ 
     @Autowired
     private DataSource dataSource;
-    private JobExecution jobExecution;
+    private static final Logger logger = LoggerFactory.getLogger(SqlServerExternalTableUpsertWriter.class);
 
+    
     @Override
     public void write(List<? extends RawItem> items) throws Exception {
 
@@ -115,7 +118,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
                 "numInsertedUpdated");
         numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
-        numInsertedUpdated =+ results[0];
+        numInsertedUpdated += results[0];
         stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
         
         say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
@@ -135,7 +138,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
     }
 
     private void say(Object message) {
-        System.out.println(message);
+        logger.info(message.toString());
     }
 
     private void say() {
@@ -179,21 +182,6 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
     @Override
     public void beforeStep(StepExecution arg0) {
         this.stepExecution = arg0;
-    }
-
-    @Override
-    public void beforeJob(JobExecution jobExecution) {
-        this.jobExecution = jobExecution;
-    }
-
-    @Override
-    public void afterJob(JobExecution jobExecution) {
-        Integer batchStop = (Integer) (stepExecution.getExecutionContext().get(
-                "batchStop") == null ? null : stepExecution
-                .getExecutionContext().get("batchStop"));
-        Object currentEntity = stepExecution.getExecutionContext().get(
-                "currentEntity");
-        
     }
 
 }
