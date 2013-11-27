@@ -7,7 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import java.util.concurrent.TimeUnit;
 import org.jasig.ssp.util.importer.job.util.ZipDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.core.io.Resource;
@@ -22,6 +25,7 @@ public class BatchFinalizer implements JobExecutionListener {
     private String batchTitle = "csv_import";
     private ArchiveType archiveFiles = ArchiveType.UNIQUE;
     private Boolean retainInputFiles = false;
+    Logger logger = LoggerFactory.getLogger(BatchFinalizer.class);
 
 
     private FilenameFilter csvFilter = new FilenameFilter() {
@@ -74,6 +78,12 @@ public class BatchFinalizer implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
+         logger.info("Files deleted and archived");
+         Long diff = TimeUnit.MILLISECONDS.toMinutes(jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime());
+
+         logger.info("Job Duration in minutes: " + diff.toString());
+         System.out.print("Job Duration in minutes: " + diff.toString());
+
         try{
             if(!archiveFiles.equals(ArchiveType.NONE))
                 archive() ;
@@ -83,11 +93,12 @@ public class BatchFinalizer implements JobExecutionListener {
             if(!retainInputFiles)
                 deleteFiles(inputDirectory.getFile());
         }catch(Exception e){
-
+            logger.error("Error Delete Process, Upsert And Input Directory", e);
         }
-    }
+           }
 
     private void archive() throws IOException{
+        try{
         if(archiveFiles.equals(ArchiveType.UNIQUE)){
             if(!retainInputFiles){
                 removeDuplicates(processDirectory.getFile(),inputDirectory.getFile());
@@ -98,6 +109,10 @@ public class BatchFinalizer implements JobExecutionListener {
 
         ZipDirectory zippy = new ZipDirectory(generateFileArchive());
         zippy.zipIt(Arrays.asList(inputDirectory.getFile(), processDirectory.getFile(), upsertDirectory.getFile()), true);
+        }catch(IOException e){
+            logger.error("Error Archiving", e);
+            throw e;
+        }
     }
 
     private void removeDuplicates(File srcDirectory, File destDirectory){

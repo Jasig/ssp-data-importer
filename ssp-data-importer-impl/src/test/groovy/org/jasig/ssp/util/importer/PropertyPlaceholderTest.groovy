@@ -17,7 +17,8 @@ class PropertyPlaceholderTest extends Specification {
     def "external config override dir is not required"() {
 
         setup:
-        assert System.getProperty('ssp.importer.configdir') == null
+        System.setProperty("ssp.importer.configdir", "")
+        assert System.getProperty('ssp.importer.configdir') == ""
 
         when: "a Spring context is created without specifying an override dir"
         context = new ClassPathXmlApplicationContext('classpath:config-context.xml','classpath:config-context-test.xml');

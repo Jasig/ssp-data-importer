@@ -1,22 +1,16 @@
 package org.jasig.ssp.util.importer.job.validation.map.metadata.validation;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.ConstraintValidatorContext;
-import javax.validation.MessageInterpolator;
 
 import org.jarbframework.constraint.metadata.database.ColumnMetadata;
-import org.jarbframework.constraint.metadata.database.ColumnMetadataRepository;
+import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.MapColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableColumnMetaDataRepository;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
-import org.jarbframework.utils.orm.ColumnReference;
-import org.jarbframework.utils.orm.SchemaMapper;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.MissingPrimaryKeyViolation;
 import org.slf4j.Logger;
@@ -36,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * added for that property. Multiple constraint violations can occur, even on
  * the same property.
  *
- * @author Jeroen van Schagen
+ * @author James T Stanley
  * @since 23-05-2011
  */
 public class DatabaseConstraintMapValidator {
@@ -51,7 +45,7 @@ public class DatabaseConstraintMapValidator {
 
 
     /**
-     * Construct a new {@link DatabaseConstraintValidator}.
+     * Construct a new {@link DatabaseConstraintMapValidator}.
      */
     public DatabaseConstraintMapValidator() {
         validationSteps = new ArrayList<DatabaseConstraintMapValidationStep>();
@@ -114,7 +108,7 @@ public class DatabaseConstraintMapValidator {
     public void setColumnMetadataRepository(TableColumnMetaDataRepository columnMetadataRepository) {
         this.columnMetadataRepository = columnMetadataRepository;
     }
-    
+
     public TableColumnMetaDataRepository getColumnMetadataRepository() {
         return this.columnMetadataRepository;
     }

@@ -1,7 +1,10 @@
 package org.jasig.ssp.util.importer.job.listener;
 
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemProcessListener;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
@@ -9,16 +12,16 @@ import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 public class RawItemValidateProcessorListener implements ItemProcessListener<RawItem, RawItem> {
 
     Boolean hasTableViolation = false;
+    Logger logger = LoggerFactory.getLogger(BatchFinalizer.class);
     @Override
     public void beforeProcess(RawItem item) {
-        // TODO Auto-generated method stub
+        StepContext stepContext = StepSynchronizationManager.getContext();
 
     }
 
     @Override
     public void afterProcess(RawItem item, RawItem result) {
-        // TODO Auto-generated method stub
-
+        StepContext stepContext = StepSynchronizationManager.getContext();
     }
 
     @Override
@@ -28,7 +31,7 @@ public class RawItemValidateProcessorListener implements ItemProcessListener<Raw
             Integer readCount = stepContext.getStepExecution().getReadCount();
             Integer skipedCount = stepContext.getStepExecution().getSkipCount();
             skipedCount = readCount + skipedCount;
-            System.out.println("line:" + skipedCount.toString() + " " + e.getMessage());
+            logger.error("line:" + skipedCount.toString() + " " + e.getMessage());
         }
         if(e.getClass().equals(TableViolationException.class) && hasTableViolation == false){
             hasTableViolation = true;

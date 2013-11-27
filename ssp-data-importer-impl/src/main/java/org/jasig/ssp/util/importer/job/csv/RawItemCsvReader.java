@@ -1,7 +1,17 @@
 package org.jasig.ssp.util.importer.job.csv;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.LineMapper;
@@ -10,19 +20,17 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.LineTokenizer;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
 import org.springframework.validation.BindException;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements StepExecutionListener, LineCallbackHandler, FieldSetMapper<RawItem> {
 
-public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements LineCallbackHandler, FieldSetMapper<RawItem> {
-
+    final private String COLUMN_NAMES_KEY = "COLUMNS_NAMES_KEY";
+    private StepExecution stepExecution;
     private DefaultLineMapper<RawItem> lineMapper;
     private String[] columnNames;
     private Resource itemResource;
+    Logger logger = LoggerFactory.getLogger(RawItemCsvReader.class);
 
     public RawItemCsvReader() {
         setLinesToSkip(1);
@@ -53,6 +61,7 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Lin
         lineTokenizer.setQuoteCharacter(DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER);
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames(columnNames);
+        stepExecution.getExecutionContext().put(COLUMN_NAMES_KEY, columnNames);
         return lineTokenizer;
     }
 
@@ -103,5 +112,26 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Lin
         // MultiResourceItemReader will do it for us and there's no accessible getter on our super class. But
         // would be better to do it here.
         return item;
+    }
+
+    @BeforeStep
+    public void saveStepExecution(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
+    }
+
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+        // TODO Auto-generated method stub
+
+        logger.info("Start Raw Read Step for " + itemResource.getFilename());
+    }
+
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        logger.info("End Raw Read Step for " + itemResource.getFilename() +
+                "lines read: " +
+                stepExecution.getReadCount() +
+                "lines skipped: " + stepExecution.getReadSkipCount());
+        return ExitStatus.COMPLETED;
     }
 }

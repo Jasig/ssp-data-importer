@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class StagingTableTruncator implements StepExecutionListener {
 
     private DataSource dataSource;
-    
+
     private MetadataConfigurations metadataRepository;
 
     @Override
@@ -33,7 +33,7 @@ public class StagingTableTruncator implements StepExecutionListener {
         } catch (SQLException e) {
             System.out.println(e.getStackTrace());
         }
-        System.out.println("DONE TRUNCATE");        
+        System.out.println("DONE TRUNCATE");
         return ExitStatus.COMPLETED;
     }
 
@@ -58,7 +58,7 @@ public class StagingTableTruncator implements StepExecutionListener {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
-    
+
 
 
 

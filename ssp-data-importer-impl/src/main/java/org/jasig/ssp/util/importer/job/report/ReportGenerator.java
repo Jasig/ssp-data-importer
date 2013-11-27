@@ -17,12 +17,12 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 public class ReportGenerator implements StepExecutionListener{
 
-    
-    
+
+
     @Override
     public void beforeStep(StepExecution stepExecution) {
     }
-    
+
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         StringBuffer emailMessage = new StringBuffer();
@@ -34,11 +34,13 @@ public class ReportGenerator implements StepExecutionListener{
         }
         emailMessage.append("Errors: "+EOL);
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
-        for (ErrorEntry errorEntry : errors) {
-            emailMessage.append(errorEntry.toString()+EOL);
+        if(errors != null){
+            for (ErrorEntry errorEntry : errors) {
+                emailMessage.append(errorEntry.toString()+EOL);
+            }
         }
         System.out.print(emailMessage.toString());
-        
+
         return ExitStatus.COMPLETED;
     }
 

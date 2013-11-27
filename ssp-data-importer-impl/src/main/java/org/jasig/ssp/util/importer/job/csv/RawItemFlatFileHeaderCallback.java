@@ -7,14 +7,17 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.file.FlatFileHeaderCallback;
 
-public class RawItemFlatFileHeaderCallback implements ItemFlatFileHeaderCallBack<RawItem> {
+public class RawItemFlatFileHeaderCallback implements FlatFileHeaderCallback {
 
-    List<String> columnNames;
-    String  delimiter;
+    String[] columnNames;
+    String  delimiter  = ",";
 
     public RawItemFlatFileHeaderCallback() {
-        // TODO Auto-generated constructor stub
+       super();
     }
 
     @Override
@@ -29,26 +32,13 @@ public class RawItemFlatFileHeaderCallback implements ItemFlatFileHeaderCallBack
     }
 
 
-    @Override
-    public void setColumnDescriptorObject(RawItem item) {
-        columnNames = new ArrayList<String>();
-        if(item == null){
-            //TODO add log and exception
-            return;
-        }
-        for(String key:item.getRecord().keySet()){
-            columnNames.add(key);
-        }
+    public void setColumnNames(String[] columnNames) {
+        this.columnNames = columnNames;
     }
 
-    @Override
-    public List<String> getOrderedColumnList() {
-        return columnNames;
-    }
 
     public void setDelimiter(String delimiter){
         this.delimiter = delimiter;
     }
-
 
 }

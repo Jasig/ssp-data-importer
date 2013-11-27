@@ -37,7 +37,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
     private DataSource dataSource;
 
     @Override
-    public void write(List<? extends RawItem> items) throws Exception {
+    public void write(List<? extends RawItem> items)  {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         List<String> batchedStatements = new ArrayList<String>();

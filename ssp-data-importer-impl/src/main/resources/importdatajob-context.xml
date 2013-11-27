@@ -20,9 +20,9 @@
     </bean>
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
-    
+
     <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" />
-    
+
 
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
     <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
@@ -51,7 +51,7 @@
       class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
     </bean>
 
-    <!-- BATCH CLEANUP 
+    <!-- BATCH CLEANUP -->
 
     <bean id="batchFinaliser" class="org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer"
             p:archiveDirectory="${batch.tables.archive.folder}"
@@ -61,22 +61,22 @@
             p:batchTitle="${batch.title}"
             p:archiveFiles="${batch.tables.archive}"
             p:retainInputFiles="${batch.table.input.duplicate}"/>
--->
 
 
-    <bean id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
+
+    <bean  id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
           scope="step"
           p:resource="#{stepExecutionContext[fileName]}" >
           <constructor-arg name="writeDirectory" value ="${batch.tables.upsert.folder}"/>
           <property name="appendAllowed" value="true" />
           <property name="lineAggregator">
                <bean class="org.jasig.ssp.util.importer.job.csv.RawItemLineAggregator">
-                    <property name="delimiter" value="," />
+                    <property name="delimiter" value="${batch.delimiter}" />
                </bean>
         </property>
          <property name="headerCallback">
             <bean class="org.jasig.ssp.util.importer.job.csv.RawItemFlatFileHeaderCallback">
-                    <property name="delimiter" value="," />
+                    <property name="delimiter" value="${batch.delimiter}" />
             </bean>
          </property>
     </bean>
@@ -88,10 +88,10 @@
         <property name="resources" value="#{stepExecutionContext[fileName]}"/>
     </bean>
 
-    <bean id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" >
+    <bean  scope="step" id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" >
     </bean>
 
-    <bean id="compositeTableWriter"
+    <bean  scope="step" id="compositeTableWriter"
         class="org.springframework.batch.item.support.CompositeItemWriter" >
         <property name="delegates">
              <list>
@@ -101,19 +101,19 @@
        </property>
     </bean>
 
-    <bean id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
+    <bean  scope="step" id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
         <property name="resources" value="${batch.tables.upsert.files}"/>
     </bean>
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor" >
     </bean>
-    
+
     <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener" >
     </bean>
      <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener" >
-    </bean>   
+    </bean>
      <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener" >
-    </bean>      
+    </bean>
      <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
              p:dataSource-ref="dataSource">
         <property name="metadataRepository" ref="metadataRepository" />
@@ -131,6 +131,9 @@
             <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
             workflow involved -->
             <batch:tasklet ref="partialUploadGuard"></batch:tasklet>
+            <batch:listeners>
+                <batch:listener ref="stagingTableTruncator"/>
+             </batch:listeners>
         </batch:step>
 
         <!-- Another step might be need here if we have to guard against concurrent executions (I think the framework
@@ -155,7 +158,8 @@
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
             <batch:listeners>
-            	<batch:listener ref="reportGenerator"/>
+                <batch:listener ref="stagingTableTruncator"/>
+                <batch:listener ref="reportGenerator"/>
             </batch:listeners>
         </batch:step>
         <!-- Read validated files, write output to staging tables -->
@@ -165,11 +169,11 @@
 
         <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
         free by using or extending DefaultJobParametersValidator -->
-        <!--<batch:validator ref="importJobValidator" />
+        <!--<batch:validator ref="importJobValidator" /> -->
         <batch:listeners>
             <batch:listener ref="batchFinaliser"/>
          </batch:listeners>
--->
+
         <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
          the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
          in that event. -->
@@ -199,7 +203,7 @@
                 </batch:chunk>
             </batch:tasklet>
         </batch:step>
-    <batch:step id="stageFilteredItemsSlave" > 
+    <batch:step id="stageFilteredItemsSlave" >
         <batch:tasklet>
             <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
             step. Note that this limit applies separately to reads, processes, and writes. -->
@@ -217,8 +221,8 @@
                 <batch:listeners>
                      <batch:listener ref="stagingTableItemWriter" />
                      <batch:listener ref="externalTableUpsertItemWriter" />
-					 <batch:listener ref="stagingAndUpsertSkipListener" />
-					 <batch:listener ref="stagingAndUpsertListener" />
+                     <batch:listener ref="stagingAndUpsertSkipListener" />
+                     <batch:listener ref="stagingAndUpsertListener" />
                 </batch:listeners>
              </batch:chunk>
 
