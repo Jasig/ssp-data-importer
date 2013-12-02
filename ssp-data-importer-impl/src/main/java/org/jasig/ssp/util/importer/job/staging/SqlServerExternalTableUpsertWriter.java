@@ -61,7 +61,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         }
         StringBuilder insertSql = new StringBuilder();
         insertSql.append(" MERGE INTO " + tableName[0]
-                + " as target USING stg_" + tableName[0] + " as source ON ");
+                + " as target USING stg_" + tableName[0] + " as source ON (");
 
         List<String> tableKeys = metadataRepository.getRepository()
                 .getColumnMetadataRepository()
@@ -80,11 +80,11 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
                     .getTableKeys();
         }
         for (String key : tableKeys) {
-            insertSql.append("target." + key + " = source." + key + ",");
+            insertSql.append("target." + key + " = source." + key + " and ");
         }
-        insertSql.setLength(insertSql.length() - 1); // trim comma
+        insertSql.setLength(insertSql.length() - 4); // trim comma
 
-        insertSql.append(" WHEN NOT MATCHED AND source.batch_id >= "
+        insertSql.append(") WHEN NOT MATCHED AND source.batch_id >= "
                 + batchStart + " and source.batch_id <= " + batchStop
                 + " THEN INSERT (");
 

@@ -1,6 +1,7 @@
 package org.jasig.ssp.util.importer.job.listener;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -18,19 +19,45 @@ public class StagingTableTruncator implements StepExecutionListener {
     private DataSource dataSource;
 
     private MetadataConfigurations metadataRepository;
+    
+    private static List<String> stagingTables = new ArrayList<String>();
+    
+    static {
+        stagingTables.add("stg_external_course");
+        stagingTables.add("stg_external_course_program");
+        stagingTables.add("stg_external_course_requisite");
+        stagingTables.add("stg_external_course_tag");
+        stagingTables.add("stg_external_course_term");
+        stagingTables.add("stg_external_department");
+        stagingTables.add("stg_external_faculty_course");
+        stagingTables.add("stg_external_faculty_course_roster");
+        stagingTables.add("stg_external_person");
+        stagingTables.add("stg_external_person_note");
+        stagingTables.add("stg_external_person_planning_status");
+        stagingTables.add("stg_external_program");
+        stagingTables.add("stg_external_student_academic_program");
+        stagingTables.add("stg_external_division");
+        stagingTables.add("stg_external_registration_status_by_term");
+        stagingTables.add("stg_external_student_financial_aid");
+        stagingTables.add("stg_external_student_test");
+        stagingTables.add("stg_external_student_transcript");
+        stagingTables.add("stg_external_student_transcript_course");
+        stagingTables.add("stg_external_student_transcript_term");
+        stagingTables.add("stg_external_term");
+        
+        }
 
     @Override
     public ExitStatus afterStep(StepExecution arg0) {
         try {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             dataSource.getConnection().setAutoCommit(true);
-            Set<TableReference> tables = ((CachingTableColumnMetadataRepository) metadataRepository.getRepository().getColumnMetadataRepository()).getColumnMetadataCache().getTableMetadataMap().keySet();
-            for (TableReference tableReference : tables) {
-                String sql = "truncate table stg_"+tableReference.getTableName()+";";
+            for (String table : stagingTables) {
+                String sql = "truncate table "+table+";";
                 jdbcTemplate.execute(sql);
                 System.out.println(sql);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println(e.getStackTrace());
         }
         System.out.println("DONE TRUNCATE");

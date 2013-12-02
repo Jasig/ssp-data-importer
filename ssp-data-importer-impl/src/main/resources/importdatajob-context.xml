@@ -25,6 +25,7 @@
     	<property name="dbInstanceName" value="${db_name}"/>
     	<property name="emailRecipients" value="${batch.email.recipients}"/>
     	<property name="replyTo" value="${batch.email.replyTo}"/>
+		<property name="sendEmail" value="${batch.sendEmail}" />
     </bean>
     
 	<!-- Mail Server Configuration -->
@@ -174,7 +175,9 @@
 
         <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
         free by using or extending DefaultJobParametersValidator -->
-        <batch:validator ref="importJobValidator" />
+        <!-- 
+         <batch:validator ref="importJobValidator" />
+         -->
         <batch:listeners>
            	<batch:listener ref="reportGenerator"/>
             <batch:listener ref="batchFinaliser"/>
