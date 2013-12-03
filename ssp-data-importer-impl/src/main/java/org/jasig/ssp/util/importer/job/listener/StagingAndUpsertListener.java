@@ -44,17 +44,20 @@ public class StagingAndUpsertListener implements StepExecutionListener {
         String currentEntity = (String) stepExecution.getExecutionContext().get(
                 "currentEntity");
       
-        
-        Map<String, ReportEntry> report =  (Map<String, ReportEntry>) stepExecution.getJobExecution()
-                .getExecutionContext().get("report");
-        if(report == null)
+        if(currentEntity != null)
         {
-            report = new HashMap<String,ReportEntry>(); 
+            Map<String, ReportEntry> report =  (Map<String, ReportEntry>) stepExecution.getJobExecution()
+                    .getExecutionContext().get("report");
+            if(report == null)
+            {
+                report = new HashMap<String,ReportEntry>(); 
+            }
+            
+            ReportEntry currentEntry = new ReportEntry(currentEntity,numInsertedUpdated == null ? 0 : numInsertedUpdated);
+            report.put(currentEntity, currentEntry);
+            stepExecution.getJobExecution().getExecutionContext().put("report", report);            
         }
-        
-        ReportEntry currentEntry = new ReportEntry(currentEntity,numInsertedUpdated);
-        report.put(currentEntity, currentEntry);
-        stepExecution.getJobExecution().getExecutionContext().put("report", report);
+
         return ExitStatus.COMPLETED;
     }
 

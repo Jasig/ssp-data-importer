@@ -128,6 +128,7 @@
      <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
              p:dataSource-ref="dataSource">
         <property name="metadataRepository" ref="metadataRepository" />
+        <property name="truncateExclusions" value="${batch.truncate.exclusions}"></property>
     </bean>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -222,9 +223,6 @@
                 configurable limit set on the chunk above -->
                 <batch:skippable-exception-classes>
                         <batch:include class="java.lang.Exception"/>
-                        <batch:include class="org.postgresql.util.PSQLException"/>
-                        <batch:include class="java.sql.BatchUpdateException"/>
-                        <batch:include class="org.springframework.dao.DataIntegrityViolationException"/>
                  </batch:skippable-exception-classes>
                 <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                 <batch:listeners>
@@ -234,7 +232,6 @@
 					 <batch:listener ref="stagingAndUpsertListener" />
                 </batch:listeners>
              </batch:chunk>
-
         </batch:tasklet>
 
     </batch:step>

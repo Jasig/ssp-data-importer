@@ -1,14 +1,15 @@
 package org.jasig.ssp.util.importer.job.listener;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.database.CachingTableColumnMetadataRepository;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
+import org.jasig.ssp.util.importer.job.staging.PostgresExternalTableUpsertWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -20,53 +21,49 @@ public class StagingTableTruncator implements StepExecutionListener {
 
     private MetadataConfigurations metadataRepository;
     
-    private static List<String> stagingTables = new ArrayList<String>();
+    private List<String> stagingTables = new ArrayList<String>();
     
-    static {
-        stagingTables.add("stg_external_course");
-        stagingTables.add("stg_external_course_program");
-        stagingTables.add("stg_external_course_requisite");
-        stagingTables.add("stg_external_course_tag");
-        stagingTables.add("stg_external_course_term");
-        stagingTables.add("stg_external_department");
-        stagingTables.add("stg_external_faculty_course");
-        stagingTables.add("stg_external_faculty_course_roster");
-        stagingTables.add("stg_external_person");
-        stagingTables.add("stg_external_person_note");
-        stagingTables.add("stg_external_person_planning_status");
-        stagingTables.add("stg_external_program");
-        stagingTables.add("stg_external_student_academic_program");
-        stagingTables.add("stg_external_division");
-        stagingTables.add("stg_external_registration_status_by_term");
-        stagingTables.add("stg_external_student_financial_aid");
-        stagingTables.add("stg_external_student_test");
-        stagingTables.add("stg_external_student_transcript");
-        stagingTables.add("stg_external_student_transcript_course");
-        stagingTables.add("stg_external_student_transcript_term");
-        stagingTables.add("stg_external_term");
-        
-        }
+    private String truncateExclusions;
+    
+    private static final Logger logger = LoggerFactory.getLogger(StagingTableTruncator.class);
+    
 
     @Override
     public ExitStatus afterStep(StepExecution arg0) {
-        try {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            dataSource.getConnection().setAutoCommit(true);
-            for (String table : stagingTables) {
-                String sql = "truncate table "+table+";";
-                jdbcTemplate.execute(sql);
-                System.out.println(sql);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getStackTrace());
-        }
-        System.out.println("DONE TRUNCATE");
         return ExitStatus.COMPLETED;
+    }
+
+    private boolean isNotExcluded(String[] exclusions, String table) {
+        for (String exclusion : exclusions) {
+            if(exclusion.equalsIgnoreCase(table))
+                return false;
+        }
+        return true;
     }
 
     @Override
     public void beforeStep(StepExecution arg0) {
-
+        try {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            dataSource.getConnection().setAutoCommit(true);
+            ResultSet tables = dataSource.getConnection().getMetaData().getTables(null, null, "stg_%", new String[]{"TABLE"});
+            String[] exclusions = truncateExclusions == null ? new String[]{} : truncateExclusions.split(",");
+            while(tables.next())
+            {
+                stagingTables.add(tables.getString("table_name"));
+            }
+            for (String table : stagingTables) {
+                if(isNotExcluded(exclusions,table))
+                {
+                    String sql = "truncate table "+table+";";
+                    jdbcTemplate.execute(sql);
+                    logger.info(sql);
+                }
+            }
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+        }
+        logger.info("DONE TRUNCATE");
 
     }
 
@@ -85,6 +82,15 @@ public class StagingTableTruncator implements StepExecutionListener {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    public String getTruncateExclusions() {
+        return truncateExclusions;
+    }
+
+    public void setTruncateExclusions(String truncateExclusions) {
+        this.truncateExclusions = truncateExclusions;
+    }
+
 
 
 

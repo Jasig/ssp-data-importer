@@ -127,6 +127,7 @@
      <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
      <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
              p:dataSource-ref="dataSource">
+        <property name="truncateExclusions" value="${batch.truncate.exclusions}"></property>
         <property name="metadataRepository" ref="metadataRepository" />
     </bean>
 

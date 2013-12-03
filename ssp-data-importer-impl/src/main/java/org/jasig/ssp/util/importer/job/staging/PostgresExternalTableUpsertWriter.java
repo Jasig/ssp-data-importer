@@ -140,7 +140,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
     }
 
     private void say(Object message) {
-        logger.info(logger.toString());
+        logger.info(message.toString());
     }
 
     private void say() {

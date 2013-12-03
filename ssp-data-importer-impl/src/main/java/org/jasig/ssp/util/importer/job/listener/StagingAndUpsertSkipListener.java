@@ -30,6 +30,8 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
         
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
+        stepExecution.getExecutionContext().put("currentEntity",
+                tableName[0]);        
         ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGEUPSERT);
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)

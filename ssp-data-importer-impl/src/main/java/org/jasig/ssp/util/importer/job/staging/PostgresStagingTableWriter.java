@@ -11,6 +11,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.core.annotation.OnSkipInWrite;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -116,6 +117,15 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
         say("******CHUNK POSTGRES******");
     }
 
+    
+    @OnSkipInWrite
+    private void saveCurrentResource(RawItem item, Throwable t)
+    {
+        String fileName = currentResource.getFilename();
+        String[] tableName = fileName.split("\\.");
+        stepExecution.getExecutionContext().put("currentEntity", tableName[0]);
+    }
+    
     private boolean isQuotedType(Integer sqlType) {
         return Types.CHAR == sqlType || Types.DATE == sqlType
                 || Types.LONGNVARCHAR == sqlType
