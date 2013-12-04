@@ -218,7 +218,7 @@ For a complete list of column names and constraints please see the relevant mapp
 [Data Integration Mappings for Version 2.0.0](https://wiki.jasig.org/display/SSP/SSP+v2.0.0+Data+Integration+Mapping)
 [Data Integration Mappings for Version 1.2.1](https://wiki.jasig.org/display/SSP/SSP+v1.2.1+Data+Integration+Mapping)
 
-4. For questions on csv formatting please see [expected csv format]{http://edoceo.com/utilitas/csv-file-format).
+4. For questions on csv formatting please see [expected csv format](http://edoceo.com/utilitas/csv-file-format).
    Empty (including those with all whitespace) strings will be entered as null values.
 
    acceptable examples:
