@@ -111,10 +111,7 @@
 
     <modules>
         <module>ssp-data-importer-impl</module>
-
-        <!-- This is what we'll use to output tars and zips of the impl plus all its dependencies as what amounts to
-        an executable -->
-        <!--<module>ssp-data-importer-assembly</module>-->
+        <module>ssp-data-importer-assembly</module>
     </modules>
     
 </project>

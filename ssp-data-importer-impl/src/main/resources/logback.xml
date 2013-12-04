@@ -23,10 +23,10 @@
  -->
 	<appender name="infoFileAppender"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>infoLogFile.log</file>
+		<file>${log.home:-.}/infoLogFile.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>infoLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
 	
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>
@@ -39,10 +39,10 @@
 	
 	<appender name="errorFileAppender"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>errorLogFile.log</file>
+		<file>${log.home:-.}/errorLogFile.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>errorLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
 	
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>

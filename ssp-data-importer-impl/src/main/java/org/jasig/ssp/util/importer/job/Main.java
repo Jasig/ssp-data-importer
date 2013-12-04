@@ -8,8 +8,7 @@ import org.springframework.batch.core.launch.support.CommandLineJobRunner;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        CommandLineJobRunner clir = new CommandLineJobRunner();
-        clir.main(args);
+        CommandLineJobRunner.main(args);
     }
 
 }
