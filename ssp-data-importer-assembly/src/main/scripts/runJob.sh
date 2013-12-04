@@ -13,7 +13,7 @@
 #
 #  $> echo "CONFIG_DIR=/opt/ssp-import-conf" > ./setJobEnv.sh && ./runJob.sh
 #
-# You do not need to bin in this directory when executing this file.
+# You do not need to be in in this directory when executing this file.
 #
 # Options are:
 #
