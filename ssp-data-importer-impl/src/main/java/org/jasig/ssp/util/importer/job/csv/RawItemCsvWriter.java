@@ -10,6 +10,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineAggregator;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -19,8 +20,8 @@ public class RawItemCsvWriter<RawItem> extends FlatFileItemWriter<RawItem> imple
 
 
     private Resource writeDirectory;
-    Logger logger = LoggerFactory.getLogger(RawItemCsvWriter.class);
-    String delimiter = ",";
+    private Logger logger = LoggerFactory.getLogger(RawItemCsvWriter.class);
+    private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
 
     public RawItemCsvWriter(Resource writeDirectory) throws Exception{
          this.setExecutionContextName(ClassUtils.getShortName(RawItemCsvWriter.class));

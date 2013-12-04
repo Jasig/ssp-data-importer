@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
-import org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -30,7 +29,10 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
     private DefaultLineMapper<RawItem> lineMapper;
     private String[] columnNames;
     private Resource itemResource;
-    Logger logger = LoggerFactory.getLogger(RawItemCsvReader.class);
+    private Logger logger = LoggerFactory.getLogger(RawItemCsvReader.class);
+    private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
+    private char quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
+
 
     public RawItemCsvReader() {
         setLinesToSkip(1);
@@ -56,13 +58,18 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
     }
 
     private LineTokenizer getTokenizer(String line){
-        this.columnNames = line.split(DelimitedLineTokenizer.DELIMITER_COMMA);
+        this.columnNames = line.split(delimiter);
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
-        lineTokenizer.setQuoteCharacter(DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER);
+        lineTokenizer.setQuoteCharacter(quoteCharacter);
+        lineTokenizer.setDelimiter(delimiter);
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames(columnNames);
-        stepExecution.getExecutionContext().put(COLUMN_NAMES_KEY, columnNames);
+        addColumnNames();
         return lineTokenizer;
+    }
+
+    private void addColumnNames(){
+        stepExecution.getExecutionContext().put(COLUMN_NAMES_KEY, columnNames);
     }
 
     @Override
@@ -121,8 +128,6 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        // TODO Auto-generated method stub
-
         logger.info("Start Raw Read Step for " + itemResource.getFilename());
     }
 
@@ -133,5 +138,14 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
                 stepExecution.getReadCount() +
                 "lines skipped: " + stepExecution.getReadSkipCount());
         return ExitStatus.COMPLETED;
+    }
+
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
+    }
+
+
+    public void setQuoteCharacter(char quoteCharacter) {
+        this.quoteCharacter = quoteCharacter;
     }
 }
