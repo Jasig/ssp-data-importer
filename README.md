@@ -214,12 +214,24 @@ For a complete list of column names and constraints please see the relevant mapp
 
 
 [Data Integration Mappings for Version 2.1.0:](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping)
-
 [Data Integration Mappings for Version 2.0.1:](https://wiki.jasig.org/download/attachments/57574117/SIS%20Data%20Mappings%20v2.0.xlsx?version=8&modificationDate=1363628409239&api=v2)
-
 [Data Integration Mappings for Version 2.0.0](https://wiki.jasig.org/display/SSP/SSP+v2.0.0+Data+Integration+Mapping)
 [Data Integration Mappings for Version 1.2.1](https://wiki.jasig.org/display/SSP/SSP+v1.2.1+Data+Integration+Mapping)
 
-4. For questions on csv formatting please see http://edoceo.com/utilitas/csv-file-format.
+4. For questions on csv formatting please see [expected csv format]{http://edoceo.com/utilitas/csv-file-format).
+   Empty (including those with all whitespace) strings will be entered as null values.
+
+   acceptable examples:
+   1. no quotes
+   faculty_school_id,term_code,formatted_course,title,section_code,section_number
+   sherman123,FA12,Biology 101,Introduction To Biology,,
+
+   2. All quotes (note the enclosed comma in column 1):
+   "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
+   "sherman, 123","FA12","Biology 101","Introduction To Biology","",""
+
+   2. All quotes escaped quote(note the enclosed comma in column 1):
+   "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
+   "sherman"", 123","FA12","this is a string "", with escaped quotes","Introduction To Biology","",""
 
 
