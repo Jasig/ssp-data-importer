@@ -124,43 +124,101 @@ CSV FILE FORMAT
 3. Partial data updates are supported. However, in addition to the data being updated the key values for the specific table MUST be supplied.
 
    For SSP version 2.0 keys for each external table:
-             TABLE                                               KEY
-        external_course                                          code
-        external_course_program                                  program_code, course_code
-        external_course_requisite                                requiring_course_code, required_course_code, requisite_code
-        external_course_tag                                      course_code, tag
-        external_course_term                                     course_code, term_code
-        external_department                                      code
-        external_division                                        code
-        external_faculty_course                                  (NONE) recommended faculty_school_id,term_code,formatted_course,title
-        external_faculty_course_roster                           (NONE) recommended faculty_school_id,school_id,term_code,formatted_course,title
-        external_person                                          school_id
-        external_person_note                                     code
-        external_person_planning_status                          school_id
-        external_program                                         code
-        external_registration_status_by_term                     school_id,term_code
-        external_student_academic_program                        school_id, degree_code, program_code
-        external_student_financial_aid                           school_id
-        external_student_test                                    school_id, test_code, sub_test_code, test_date, discriminator
-        external_student_transcript                              school_id
-        external_student_transcript_course                       school_id, term_code, formatted_course, section_code
-        external_student_transcript_term                         school_id, term_code
-        external_term                                            code
+   <table>
+   <tbody >
+   <tr><th>TABLE</th><th>KEY</th></tr>
+    <tr>
+        <td>external_course</td><td>code</td>
+    </tr>
+    <tr>
+        <td>external_course_program</td><td>program_code, course_code</td>
+    </tr>
+    <tr>
+        <td>external_course_requisite</td><td>requiring_course_code, required_course_code, requisite_code</td>
+    </tr>
+    <tr>
+        <td>external_course_tag</td><td>course_code, tag</td>
+    </tr>
+    <tr>
+        <td>external_course_term</td>
+        <td>course_code, term_code</td>
+    </tr>
+    <tr>
+        <td>external_department</td>
+        <td>code</td>
+    </tr>
+    <tr>
+        <td>external_division</td>
+        <td>code</td>
+    </tr>
+    <tr>
+        <td>external_faculty_course</td>
+        <td>(NONE) recommended faculty_school_id,term_code,formatted_course,title</td>
+    </tr>
+    <tr>
+        <td>external_faculty_course_roster</td>
+        <td>(NONE) recommended faculty_school_id,school_id,term_code,formatted_course,title</td>
+    </tr>
+    <tr>
+        <td>external_person</td>
+        <td>school_id</td>
+    </tr>
+    <tr>
+        <td>external_person_note</td>
+        <td>code</td>
+    </tr>
+    <tr>
+        <td>external_person_planning_status</td>
+        <td>school_id</td>
+    </tr>
+    <tr>
+        <td>external_program</td>
+        <td>code</td>
+    </tr>
+    <tr>
+        <td>external_registration_status_by_term</td>
+        <td>school_id,term_code</td>
+    </tr>
+    <tr>
+        <td>external_student_academic_program</td>
+        <td>school_id, degree_code, program_code</td>
+    </tr>
+    <tr>
+        <td>external_student_financial_aid</td>
+        <td>school_id</td>
+    </tr>
+    <tr>
+        <td>external_student_test</td>
+        <td>school_id, test_code, sub_test_code, test_date, discriminator</td>
+    </tr>
+    <tr>
+        <td>external_student_transcript</td>
+        <td>school_id</td>
+    </tr>
+    <tr>
+        <td>external_student_transcript_course</td>
+        <td>school_id, term_code, formatted_course, section_code</td>
+    </tr>
+    <tr>
+        <td>external_student_transcript_term</td>
+        <td>school_id, term_code</td>
+    </tr>
+    <tr>
+        <td>external_term</td>
+        <td>code</td>
+    </tr>
+    </tbody>
+</table>
 
- For a complete list of column names and constraints please see the relevant mappings for your version of SSP.
+For a complete list of column names and constraints please see the relevant mappings for your version of SSP.
 
 
-Data Integration Mappings for Version 2.1.0:
-https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping
+[Data Integration Mappings for Version 2.1.0:](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping)
 
-Data Integration Mappings for Version 2.0.1:
- https://wiki.jasig.org/download/attachments/57574117/SIS%20Data%20Mappings%20v2.0.xlsx?version=8&modificationDate=1363628409239&api=v2
+[Data Integration Mappings for Version 2.0.1:](https://wiki.jasig.org/download/attachments/57574117/SIS%20Data%20Mappings%20v2.0.xlsx?version=8&modificationDate=1363628409239&api=v2)
 
-Data Integration Mappings for Version 2.0.0
-https://wiki.jasig.org/display/SSP/SSP+v2.0.0+Data+Integration+Mapping
-
-Data Integration Mappings for Version 1.2.1
-https://wiki.jasig.org/display/SSP/SSP+v1.2.1+Data+Integration+Mapping
+[Data Integration Mappings for Version 2.0.0](https://wiki.jasig.org/display/SSP/SSP+v2.0.0+Data+Integration+Mapping)
+[Data Integration Mappings for Version 1.2.1](https://wiki.jasig.org/display/SSP/SSP+v1.2.1+Data+Integration+Mapping)
 
 4. For questions on csv formatting please see http://edoceo.com/utilitas/csv-file-format.
 
