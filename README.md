@@ -446,7 +446,7 @@ For a complete list of column names and constraints please see the relevant mapp
 
 NB: At this writing, only SSP versions 2.0.x, 2.1.x, and 2.2.x are supported.
 
-[Data Integration Mappings for Version 2.1.0](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping)
+[Data Integration Mappings for Version 2.1.0](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping) (No change for 2.2.x at this writing.)
 
 [Data Integration Mappings for Version 2.0.1:](https://wiki.jasig.org/download/attachments/57574117/SIS%20Data%20Mappings%20v2.0.xlsx?version=8&modificationDate=1363628409239&api=v2)
 
