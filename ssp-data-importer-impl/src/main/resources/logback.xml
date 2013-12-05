@@ -23,14 +23,12 @@
 	update itself from this config file without restarting the app. -->
 
 <configuration debug="false" scan="false">
-<!-- 
 	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
 			</pattern>
 		</encoder>
 	</appender>
- -->
 	<appender name="infoFileAppender"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${log.home:-.}/infoLogFile.log</file>
@@ -64,6 +62,11 @@
 	</appender>
 	<root level="error">
 		<appender-ref ref="errorFileAppender" />
+		<appender-ref ref="consoleAppender"/>
 	</root>
 	
+	<root level="info">
+		<appender-ref ref="infoFileAppender" />
+		<appender-ref ref="consoleAppender"/>
+	</root>
 </configuration>

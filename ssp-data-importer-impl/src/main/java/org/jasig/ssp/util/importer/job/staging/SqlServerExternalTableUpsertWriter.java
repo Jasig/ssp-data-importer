@@ -132,15 +132,20 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
 
         batchedStatements.add(insertSql.toString());
         say(insertSql);
-        int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
-        Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
-                "numInsertedUpdated");
-        numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
-        numInsertedUpdated =+ results[0];
-        stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
-        
-        say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
-                + batchStop);
+        try {
+            int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+            Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
+                    "numInsertedUpdated");
+            numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
+            numInsertedUpdated =+ results[0];
+            stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
+            
+            say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
+                    + batchStop);
+        } catch(Exception e)
+        {
+            throw new NotSkippableException(e);
+        }
     }
 
     private String[] writeHeader(RawItem item) {

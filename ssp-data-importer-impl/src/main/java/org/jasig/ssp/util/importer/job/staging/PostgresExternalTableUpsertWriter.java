@@ -135,14 +135,18 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
 
         batchedStatements.add(insertSql.toString());
         say(insertSql);
-        
-        int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
-        Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
-                "numInsertedUpdated");
-        numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
-        numInsertedUpdated = numInsertedUpdated + results[0] + results[1];
-        stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
-
+        try{
+            int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
+           
+            Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
+                    "numInsertedUpdated");
+            numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
+            numInsertedUpdated = numInsertedUpdated + results[0] + results[1];
+            stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
+        }catch(Exception e)
+        {
+            throw new NotSkippableException(e);
+        }
     }
 
     private String[] writeHeader(RawItem item) {
