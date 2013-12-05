@@ -34,7 +34,7 @@
 		<file>${log.home:-.}/infoLogFile.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>infoLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${log.home:-.}/infoLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
 	
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>
@@ -50,7 +50,7 @@
 		<file>${log.home:-.}/errorLogFile.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>errorLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${log.home:-.}/errorLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
 	
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>
