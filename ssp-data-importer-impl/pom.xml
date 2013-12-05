@@ -203,6 +203,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.7.2</version>
         <configuration>
 	                <argLine>-Dssp.importer.configdir=${properties-directory} -Dspring.profiles.active=${spring-profile}</argLine>
         </configuration>
