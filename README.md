@@ -173,11 +173,13 @@ set "JAVA_HOME=C:\Program Files (x86)\Java\jre6"
 
 See the Linux installation notes above re `setJobEnv.sh` for more detail on which options can/should be set in `setJobEnv.bat`.
 
-Assuming the same installation location, create a file at `c:\ssp\ssp-data-importer\conf\ssp-importer.properties` and set local application config overrides. As with Linux installs, it is usually easiest to set most config in `setJobEnv.bat` and use `ssp-importer.properties` for sensitive config, e.g. database and SMTP passwords.
+Assuming the same installation location, create a file at `c:\ssp\ssp-data-importer\conf\ssp-importer.properties` and set local application config overrides.
+As with Linux installs, it is usually easiest to set most config in `setJobEnv.bat` and use `ssp-importer.properties` for sensitive config, e.g. database and SMTP passwords.
 
 For logging configuration see the "Logging" section below.
 
-To test the application, open a Cmd window (Start -> search for 'Cmd', or Start -> All Programs -> Accessories -> Command Prompt) and run `c:\ssp\ssp-data-importer\bin\runJob.bat`. Note that this *will* attempt to connect to your database and create the necessary tables. But as long as there are no files in the monitored directory, no further database writes will occur.
+To test the application, open a Cmd window (Start -> search for 'Cmd', or Start -> All Programs -> Accessories -> Command Prompt) and run `c:\ssp\ssp-data-importer\bin\runJob.bat`.
+Note that this *will* attempt to connect to your database and create the necessary tables. But as long as there are no files in the monitored directory, no further database writes will occur.
 
 To configure the job to run on a schedule, launch the Windows Task Manager (Start -> search for "Task Manager").
 
@@ -201,6 +203,24 @@ To configure the job to run on a schedule, launch the Windows Task Manager (Star
 18. Click 'OK'
 
 ## Logging
+
+`ssp-data-importer` uses [Logback](http://logback.qos.ch/manual/configuration.html) as its logging framework.
+The default Logback configuration file is embedded in the `ssp-data-importer-impl-<version>.jar` file at `./logback.xml`. 
+That default configuration will output both to stdout/stderr and to two daily rolled files: `<install>/logs/errorLogFile.log` and `<install>/logs/infoLogFile.log`.
+As its name suggests, the former can be monitored for application errors, whereas the latter is intended for diagnostic messaging.
+
+If you just need to change the directory in which logs collect, the easiest way to do that is to change the `LOG_HOME` shell var in `setJobEnv.[sh|bat]`.
+
+For more complex changes, extract the default file as a starting point:
+
+```
+$> cd <install>/conf
+$> jar -xf ../lib/ssp-data-importer-impl-1.0.0.jar logback.xml
+```
+
+Edit the extracted file to suit your needs. The Logback project has thorough [documentation](http://logback.qos.ch/manual/configuration.html). Or contact the [ssp-user](https://wiki.jasig.org/display/JSG/ssp-user) mailing list with questions.
+
+If you follow those steps exactly, `ssp-data-importer` will automatically pick up your changes on its next execution. If you would rather place your overrides in a different location, specify that complete path by setting `LOGBACK_FILE` IN `setJobEnv.[sh|bat]`.
 
 Application Configuration Options
 =================================
