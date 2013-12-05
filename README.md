@@ -179,7 +179,7 @@ For logging configuration see the "Logging" section below.
 
 To test the application, open a Cmd window (Start -> search for 'Cmd', or Start -> All Programs -> Accessories -> Command Prompt) and run `c:\ssp\ssp-data-importer\bin\runJob.bat`. Note that this *will* attempt to connect to your database and create the necessary tables. But as long as there are no files in the monitored directory, no further database writes will occur.
 
-To configure the job to run on a schedule, launcg the Windows Task Manager (Start -> search for "Task Manager").
+To configure the job to run on a schedule, launch the Windows Task Manager (Start -> search for "Task Manager").
 
 1. Task Manager -> Actions -> Create a Basic Task
 2. Name: SSP Data Importer
