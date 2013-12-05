@@ -147,7 +147,10 @@ $> vim conf/ssp-importer.properties
 $> chmod +x bin/runJob.sh
 
 # To run hourly using cron add the following line to your crontab
-#   0 0-23 * * * /opt/ssp/ssp-data-importer/bin/runJob.sh
+# Generating an email from cron is generally not necessary because
+# the application generates an email on both successful and errored
+# executions. Check its log files for more detail.
+#   0 0-23 * * * /opt/ssp/ssp-data-importer/bin/runJob.sh >> /dev/null 2>&1
 $> crontab -e
 ```
 
