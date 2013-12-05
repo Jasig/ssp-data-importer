@@ -22,26 +22,26 @@ ssp-data-importer
 ==================
 
 `ssp-data-importer` is a tool for importing csv data for the external tables into the SSP database.
-This program inserts data from csv files into a database. Csv files have some latitude in parsing including whitespace, separator, and quote.
+This program inserts data from `csv` files into a database. `csv` files have some latitude in parsing including whitespace, separator, and quote.
 Currently, the program supports only updates and inserts. It is possible to upload partial data updating specific columns.
 When used as a method to update already existing data, the only requirement is that the columns containing key values be supplied.
 
-High-level workflow
+High-Level Workflow
 ===================
-    The ssp-data-importer is expected to be used as part of a cronjob or other periodic method for running the program.
-    The job should be set up to run with a period that is appropriate for how often the external tables are to be
-    updated.  It is important that the upload to the input folder be timed to the running of the cronjob.
 
-    1. A folder that will contain the .csv files (input folder) to import is monitored at runtime.
-    2. If the folder contains .csv files and the files have had a sufficient soak time since modification,
-       the files are transfered to a folder (process folder) for reading and validation. (Validation is on a column basis,
-       all errors in a given row are documented for the final report. Validation is based on database metadata constraints.
-    3. Validated rows are written to a second folder (upsert folder)
-    4. Where they are upserted into the staging tables in the database.
-    5. Additional validation steps are taken on the complete data set evaluating for inconsistencies and any potential duplications.
-    6. The validated staging tables are then used to update/insert data into the corresponding external_tables.
-    7. A report is generated giving pertinent information including any validation errors, total lines per table processed etc.
-    8. Finally, staging tables are truncated, processing and upset folders are removed and the processed files can be archived.
+The `ssp-data-importer` is expected to be used as part of a cronjob or other periodic method for running the program, e.g. Windows Task Scheduler.
+The job should be set up to run with a period that is appropriate for how often the external tables are to be updated.
+It is important that the upload to the input folder be timed to the running of the cronjob.
+
+1. A folder that will contain the `.csv` files (input folder) to import is monitored at runtime.
+1. If the folder contains `.csv` files and the files have had a sufficient soak time since modification, the files are transfered to a folder (process folder).
+1. Files in the process folder are validated. Validation is on a column basis. All errors in a given row are documented for the final job-level report. Validation is based on database metadata constraints.
+1. Validated rows are written to a second folder (upsert folder).
+1. Files in the upsert folder are inserted to staging tables in the database.
+1. Additional validation steps are taken on the complete data set evaluating for inconsistencies and any potential duplications.
+1. The validated staging tables are then used to update/insert (upsert) data into the corresponding `external_*` tables.
+1. A report is generated and emailed giving pertinent information including any validation errors, total lines per table processed etc.
+1. Finally, staging tables are truncated, processing and upset folders are removed and the processed files are archived.
 
 Pre-requisites
 ==============
