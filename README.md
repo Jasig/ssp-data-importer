@@ -57,11 +57,36 @@ SSP currently supports Postgres 9.1+ and SQLServer 2008 R2.
 To build the application from source you will need a Maven 3+ installation.
 Deployers should not expect to build the application from source, though.
 
-BUILDING
+Building
 ========
-    ssp-data-importer is a maven project. It can be built and tested using the standard mvn commands.
-    To build for distribution, an assembly/descriptor.xml is supplied, as well as a bat and sh script for running the
-    importer.
+
+`ssp-data-importer` is a Maven project. It can be built and tested using the standard `mvn` command.
+Note that nearly all tests are integration tests and rely on a database.
+The tests do not provision the database itself since it makes no sense for this application to test against a "dummy," embedded database.
+To build without tests:
+
+```
+%> mvn -DskipTests=true clean install
+```
+
+To build with tests, you'll need to create a properties file specifying your local connection coordinates. E.g.:
+
+```properties
+batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp
+batch.jdbc.driver=org.postgresql.Driver
+batch.jdbc.user=sspadmin
+batch.jdbc.password=sspadmin
+```
+
+Then specify the location of that file and the database platform type as arguments to the `mvn` command:
+
+```
+%> mvn -Dproperties-directory=/path/to/your/config.properties \
+-Dspring-profile=[sqlserver|postgres] \
+clean install
+```
+
+The default `spring-profile` is "postgres".
 
 Running the Program
 ===================
