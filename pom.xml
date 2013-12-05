@@ -106,7 +106,23 @@
     </dependencyManagement>
 
     <build>
-
+      <pluginManagement>
+          <plugins>
+              <plugin>
+                  <groupId>com.mycila.maven-license-plugin</groupId>
+                  <artifactId>maven-license-plugin</artifactId>
+                  <configuration>
+                      <excludes combine.children="append">
+                          <exclude>**/*.csv</exclude>
+                          <exclude>**/.gitignore</exclude>
+                      </excludes>
+                      <mapping>
+                          <md>XML_STYLE</md>
+                      </mapping>
+                  </configuration>
+              </plugin>
+          </plugins>
+      </pluginManagement>
     </build>
 
     <modules>
