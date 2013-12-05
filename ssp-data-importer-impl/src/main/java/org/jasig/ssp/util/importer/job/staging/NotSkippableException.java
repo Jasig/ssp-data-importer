@@ -11,11 +11,6 @@ public class NotSkippableException extends RuntimeException{
         super();
     }
 
-    public NotSkippableException(String message, Throwable cause,
-            boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
     public NotSkippableException(String message, Throwable cause) {
         super(message, cause);
     }
