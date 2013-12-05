@@ -64,15 +64,18 @@
 @REM
 @REM  PROCESS_DIR - Override the location to which uploaded files are initially moved from the monitored dir. Optional.
 @REM                Defaults to "..\importjob\process" relative to this directory. Note that if you need to change this
-@REM                location, you must do so here rather than in %CONFIG_DIR%\ssp-importer.properties
+@REM                location, you must do so here rather than in %CONFIG_DIR%\ssp-importer.properties. Also, the value
+@REM                must be prefixed with "file:". E.g. "PROCESS_DIR=file:c:\ssp\importjob\process"
 @REM
 @REM  UPSERT_DIR - Override the location to files are moved after validation in PROCESS_DIR. Optional.
 @REM               Defaults to "..\importjob\upsert" relative to this directory. Note that if you need to change this
-@REM               location, you must do so here rather than in %CONFIG_DIR%\ssp-importer.properties
+@REM               location, you must do so here rather than in %CONFIG_DIR%\ssp-importer.properties. Also, the value
+@REM                must be prefixed with "file:". E.g. "UPSERT_DIR=file:c:\ssp\importjob\upsert"
 @REM
 @REM  ARCHIVE_DIR - Override the location to files are moved after handling in PROCESS_DIR and UPSERT_DIR. Optional.
 @REM                Defaults to "..\importjob\archive" relative to this directory. Note that if you need to change this
-@REM                location, you must do so here rather than in %CONFIG_DIR%\ssp-importer.properties
+@REM                location, you must do so here rather than in %CONFIG_DIR%\ssp-importer.properties. Also, the value
+@REM                must be prefixed with "file:". E.g. "ARCHIVE_DIR=file:c:\ssp\importjob\archive"
 @REM
 @REM  JVM_OPTS - Additional arguments to pass to the JVM, e.g. to adjust heap size. Can also be used to set arbitary
 @REM             application config options. Values set here override anything set in
@@ -140,17 +143,17 @@ IF NOT DEFINED MAIN (
 @REM ECHO "MAIN: %MAIN%"
 
 IF NOT DEFINED PROCESS_DIR (
-  SET "PROCESS_DIR=%CURRENT_DIR%\..\importjob\process"
+  SET "PROCESS_DIR=file:%CURRENT_DIR%\..\importjob\process"
 )
 @REM ECHO "PROCESS_DIR: %PROCESS_DIR%"
 
 IF NOT DEFINED UPSERT_DIR (
-  SET "UPSERT_DIR=%CURRENT_DIR%\..\importjob\upsert"
+  SET "UPSERT_DIR=file:%CURRENT_DIR%\..\importjob\upsert"
 )
 @REM ECHO "UPSERT_DIR: %UPSERT_DIR%"
 
 IF NOT DEFINED ARCHIVE_DIR (
-  SET "ARCHIVE_DIR=%CURRENT_DIR%\..\importjob\archive"
+  SET "ARCHIVE_DIR=file:%CURRENT_DIR%\..\importjob\archive"
 )
 @REM ECHO "ARCHIVE_DIR: %ARCHIVE_DIR%"
 
