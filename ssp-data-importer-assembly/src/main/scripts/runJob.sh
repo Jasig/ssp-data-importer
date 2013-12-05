@@ -59,15 +59,18 @@
 #
 #  PROCESS_DIR - Override the location to which uploaded files are initially moved from the monitored dir. Optional.
 #                Defaults to "../importjob/process" relative to this directory. Note that if you need to change this
-#                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties
+#                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties. Also, the value
+#                must be prefixed with "file:". E.g. "PROCESS_DIR=file:/opt/ssp/importjob/process"
 #
 #  UPSERT_DIR - Override the location to files are moved after validation in PROCESS_DIR. Optional.
 #               Defaults to "../importjob/upsert" relative to this directory. Note that if you need to change this
-#               location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties
+#               location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties. Also, the value
+#               must be prefixed with "file:". E.g. "UPSERT_DIR=file:/opt/ssp/importjob/upsert"
 #
 #  ARCHIVE_DIR - Override the location to files are moved after handling in PROCESS_DIR and UPSERT_DIR. Optional.
 #                Defaults to "../importjob/archive" relative to this directory. Note that if you need to change this
-#                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties
+#                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties. Also, the value
+#                must be prefixed with "file:". E.g. "ARCHIVE_DIR=file:/opt/ssp/importjob/upsert"
 #
 #  JVM_OPTS - Additional arguments to pass to the JVM, e.g. to adjust heap size. Can also be used to set arbitary
 #             application config options. Values set here override anything set in
@@ -110,9 +113,9 @@ LOG_HOME=${LOG_HOME:-"${DIR}/../logs"}
 JOB_PATH=${JOB_PATH:-"classpath:/launch-context.xml"}
 JOB_IDENTIFIER=${JOB_IDENTIFIER:-"importJob"}
 MAIN=${MAIN:-"org.jasig.ssp.util.importer.job.Main"}
-PROCESS_DIR=${PROCESS_DIR:-"${DIR}/../importjob/process"}
-UPSERT_DIR=${UPSERT_DIR:-"${DIR}/../importjob/upsert"}
-ARCHIVE_DIR=${ARCHIVE_DIR:-"${DIR}/../importjob/archive"}
+PROCESS_DIR=${PROCESS_DIR:-"file:${DIR}/../importjob/process"}
+UPSERT_DIR=${UPSERT_DIR:-"file:${DIR}/../importjob/upsert"}
+ARCHIVE_DIR=${ARCHIVE_DIR:-"file:${DIR}/../importjob/archive"}
 PROFILES=${PROFILES:-"postgres"}
 
 if [ "$JAVA_HOME" = "" ]; then
