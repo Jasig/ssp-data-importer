@@ -349,16 +349,13 @@ exists.only.for.testing.2=default.value.2
 CSV FILE FORMAT
 ===============
 
-1. Name of csv file MUST correspond to the name of the external_table that is to be imported. example: external_person.csv
-2. format supported is comma delimite.  Quote character is " and the escape character is also "
+1. The name of each uploaded `csv` file MUST correspond to the name of the SSP `external_*` table to target. Example: the (valid) contents of `external_person.csv` will be written to the `external_person` database table.
+1. Comma (,) is the only supported delimiter character. Use the quote character (") to wrap fields which may themselves contain commas. Repeat the quote character ("") to escape quote characters embedded in field values.
+1. Each file MUST have an initial line containing the column names in the format of the external table. Example: for `external_faculty_course`, the first line of `external_faculty_course.csv` would contain: `faculty_school_id,term_code,formatted_course,title,section_code,section_number`
+1. Partial data updates are supported. However, in addition to the data being updated the key values for the specific table MUST be supplied.
 
-2. Each file MUST have an initial line containing the column names in the format of the external table. example
-   for external_faculty_course first line would contain:
-   faculty_school_id,term_code,formatted_course,title,section_code,section_number
+For SSP version 2.2, here are the keys for each external table:
 
-3. Partial data updates are supported. However, in addition to the data being updated the key values for the specific table MUST be supplied.
-
-   For SSP version 2.0 keys for each external table:
    <table>
    <tbody >
    <tr><th>TABLE</th><th>KEY</th></tr>
@@ -388,11 +385,11 @@ CSV FILE FORMAT
     </tr>
     <tr>
         <td>external_faculty_course</td>
-        <td>(NONE) recommended faculty_school_id,term_code,formatted_course,title</td>
+        <td>(NONE) recommended faculty_school_id,section_code</td>
     </tr>
     <tr>
         <td>external_faculty_course_roster</td>
-        <td>(NONE) recommended faculty_school_id,school_id,term_code,formatted_course,title</td>
+        <td>(NONE) recommended school_id,section_code</td>
     </tr>
     <tr>
         <td>external_person</td>
@@ -447,26 +444,37 @@ CSV FILE FORMAT
 
 For a complete list of column names and constraints please see the relevant mappings for your version of SSP.
 
+NB: At this writing, only SSP versions 2.0.x, 2.1.x, and 2.2.x are supported.
 
-[Data Integration Mappings for Version 2.1.0:](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping)
+[Data Integration Mappings for Version 2.1.0](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping)
+
 [Data Integration Mappings for Version 2.0.1:](https://wiki.jasig.org/download/attachments/57574117/SIS%20Data%20Mappings%20v2.0.xlsx?version=8&modificationDate=1363628409239&api=v2)
+
 [Data Integration Mappings for Version 2.0.0](https://wiki.jasig.org/display/SSP/SSP+v2.0.0+Data+Integration+Mapping)
-[Data Integration Mappings for Version 1.2.1](https://wiki.jasig.org/display/SSP/SSP+v1.2.1+Data+Integration+Mapping)
 
-4. For questions on csv formatting please see [expected csv format](http://edoceo.com/utilitas/csv-file-format).
-   Empty (including those with all whitespace) strings will be entered as null values.
+For questions on csv formatting please see [expected csv format](http://edoceo.com/utilitas/csv-file-format).
 
-   acceptable examples:
-   1. no quotes
-   faculty_school_id,term_code,formatted_course,title,section_code,section_number
-   sherman123,FA12,Biology 101,Introduction To Biology,,
+Empty (including those with all whitespace) strings will be entered as null values.
 
-   2. All quotes (note the enclosed comma in column 1):
-   "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
-   "sherman, 123","FA12","Biology 101","Introduction To Biology","",""
+Acceptable examples:
 
-   2. All quotes escaped quote(note the enclosed comma in column 1):
-   "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
-   "sherman"", 123","FA12","this is a string "", with escaped quotes","Introduction To Biology","",""
+**No quotes:**
 
+```csv
+faculty_school_id,term_code,formatted_course,title,section_code,section_number
+sherman123,FA12,BIO101,Introduction To Biology,BIO101-FA12-001,
+```
 
+** All quotes (note the enclosed comma in column 1):**
+
+```csv   
+"faculty_school_id","term_code","formatted_course","title","section_code","section_number"
+"sherman, 123","FA12","BIO101,"Introduction To Biology","BIO101-FA12-001",""
+```
+
+**All quotes escaped quote(note the enclosed comma in column 1):**
+
+```
+"faculty_school_id","term_code","formatted_course","title","section_code","section_number"
+"sherman"", 123","FA12","this is a string "", with escaped quotes","Introduction To Biology","BIO101-FA12-001",""
+```
