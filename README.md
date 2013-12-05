@@ -152,9 +152,53 @@ $> chmod +x bin/runJob.sh
 # executions. Check its log files for more detail.
 #   0 0-23 * * * /opt/ssp/ssp-data-importer/bin/runJob.sh >> /dev/null 2>&1
 $> crontab -e
+
+# Or to test the application just execute runJob.sh.
 ```
 
 ## Windows
+
+Open a browser and paste this URL into the location bar: https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.zip
+
+Using Windows Explorer, find the downloaded zip and extract it.
+
+Find the `ssp-data-importer` directory in the extracted zip and copy it to the intended installation directory, e.g. below `c:\ssp\`.
+
+Assuming that installation location, create a file at `c:\ssp\ssp-data-importer\bin\setJobEnv.bat` and set local overrides to any of the options described by `c:\ssp\ssp-data-importer\bin\runJob.bat`. E.g.
+
+```
+set "JVM_OPTS="-Dbatch.jdbc.url=jdbc:jtds:sqlserver://127.0.0.1:1433/ssp" "-Dbatch.jdbc.driver=net.sourceforge.jtds.jdbc.Driver""
+set "JAVA_HOME=C:\Program Files (x86)\Java\jre6"
+```
+
+See the Linux installation notes above re `setJobEnv.sh` for more detail on which options can/should be set in `setJobEnv.bat`.
+
+Assuming the same installation location, create a file at `c:\ssp\ssp-data-importer\conf\ssp-importer.properties` and set local application config overrides. As with Linux installs, it is usually easiest to set most config in `setJobEnv.bat` and use `ssp-importer.properties` for sensitive config, e.g. database and SMTP passwords.
+
+For logging configuration see the "Logging" section below.
+
+To test the application, open a Cmd window (Start -> search for 'Cmd', or Start -> All Programs -> Accessories -> Command Prompt) and run `c:\ssp\ssp-data-importer\bin\runJob.bat`. Note that this *will* attempt to connect to your database and create the necessary tables. But as long as there are no files in the monitored directory, no further database writes will occur.
+
+To configure the job to run on a schedule, launcg the Windows Task Manager (Start -> search for "Task Manager").
+
+1. Task Manager -> Actions -> Create a Basic Task
+2. Name: SSP Data Importer
+3. Click 'Next'
+4. Trigger: Daily
+5. Click 'Next'
+6. Set the desired time of day and recurrance policies
+7. Click 'Next'
+8. Action: Start a program
+9. Click 'Next'
+10. Browse to and select `c:\ssp\ssp-data-importer\bin\runJob.bat`
+11. Can leave 'Add arguments' nor 'Start in' fields blank
+12. Click 'Next'
+13. Check 'Show properties'
+14. Click 'Finish'
+15. Select 'Run whether user is logged on or not'
+16. Click 'OK'
+17. Enter password
+18. Click 'OK'
 
 ## Logging
 
