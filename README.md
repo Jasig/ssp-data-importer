@@ -315,7 +315,7 @@ batch.sendEmail=true
 
 # SMTP Host name
 # **REQUIRED IF batch.sentMail=true**
-**batch.smtp.host=localhost
+batch.smtp.host=localhost
 
 # SMTP port
 # **REQUIRED IF batch.sentMail=true**
