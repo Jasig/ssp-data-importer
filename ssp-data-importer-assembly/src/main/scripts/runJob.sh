@@ -34,12 +34,9 @@
 #
 # You do not need to be in in this directory when executing this file.
 #
-# Options are:
+# Options are (roughly ordered by descending importance):
 #
 #  JAVA_HOME - Path to dir containing the java executable. Required.
-#
-#  CLASSPATH - Standard java classpath config option. Should rarely, if ever, need to change.Optional. Defaults to
-#              '../lib/*' relative to this file.
 #
 #  CONFIG_DIR - Override individual config properties with contents of ${CONFIG_DIR}/ssp-importer.properties, if that
 #               file exists. Optional. Defaults to ../conf relative to this directory.
@@ -50,13 +47,15 @@
 #  LOG_HOME - If using the default logging config, logs will collect in this directory. Optional. Defaults to ../logs
 #             relative to this directory.
 #
-#  JOB_PATH - Spring psuedo-url pointing to the main ApplicationContext file for the job to be run. Should rarely, if
-#             ever, need to change. Optional. Defaults to classpath:/launch-context.xml
+#  PROFILES - Comma-delimited list of enabled Spring profiles. Only recognized values are 'postgres' and 'sqlserver'.
+#             This is an optional var and defaults to 'postgres', so should only need to modify this if *not* targeting
+#             a Postgres db, in which case it should be set to:
 #
-#  JOB_IDENTIFIER - Name of the job to run. Should rarely, if ever, need to change. Optional. Defaults to importJob
+#               PROFILES=sqlserver
 #
-#  MAIN - Fully qualified name of the Java class to run. Should rarely, if ever, need to change. Optional. Defaults
-#         to org.jasig.ssp.util.importer.job.Main
+#             This is equivalent to:
+#
+#               JVM_OPTS="-Dspring.profiles.active=sqlserver"
 #
 #  PROCESS_DIR - Override the location to which uploaded files are initially moved from the monitored dir. Optional.
 #                Defaults to "../importjob/process" relative to this directory. Note that if you need to change this
@@ -81,6 +80,17 @@
 #
 #  PROGRAM_OPTS - Additional arguments to pass to the application after JOB_PATH and JOB_IDENTIFIER. Optional.
 #
+#  CLASSPATH - Standard java classpath config option. Should rarely, if ever, need to change.Optional. Defaults to
+#              '../lib/*' relative to this file.
+#
+#  JOB_PATH - Spring psuedo-url pointing to the main ApplicationContext file for the job to be run. Should rarely, if
+#             ever, need to change. Optional. Defaults to classpath:/launch-context.xml
+#
+#  JOB_IDENTIFIER - Name of the job to run. Should rarely, if ever, need to change. Optional. Defaults to importJob
+#
+#  MAIN - Fully qualified name of the Java class to run. Should rarely, if ever, need to change. Optional. Defaults
+#         to org.jasig.ssp.util.importer.job.Main
+#
 # Defaults are applied after setJobEnv.sh has been sourced.
 
 maybe_source_file() {
@@ -103,6 +113,7 @@ MAIN=${MAIN:-"org.jasig.ssp.util.importer.job.Main"}
 PROCESS_DIR=${PROCESS_DIR:-"${DIR}/../importjob/process"}
 UPSERT_DIR=${UPSERT_DIR:-"${DIR}/../importjob/upsert"}
 ARCHIVE_DIR=${ARCHIVE_DIR:-"${DIR}/../importjob/archive"}
+PROFILES=${PROFILES:-"postgres"}
 
 if [ "$JAVA_HOME" = "" ]; then
   echo "Error: JAVA_HOME environment variable is not set."
@@ -117,6 +128,7 @@ $JAVA_HOME/bin/java \
   -Dbatch.tables.process.folder="${PROCESS_DIR}" \
   -Dbatch.tables.upsert.folder="${UPSERT_DIR}" \
   -Dbatch.tables.archive.folder="${ARCHIVE_DIR}" \
+  -Dspring.profiles.active="${PROFILES}" \
   ${JVM_OPTS} \
   "${MAIN}" \
   "${JOB_PATH}" \
