@@ -40,43 +40,43 @@
     </bean>
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
-    
+
     <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" >
-    	<property name="dbInstanceName" value="${db_name}"/>
-    	<property name="emailRecipients" value="${batch.email.recipients}"/>
-    	<property name="replyTo" value="${batch.email.replyTo}"/>
-		<property name="sendEmail" value="${batch.sendEmail}" />
+        <property name="dbInstanceName" value="${db_name}"/>
+        <property name="emailRecipients" value="${batch.email.recipients}"/>
+        <property name="replyTo" value="${batch.email.replyTo}"/>
+        <property name="sendEmail" value="${batch.sendEmail}" />
     </bean>
-    
-	<!-- Mail Server Configuration -->
-	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="host" value="${batch.smtp.host}" />
-		<property name="port" value="${batch.smtp.port}" />
-		<property name="protocol" value="${batch.smtp.protocol}" />
-		<!-- If MS Exchange does not expect authentication username and password
-		must both be null else all connection attempts will fail. Empty strings
-		are not sufficient to skip authN -->
-		<property name="username" value="${batch.smtp.username}" />
-		<property name="password" value="${batch.smtp.password}" />
-	</bean>
-	
+
+    <!-- Mail Server Configuration -->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${batch.smtp.host}" />
+        <property name="port" value="${batch.smtp.port}" />
+        <property name="protocol" value="${batch.smtp.protocol}" />
+        <!-- If MS Exchange does not expect authentication username and password
+        must both be null else all connection attempts will fail. Empty strings
+        are not sufficient to skip authN -->
+        <property name="username" value="${batch.smtp.username}" />
+        <property name="password" value="${batch.smtp.password}" />
+    </bean>
+
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
     <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="${batch.tables.input.files}"
+                                p:resources="${batch.tables.input.folder}${batch.files.accepted}"
                                 p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
     <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
-                                p:resources="${batch.tables.input.files}"
+                                p:resources="${batch.tables.input.folder}${batch.files.accepted}"
                                 p:dulicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
                                 p:upsertDirectory="${batch.tables.upsert.folder}"/>
 
     <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
     <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
-        <property name="resources" value="${batch.tables.process.files}"/>
+        <property name="resources" value="${batch.tables.process.folder}${batch.files.accepted}"/>
     </bean>
 
     <bean scope="step" id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
-    <property name="resource" value="#{stepExecutionContext[fileName]}"/>
+        <property name="resource" value="#{stepExecutionContext[fileName]}"/>
     </bean>
 
     <bean scope="step" id="rawItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.RawItemValidateProcessor" >
@@ -106,12 +106,10 @@
           <property name="appendAllowed" value="true" />
           <property name="lineAggregator">
                <bean class="org.jasig.ssp.util.importer.job.csv.RawItemLineAggregator">
-                    <property name="delimiter" value="${batch.delimiter}" />
                </bean>
         </property>
          <property name="headerCallback">
             <bean class="org.jasig.ssp.util.importer.job.csv.RawItemFlatFileHeaderCallback">
-                    <property name="delimiter" value="${batch.delimiter}" />
             </bean>
          </property>
     </bean>
@@ -137,11 +135,11 @@
     </bean>
 
     <bean  scope="step" id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
-        <property name="resources" value="${batch.tables.upsert.files}"/>
+        <property name="resources" value="${batch.tables.upsert.folder}${batch.files.accepted}"/>
     </bean>
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor"/>
-    
+
     <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener"/>
      <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener"/>
      <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
@@ -186,7 +184,7 @@
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
             <batch:listeners>
-            	<batch:listener ref="stagingTableTruncator"/>
+                <batch:listener ref="stagingTableTruncator"/>
             </batch:listeners>
         </batch:step>
         <!-- Read validated files, write output to staging tables -->
@@ -196,11 +194,11 @@
 
         <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
         free by using or extending DefaultJobParametersValidator -->
-        <!-- 
+        <!--
          <batch:validator ref="importJobValidator" />
          -->
         <batch:listeners>
-           	<batch:listener ref="reportGenerator"/>
+               <batch:listener ref="reportGenerator"/>
             <batch:listener ref="batchFinaliser"/>
          </batch:listeners>
 
@@ -233,7 +231,7 @@
                 </batch:chunk>
             </batch:tasklet>
         </batch:step>
-    <batch:step id="stageFilteredItemsSlave" > 
+    <batch:step id="stageFilteredItemsSlave" >
         <batch:tasklet>
             <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
             step. Note that this limit applies separately to reads, processes, and writes. -->
@@ -249,8 +247,8 @@
                 <batch:listeners>
                      <batch:listener ref="stagingTableItemWriter" />
                      <batch:listener ref="externalTableUpsertItemWriter" />
-					 <batch:listener ref="stagingAndUpsertSkipListener" />
-					 <batch:listener ref="stagingAndUpsertListener" />
+                     <batch:listener ref="stagingAndUpsertSkipListener" />
+                     <batch:listener ref="stagingAndUpsertListener" />
                 </batch:listeners>
              </batch:chunk>
 
