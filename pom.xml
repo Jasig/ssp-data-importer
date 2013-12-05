@@ -138,6 +138,11 @@
                     <artifactId>maven-release-plugin</artifactId>
                     <version>2.4.1</version>
                     <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>ssp-data-importer-@{project.version}</tagNameFormat>
+                        <!-- Don't automatically push changes b/c we want to verify artifacts before making
+                        any changes to the public repo -->
+                        <pushChanges>false</pushChanges>
                         <arguments>-Psonatype-oss-release,jasig-release -DskipTests=true</arguments>
                     </configuration>
                 </plugin>
