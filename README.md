@@ -88,25 +88,75 @@ clean install
 
 The default `spring-profile` is "postgres".
 
-Running the Program
-===================
+Installing and Running
+======================
 
-    It is recommended that the supplied scripts: runJob.bat (Windows) or runJob.sh (Unix) be used to run ssp-csv-importer.
-    arguments that need to be supplied:
-         argument for database profile -Dspring.profiles.active=profile: postgres|sqlserver
-         argument for location of override properties file -Dssp.importer.configdir=/location/of/override/properties/file/folder/
+The following assumes the JDK is already installed and the current network configuration allows the host on which the application to open a JDBC connection to the SSP database.
+`ssp-data-importer` can be installed on the same host as SSP or on another host altogether. The application's default memory footprint is very small (JVM-default heap sizing is usually fine), but can be expected to saturate a single CPU during its execution.
+These instructions also assume the directory to be monitored has already been mounted/created. This directory would typically be located on shared storage or otherwise support third-party upload, e.g. via SCP or FTP.
 
-    to run hourly using crontab:
-    in command line type:
-    ```
-    # crontab -e to edit
-    then add the following line
-    0 0-23 * * * /root/scripts/sh/runJob.sh -Dspring.profiles.active=postgres -Dssp.importer.configdir=/ssp-properties/
-    ```
+## Linux
 
+```bash
+# Create installation directory. Can be anywhere you like.
+# Example here assumes you'll install below a standard SSP dir.
+$> mkdir -p /opt/ssp
+$> cd /opt/ssp
 
-PROPERTIES FILE DESCRIPTION
-===========================
+# Download and extract the binary
+$> wget https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.tar.gz
+# This will create a directory named ssp-data-importer
+$> tar -xzvf ssp-data-importer-assembly-1.0.0-bin.tar.gz
+
+# Change into the extracted binary to configure it
+$> cd ssp-data-importer
+
+# A bin/setJobEnv.sh can be used to configure both the launch script and
+# the application itself. Available options are listed in runJob.js.
+# The only required override is to JAVA_HOME. But the launch script does
+# set several application config defaults as system properties. System
+# properties override values set in properties files. So if you need to
+# override any of the following application properties, you'll
+# need to do so in bin/setJobEnv.sh using the shell vars listed below:
+#
+#   PROCESS_DIR -> batch.tables.process.folder
+#   UPSERT_DIR -> batch.tables.upsert.folder
+#   ARCHIVE_DIR -> batch.tables.archive.folder
+#
+# It's often easiest to just set all non-sensitive config in
+# bin/setJobEnv.sh by passing arbitrary system properties in
+# JVM_OPTS. E.g.:
+#
+#   JVM_OPTS="-Dbatch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp \
+#             -Dbatch.jdbc.driver=org.postgresql.Driver"
+#
+$> vim bin/setJobEnv.sh
+
+# Create a file with local overrides for the app config itself.
+# Again, it's often easiest to set all app config as system
+# properties in bin/setJobEnv.sh and use this file just for
+# sensitive configuration you do not want to appear on the process
+# command line, e.g. batch.jdbc.password and batch.smtp.password.
+# See the "Application Configuration Options" section below for
+# all available properties.
+$> vim conf/ssp-importer.properties
+
+# For logging configuration see the "Logging" section below.
+
+# Make the bin/runJob.sh script executable
+$> chmod +x bin/runJob.sh
+
+# To run hourly using cron add the following line to your crontab
+#   0 0-23 * * * /opt/ssp/ssp-data-importer/bin/runJob.sh
+$> crontab -e
+```
+
+## Windows
+
+## Logging
+
+Application Configuration Options
+=================================
     There are a number of properties that are required for the program to run properly. All * values must be set as defaults
     are not supplied.
 
