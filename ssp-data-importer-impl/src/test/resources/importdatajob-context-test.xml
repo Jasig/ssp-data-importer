@@ -243,6 +243,7 @@
                 configurable limit set on the chunk above -->
                 <batch:skippable-exception-classes>
                         <batch:include class="java.lang.Exception"/>
+                        <batch:exclude class="org.jasig.ssp.util.importer.job.staging.NotSkippableException"/>
                  </batch:skippable-exception-classes>
                 <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                 <batch:listeners>
