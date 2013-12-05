@@ -133,6 +133,14 @@
                       <generateChildNotices>false</generateChildNotices>
                   </configuration>
               </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-release-plugin</artifactId>
+                  <version>2.4.1</version>
+                  <configuration>
+                      <arguments>-Psonatype-oss-release,jasig-release -DskipTests=true</arguments>
+                  </configuration>
+              </plugin>
           </plugins>
       </pluginManagement>
     </build>
