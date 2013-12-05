@@ -43,13 +43,19 @@ It is important that the upload to the input folder be timed to the running of t
 1. A report is generated and emailed giving pertinent information including any validation errors, total lines per table processed etc.
 1. Finally, staging tables are truncated, processing and upset folders are removed and the processed files are archived.
 
-Pre-requisites
+Pre-Requisites
 ==============
 
-    At a minimum you'll need a Java JDK install. This process can vary widely from
-    platform to platform, so you're on you're own for that one. This program requires JDK 1.6+.
-    You will need a postgres 9.1+ or SQL Server 2008+ database
-    To build you will need a maven distribution.
+At a minimum you'll need a Java JDK 1.6 install.
+JDK 1.7+ are not supported.
+The Java installation process can vary widely from platform to platform, so you're on you're own for that one.
+`ssp-data-importer` can reuse the same Java installation as SSP if installed on the same host.
+
+`ssp-data-importer` must be able to open a JDBC connection to the SSP database and execute DML and DDL statements.
+SSP currently supports Postgres 9.1+ and SQLServer 2008 R2.
+
+To build the application from source you will need a Maven 3+ installation.
+Deployers should not expect to build the application from source, though.
 
 BUILDING
 ========
