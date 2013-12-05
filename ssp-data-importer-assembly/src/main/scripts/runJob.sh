@@ -42,12 +42,12 @@
 #              '../lib/*' relative to this file.
 #
 #  CONFIG_DIR - Override individual config properties with contents of ${CONFIG_DIR}/ssp-importer.properties, if that
-#               file exists. Optional. Defaults to /opt/ssp-import-conf
+#               file exists. Optional. Defaults to ../conf relative to this directory.
 #
 #  LOGBACK_FILE - Override the complete logging coniguration with the file at this path, if it exists. Optional.
 #                 Defaults to ${CONFIG_DIR}/logback.xml
 #
-#  LOG_HOME - If using the default logging config, logs will collect in this directory. Optional. Defaults to "../logs"
+#  LOG_HOME - If using the default logging config, logs will collect in this directory. Optional. Defaults to ../logs
 #             relative to this directory.
 #
 #  JOB_PATH - Spring psuedo-url pointing to the main ApplicationContext file for the job to be run. Should rarely, if
@@ -58,7 +58,26 @@
 #  MAIN - Fully qualified name of the Java class to run. Should rarely, if ever, need to change. Optional. Defaults
 #         to org.jasig.ssp.util.importer.job.Main
 #
-#  JVM_OPTS - Additional arguments to pass to the JVM, e.g. to adjust heap size. Optional.
+#  PROCESS_DIR - Override the location to which uploaded files are initially moved from the monitored dir. Optional.
+#                Defaults to "../importjob/process" relative to this directory. Note that if you need to change this
+#                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties
+#
+#  UPSERT_DIR - Override the location to files are moved after validation in PROCESS_DIR. Optional.
+#               Defaults to "../importjob/upsert" relative to this directory. Note that if you need to change this
+#               location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties
+#
+#  ARCHIVE_DIR - Override the location to files are moved after handling in PROCESS_DIR and UPSERT_DIR. Optional.
+#                Defaults to "../importjob/archive" relative to this directory. Note that if you need to change this
+#                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties
+#
+#  JVM_OPTS - Additional arguments to pass to the JVM, e.g. to adjust heap size. Can also be used to set arbitary
+#             application config options. Values set here override anything set in
+#             ${CONFIG_DIR}/ssp-importer.properties. E.g.
+#
+#                 JVM_OPTS="-Dbatch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp \
+#                           -Dbatch.jdbc.driver=org.postgresql.Driver"
+#
+#             This var is optional.
 #
 #  PROGRAM_OPTS - Additional arguments to pass to the application after JOB_PATH and JOB_IDENTIFIER. Optional.
 #
@@ -75,12 +94,15 @@ DIR=$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 maybe_source_file "$DIR/setJobEnv.sh"
 
 CLASSPATH=${CLASSPATH:-"${DIR}"/../'lib/*'}
-CONFIG_DIR=${CONFIG_DIR:-/opt/ssp-import-conf}
+CONFIG_DIR=${CONFIG_DIR:-"${DIR}/../conf"}
 LOGBACK_FILE=${LOGBACK_FILE:-"${CONFIG_DIR}/logback.xml"}
-LOG_HOME=${LOG_HOME:-"$DIR/../logs"}
+LOG_HOME=${LOG_HOME:-"${DIR}/../logs"}
 JOB_PATH=${JOB_PATH:-"classpath:/launch-context.xml"}
 JOB_IDENTIFIER=${JOB_IDENTIFIER:-"importJob"}
 MAIN=${MAIN:-"org.jasig.ssp.util.importer.job.Main"}
+PROCESS_DIR=${PROCESS_DIR:-"${DIR}/../importjob/process"}
+UPSERT_DIR=${UPSERT_DIR:-"${DIR}/../importjob/upsert"}
+ARCHIVE_DIR=${ARCHIVE_DIR:-"${DIR}/../importjob/archive"}
 
 if [ "$JAVA_HOME" = "" ]; then
   echo "Error: JAVA_HOME environment variable is not set."
@@ -92,6 +114,9 @@ $JAVA_HOME/bin/java \
   -Dssp.importer.configdir="${CONFIG_DIR}" \
   -Dlogback.configurationFile="${LOGBACK_FILE}" \
   -Dlog.home="${LOG_HOME}" \
+  -Dbatch.tables.process.folder="${PROCESS_DIR}" \
+  -Dbatch.tables.upsert.folder="${UPSERT_DIR}" \
+  -Dbatch.tables.archive.folder="${ARCHIVE_DIR}" \
   ${JVM_OPTS} \
   "${MAIN}" \
   "${JOB_PATH}" \

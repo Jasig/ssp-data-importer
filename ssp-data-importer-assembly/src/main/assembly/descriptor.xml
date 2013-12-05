@@ -37,6 +37,16 @@
             <outputDirectory>logs</outputDirectory>
             <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
+        <fileSet>
+            <directory>src/main/conf</directory>
+            <outputDirectory>conf</outputDirectory>
+            <useDefaultExcludes>true</useDefaultExcludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/importjob</directory>
+            <outputDirectory>importjob</outputDirectory>
+            <useDefaultExcludes>true</useDefaultExcludes>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
