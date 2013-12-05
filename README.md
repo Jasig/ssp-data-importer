@@ -224,60 +224,127 @@ If you follow those steps exactly, `ssp-data-importer` will automatically pick u
 
 Application Configuration Options
 =================================
-    There are a number of properties that are required for the program to run properly. All * values must be set as defaults
-    are not supplied.
 
-    #FOLDER LOCATIONS NOTE: file: must be used for location identification.
-    *batch.tables.input.folder=file:/location/of/input/folder/          full path to folder that will contain initial csv files
-    *batch.tables.process.folder=file:/location/of/process/folder/	    full path to folder where csv files will be processed
-    *batch.tables.upsert.folder=file:/location/of/upsert/folder         full path to folder where csv files will be upserted
-    *batch.tables.archive.folder=file:/location/of/archive              full path to archive folder
+There are a number of properties that are required for the program to run properly.
 
-    #FILE LOCATIONS
-    batch.tables.input.files=${batch.tables.input.folder}*.csv          full path to uploaded files
-    batch.tables.process.files=${batch.tables.process.folder}*.csv      full path to files to process
-    batch.tables.upsert.files=${batch.tables.upsert.folder}*.csv        full path to files to upsert
+Properties prefixed with a '!' must be set, as defaults are never supplied.
 
-    #INITIALIZATION
-    batch.tables.lagTimeBeforeStartInMinutes=10                         set minutes file unmodified before beginning processing    (default: 10)
+Proerties prefixed with a '*' have defaults set `runJob.[sh|bat]`, which means that overrides, if necessary, must be specified on the command line or in `setJobEnv.[sh|bat]` rather than with a properties file.
 
-    #ARCHIVING
-    batch.tables.retain.input.archive= true                            turn archiving on default is true
-    batch.tables.archive=UNIQUE                                        what files to archive, ALL, NONE, UNIQUE  default: UNIQUE
+```properties
+#FOLDER LOCATIONS 
+# NB: For all 'batch.tables.*.folder' properties, the 'file:' prefix must be present.
 
-    #TOLERANCE
-    batch.rawitem.skip.limit=10                                         number of lines generating validation errors to allow during read/write
-    batch.rawitem.commit.interval=100                                   size of the batch
+# Full path to folder that will contain initial csv files.
+# **REQUIRED AND HAS NO DEFAULT**
+batch.tables.input.folder=file:/location/of/input/folder/
 
-    batch.upsertitem.skip.limit=10                                      number of lines generating validation errors to allow during upsert
-    batch.upsertitem.commit.interval=100                                size of batch.  Larger batch sizes will reduce processing time make errors less specific
+# Full path to folder where csv files will be processed
+# **IGNORED IF USING runJob.[sh|bat]. Override in setJobEnv.[sh|bat] in that case**
+batch.tables.process.folder=file:/location/of/process/folder/ 
 
-    #TESTING
-    batch.table.input.duplicate=false
-    exists.only.for.testing.1=default.value.1
-    exists.only.for.testing.2=default.value.2
+# Full path to folder where csv files will be upserted
+# **IGNORED IF USING runJob.[sh|bat]. Override in setJobEnv.[sh|bat] in that case**
+batch.tables.upsert.folder=file:/location/of/upsert/folder
 
-    #DATABASE
-    db_name=ssp                                                        Default is ssp
-    batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${db_name}         The full URL to the source database (default:jdbc:postgresql://localhost:5432/ssp)
-    batch.jdbc.driver=org.postgresql.Driver                            The driver to be used example: (default:org.postgresql.Driver) or net.sourceforge.jtds.jdbc.Driver
-    batch.jdbc.user=sspadmin									       The username for the source database  (default:sspadmin)
-    batch.jdbc.password=sspadmin                                       The password for the source database. (default:sspadmin)
+# Full path to archive folder
+# **IGNORED IF USING runJob.[sh|bat]. Override in setJobEnv.[sh|bat] in that case**
+batch.tables.archive.folder=file:/location/of/archive
 
-    #REPORTING
-    batch.title=ssp_import
+#INITIALIZATION
+# Set minutes file unmodified before beginning processing    (default: 10)
+batch.tables.lagTimeBeforeStartInMinutes=10
 
-    #EMAIL NOTIFICATION  NOTE: ** indicates required if batch.sentMail is true)
-    batch.sendEmail=true                                                Activate email (default: true)
-    **batch.smtp.host=localhost					     					host name (default: localhost)
-    **batch.smtp.port=25                                                 port  (default: 25)
-    **batch.smtp.protocol=smtp                                           protocol to be used (default: smtp)
-    **batch.smtp.username=sysadmin                                       username (default: sysadmin)
-    **batch.smtp.password=password                                       password (default: password)
+#ARCHIVING
+# Turn archiving on default is true
+batch.tables.retain.input.archive=true
 
-    #RECIPIENTS - COMMA SEPERATED                                       address as string.  Address must follow RFC822 syntax. (default: "SSP DATA IMPORTER"<sysadmin@localhost>)
-    **batch.email.recipients="SSP DATA IMPORTER"<sysadmin@localhost>
-    **batch.email.replyTo="SSP DATA IMPORTER"<sysadmin@localhost>
+# What files to archive, ALL, NONE, UNIQUE  default: UNIQUE
+batch.tables.archive=UNIQUE
+
+#TOLERANCE
+# Number of lines generating validation errors to allow during read/write
+batch.rawitem.skip.limit=10
+
+# Number of lines to be processed as a unit during initial validation.
+batch.rawitem.commit.interval=100
+
+# Number of lines generating validation errors to allow during upsert
+batch.upsertitem.skip.limit=10                                      
+
+# Number of lines to be prorcessed as a unit during database interactions.
+# Larger batch sizes will reduce processing time make errors less specific
+# and increase memory footprint
+batch.upsertitem.commit.interval=100                                
+
+#DATABASE
+# NB: In addition to specifying driver and connection coordinates below,
+#     you must explicitly enable the database-specific Spring profile
+#     by setting a 'spring.active.profiles' JVM system property. If
+#     you are using runJob.[sh|bat], this is done by setting a shell var:
+#
+#       PROFILES=[postgres|sqlserver]
+
+# Name of the target database. Should refer to SSP's database
+db_name=ssp
+
+# The full URL to the source database
+batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${db_name}
+
+# The JDBC driver. Valid values:
+#   org.postgresql.Driver
+#   net.sourceforge.jtds.jdbc.Driver
+batch.jdbc.driver=org.postgresql.Driver
+
+# Username for connections to the db specified by ${batch.jdbc.url}.
+# Must be allowed to execute both DML and DDL
+batch.jdbc.user=sspadmin
+
+# Password for connections to the db specified by ${batch.jdbc.url}
+# and ${batch.jdbc.user}. Must be allowed to execute both DML and DDL
+batch.jdbc.password=sspadmin
+
+#REPORTING
+# The subject/title of per-job reports. Use this to discriminate between
+# reports from mulitple deployments.
+batch.title=ssp_import
+
+#EMAIL NOTIFICATION
+# Activate email
+batch.sendEmail=true
+
+# SMTP Host name
+# **REQUIRED IF batch.sentMail=true**
+**batch.smtp.host=localhost
+
+# SMTP port
+# **REQUIRED IF batch.sentMail=true**
+batch.smtp.port=25
+
+# SMTP protocol
+# **REQUIRED IF batch.sentMail=true**
+batch.smtp.protocol=smtp
+
+# SMTP username
+# **REQUIRED IF batch.sentMail=true**
+batch.smtp.username=sysadmin
+    
+# SMTP password
+# **REQUIRED IF batch.sentMail=true**
+batch.smtp.password=password
+
+# Comma separated list of report recipients. Addresses must follow RFC822 syntax.
+# **REQUIRED IF batch.sentMail=true**
+batch.email.recipients="SSP DATA IMPORTER"<sysadmin@localhost>
+
+# # **REQUIRED IF batch.sentMail=true**
+batch.email.replyTo="SSP DATA IMPORTER"<sysadmin@localhost>
+    
+#TESTING
+batch.table.input.duplicate=false
+exists.only.for.testing.1=default.value.1
+exists.only.for.testing.2=default.value.2
+```
 
 CSV FILE FORMAT
 ===============
