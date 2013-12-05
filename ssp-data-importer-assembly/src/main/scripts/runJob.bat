@@ -39,12 +39,9 @@
 @REM Options will persist for the lifetime of your command window. To unset all of the options used by this file,
 @REM except for JAVA_HOME, run the 'unset.bat' script in this directory.
 @REM
-@REM Options are:
+@REM Options are (roughly ordered by descending importance):
 @REM
 @REM  JAVA_HOME - Path to dir containing the java executable. Required.
-@REM
-@REM  CLASSPATH - Standard java classpath config option. Should rarely, if ever, need to change.Optional. Defaults to
-@REM              '..\lib\*' relative to this file.
 @REM
 @REM  CONFIG_DIR - Override individual config properties with contents of %CONFIG_DIR%/ssp-importer.properties, if that
 @REM               file exists. Optional. Defaults to ..\conf relative to this directory.
@@ -55,13 +52,15 @@
 @REM  LOG_HOME - If using the default logging config, logs will collect in this directory. Optional. Defaults to ..\logs
 @REM             relative to this directory.
 @REM
-@REM  JOB_PATH - Spring psuedo-url pointing to the main ApplicationContext file for the job to be run. Should rarely, if
-@REM             ever, need to change. Optional. Defaults to classpath:/launch-context.xml
+@REM  PROFILES - Comma-delimited list of enabled Spring profiles. Only recognized values are 'postgres' and 'sqlserver'.
+@REM             This is an optional var and defaults to 'postgres', so should only need to modify this if *not* targeting
+@REM             a Postgres db, in which case it should be set to:
 @REM
-@REM  JOB_IDENTIFIER - Name of the job to run. Should rarely, if ever, need to change. Optional. Defaults to importJob
+@REM               set "PROFILES=sqlserver"
 @REM
-@REM  MAIN - Fully qualified name of the Java class to run. Should rarely, if ever, need to change. Optional. Defaults
-@REM         to org.jasig.ssp.util.importer.job.Main
+@REM             This is equivalent to:
+@REM
+@REM               set "JVM_OPTS="-Dspring.profiles.active=sqlserver""
 @REM
 @REM  PROCESS_DIR - Override the location to which uploaded files are initially moved from the monitored dir. Optional.
 @REM                Defaults to "..\importjob\process" relative to this directory. Note that if you need to change this
@@ -82,6 +81,19 @@
 @REM               set "JVM_OPTS="-Dbatch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp" "-Dbatch.jdbc.driver=org.postgresql.Driver""
 @REM
 @REM             This var is optional.
+@REM
+@REM  PROGRAM_OPTS - Additional arguments to pass to the application after JOB_PATH and JOB_IDENTIFIER. Optional.
+@REM
+@REM  CLASSPATH - Standard java classpath config option. Should rarely, if ever, need to change.Optional. Defaults to
+@REM              '..\lib\*' relative to this file.
+@REM
+@REM  JOB_PATH - Spring psuedo-url pointing to the main ApplicationContext file for the job to be run. Should rarely, if
+@REM             ever, need to change. Optional. Defaults to classpath:/launch-context.xml
+@REM
+@REM  JOB_IDENTIFIER - Name of the job to run. Should rarely, if ever, need to change. Optional. Defaults to importJob
+@REM
+@REM  MAIN - Fully qualified name of the Java class to run. Should rarely, if ever, need to change. Optional. Defaults
+@REM         to org.jasig.ssp.util.importer.job.Main
 @REM
 @REM Defaults are applied after setJobEnv.bat has been sourced.
 
@@ -142,9 +154,14 @@ IF NOT DEFINED ARCHIVE_DIR (
 )
 @REM ECHO "ARCHIVE_DIR: %ARCHIVE_DIR%"
 
+IF NOT DEFINED PROFILES (
+  SET "PROFILES=postgres"
+)
+@REM ECHO "PROFILES: %PROFILES%"
+
 IF NOT DEFINED JAVA_HOME (
     echo Error: JAVA_HOME environment variable is not set.
     EXIT /B
 )
 
-"%JAVA_HOME%/bin/java" -cp "%CLASSPATH%" "-Dssp.importer.configdir=%CONFIG_DIR%" "-Dlogback.configurationFile=%LOGBACK_FILE%" "-Dlog.home=%LOG_HOME%" "-Dbatch.tables.process.folder=%PROCESS_DIR%" "-Dbatch.tables.upsert.folder=%UPSERT_DIR%" "-Dbatch.tables.archive.folder=%ARCHIVE_DIR%" %JVM_OPTS% %MAIN% %JOB_PATH% %JOB_IDENTIFIER% %PROGRAM_OPTS%
+"%JAVA_HOME%/bin/java" -cp "%CLASSPATH%" "-Dssp.importer.configdir=%CONFIG_DIR%" "-Dlogback.configurationFile=%LOGBACK_FILE%" "-Dlog.home=%LOG_HOME%" "-Dbatch.tables.process.folder=%PROCESS_DIR%" "-Dbatch.tables.upsert.folder=%UPSERT_DIR%" "-Dbatch.tables.archive.folder=%ARCHIVE_DIR%" "-Dspring.profiles.active=%PROFILES%" %JVM_OPTS% %MAIN% %JOB_PATH% %JOB_IDENTIFIER% %PROGRAM_OPTS%
