@@ -1,4 +1,4 @@
-Copyright 2010, JA-SIG, Inc.
+Copyright 2013, JA-SIG, Inc.
 This project includes software developed by Jasig.
 http://www.jasig.org/
 
@@ -16,6 +16,11 @@ specific language governing permissions and limitations
 under the License.
 
 This project includes:
+
+  Source code in the org.jasig.ssp.util.importer.validation.map.metadata
+  package is based on source code generously shared by the Jarb Framework
+  (http://jarbframework.org/). Special thanks to Jeroen van Schagen.
+
   AOP alliance under GNU Lesser General Public License
   Apache XBean :: Reflect under The Apache Software License, Version 2.0
   ASM Commons under http://asm.ow2.org/license.html
