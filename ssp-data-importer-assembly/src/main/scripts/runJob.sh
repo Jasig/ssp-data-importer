@@ -70,7 +70,7 @@
 #  ARCHIVE_DIR - Override the location to files are moved after handling in PROCESS_DIR and UPSERT_DIR. Optional.
 #                Defaults to "../importjob/archive" relative to this directory. Note that if you need to change this
 #                location, you must do so here rather than in ${CONFIG_DIR}/ssp-importer.properties. Also, the value
-#                must be prefixed with "file:". E.g. "ARCHIVE_DIR=file:/opt/ssp/importjob/upsert"
+#                must be prefixed with "file:". E.g. "ARCHIVE_DIR=file:/opt/ssp/importjob/archive"
 #
 #  JVM_OPTS - Additional arguments to pass to the JVM, e.g. to adjust heap size. Can also be used to set arbitary
 #             application config options. Values set here override anything set in
