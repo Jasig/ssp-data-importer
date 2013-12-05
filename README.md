@@ -465,7 +465,7 @@ faculty_school_id,term_code,formatted_course,title,section_code,section_number
 sherman123,FA12,BIO101,Introduction To Biology,BIO101-FA12-001,
 ```
 
-** All quotes (note the enclosed comma in column 1):**
+**All quotes (note the enclosed comma in column 1):**
 
 ```csv   
 "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
