@@ -275,10 +275,6 @@ Application Configuration Options
 
 There are a number of properties that are required for the program to run properly.
 
-Properties prefixed with a '!' must be set, as defaults are never supplied.
-
-Proerties prefixed with a '*' have defaults set `runJob.[sh|bat]`, which means that overrides, if necessary, must be specified on the command line or in `setJobEnv.[sh|bat]` rather than with a properties file.
-
 ```properties
 #FOLDER LOCATIONS 
 # NB: For all 'batch.tables.*.folder' properties, the 'file:' prefix must be present.
