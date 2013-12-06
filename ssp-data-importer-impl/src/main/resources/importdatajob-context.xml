@@ -143,6 +143,7 @@
     <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener"/>
      <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener"/>
      <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
+     <bean id="parsingListener" class="org.jasig.ssp.util.importer.job.listener.ParsingListener"/>
      <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
              p:dataSource-ref="dataSource">
         <property name="truncateExclusions" value="${batch.truncate.exclusions}"></property>
@@ -226,6 +227,8 @@
                     <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                     <batch:listeners>
                         <batch:listener ref="validationSkipListener" />
+                        <batch:listener ref="processedRawCsvItemWriter" />
+                        <batch:listener ref="parsingListener" />
                         <batch:listener ref="rawItemValidateProcessorListener" />
                     </batch:listeners>
                 </batch:chunk>

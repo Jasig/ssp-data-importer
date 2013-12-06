@@ -116,6 +116,7 @@ public class ReportGenerator implements JobExecutionListener {
         {
             for (ErrorEntry errorEntry : errors) {
                 emailMessage.append(errorEntry.toString()+EOL);
+                emailMessage.append(EOL); 
             }
         }
         logger.info(emailMessage.toString());

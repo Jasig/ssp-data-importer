@@ -40,9 +40,20 @@ public class ErrorEntry implements Serializable {
     
     private StepType stepType;
     
+    private String lineNumber;
+    
     @Override
     public String toString() {
-        return "Table Name: "+tableName+" Entity: "+entityString+" Step: "+stepType.name()+" Message: "+message;
+        String EOL = System.getProperty("line.separator");
+        if(!"external_person".equals(tableName))
+        {
+            return "Table Name: "+tableName+EOL+"Line Number: "+lineNumber+EOL+" Entity: "+entityString+EOL+" Step: "+stepType.name()+EOL+" Message: "+message;
+        }
+        else
+        {
+            return "Table Name: "+tableName+EOL+"Line Number: "+lineNumber+EOL+" Step: "+stepType.name()+EOL+" Message: "+message;
+
+        }
     };
 
     public String getTableName() {
@@ -75,6 +86,14 @@ public class ErrorEntry implements Serializable {
 
     public void setStepType(StepType stepType) {
         this.stepType = stepType;
+    }
+
+    public String getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(String lineNumber) {
+        this.lineNumber = lineNumber;
     }
 
 }

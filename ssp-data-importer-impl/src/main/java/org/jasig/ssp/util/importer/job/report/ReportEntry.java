@@ -23,6 +23,8 @@ import java.io.Serializable;
 public class ReportEntry implements Serializable {
     
     private static final long serialVersionUID = -913112234221221239L;
+    
+    private static String FORMAT = "%1$-50s %2$-20s %3$-30s %4$-20s %5$-20s";
 
     public ReportEntry(String tableName, Integer numberInserted) {
         super();
@@ -30,13 +32,24 @@ public class ReportEntry implements Serializable {
         this.numberInsertedUpdated = numberInserted;
     }
 
+    public ReportEntry() {
+    }
+
     private String tableName;
     
     private Integer numberInsertedUpdated;
     
+    private Integer numberParsed;
+    
+    private Integer numberSkippedOnDatabaseWrite;
+    
+    private Integer numberSkippedOnParse;
+    
     @Override
     public String toString() {
-        return "Table Name: "+tableName+" Number Inserted/Updated: "+numberInsertedUpdated; 
+        
+        return String.format(FORMAT, "Table Name: "+tableName,"Parsed: "+numberParsed,"Skipped on Parse: "+numberSkippedOnParse
+                ,"Upserted: "+numberInsertedUpdated,"Skipped on Write: "+numberSkippedOnDatabaseWrite);
     };
 
     public String getTableName() {
@@ -53,6 +66,31 @@ public class ReportEntry implements Serializable {
 
     public void setNumberInsertedUpdated(Integer numberInsertedUpdated) {
         this.numberInsertedUpdated = numberInsertedUpdated;
+    }
+
+    public Integer getNumberParsed() {
+        return numberParsed;
+    }
+
+    public void setNumberParsed(Integer numberParsed) {
+        this.numberParsed = numberParsed;
+    }
+
+    public Integer getNumberSkippedOnDatabaseWrite() {
+        return numberSkippedOnDatabaseWrite;
+    }
+
+    public void setNumberSkippedOnDatabaseWrite(
+            Integer numberSkippedOnDatabaseWrite) {
+        this.numberSkippedOnDatabaseWrite = numberSkippedOnDatabaseWrite;
+    }
+
+    public Integer getNumberSkippedOnParse() {
+        return numberSkippedOnParse;
+    }
+
+    public void setNumberSkippedOnParse(Integer numberSkippedOnParse) {
+        this.numberSkippedOnParse = numberSkippedOnParse;
     }
 
 

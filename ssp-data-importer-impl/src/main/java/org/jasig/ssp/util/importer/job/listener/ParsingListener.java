@@ -18,6 +18,7 @@
  */
 package org.jasig.ssp.util.importer.job.listener;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 
-public class StagingAndUpsertListener implements StepExecutionListener {
+public class ParsingListener implements StepExecutionListener {
 
     private StepExecution stepExecution;
     
@@ -57,14 +58,16 @@ public class StagingAndUpsertListener implements StepExecutionListener {
     @Override
     @AfterStep
     public ExitStatus afterStep(StepExecution arg0) {
-        Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext()
-                .get("numInsertedUpdated");
-        String currentEntity = (String) stepExecution.getExecutionContext().get(
-                "currentEntity");
+        String fileSeparator = System.getProperty("file.separator");
       
+        String[] split = this.getStepExecution().getExecutionContext().getString("fileName").split(fileSeparator);
+        String pathname = split[split.length-1];
+        String[] split1 = pathname.split("\\.");
+        String currentEntity = split1[0];
+        
         if(currentEntity != null)
         {
-            Map<String, ReportEntry> report =  (Map<String, ReportEntry>) stepExecution.getJobExecution()
+            Map<String, ReportEntry> report =  (Map<String, ReportEntry>) this.getStepExecution().getJobExecution()
                     .getExecutionContext().get("report");
             if(report == null)
             {
@@ -74,17 +77,17 @@ public class StagingAndUpsertListener implements StepExecutionListener {
             if(currentEntry != null)
             {
                 currentEntry.setTableName(currentEntity);
-                currentEntry.setNumberInsertedUpdated(numInsertedUpdated == null ? 0 : numInsertedUpdated);
-                currentEntry.setNumberSkippedOnDatabaseWrite(arg0.getWriteSkipCount());
+                currentEntry.setNumberParsed(this.getStepExecution().getReadCount());
+                currentEntry.setNumberSkippedOnParse(this.getStepExecution().getProcessSkipCount());
             }
             else{
                 currentEntry = new ReportEntry();
                 currentEntry.setTableName(currentEntity);
-                currentEntry.setNumberInsertedUpdated(numInsertedUpdated == null ? 0 : numInsertedUpdated);
-                currentEntry.setNumberSkippedOnDatabaseWrite(arg0.getWriteSkipCount());                
+                currentEntry.setNumberParsed(this.getStepExecution().getReadCount());
+                currentEntry.setNumberSkippedOnParse(this.getStepExecution().getProcessSkipCount());
             }
             report.put(currentEntity, currentEntry);
-            stepExecution.getJobExecution().getExecutionContext().put("report", report);            
+            arg0.getJobExecution().getExecutionContext().put("report", report);            
         }
 
         return ExitStatus.COMPLETED;

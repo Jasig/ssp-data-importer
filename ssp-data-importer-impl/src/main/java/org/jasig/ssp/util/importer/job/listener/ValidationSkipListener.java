@@ -24,11 +24,14 @@ import java.util.List;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.report.ErrorEntry;
 import org.jasig.ssp.util.importer.job.report.StepType;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 
 public class ValidationSkipListener implements SkipListener<RawItem, RawItem> {
@@ -51,10 +54,16 @@ public class ValidationSkipListener implements SkipListener<RawItem, RawItem> {
     public void onSkipInProcess(RawItem item, Throwable t) {
         logger.error("ERROR on Upsert Process", t);
         
+        String lineNumber = null;
+        if(t instanceof ViolationException)
+        {
+            lineNumber = ((ViolationException)t).getLineNumber() != null ? ((ViolationException)t).getLineNumber().toString() : null;
+        }
         
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
         ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.VALIDATE);
+        error.setLineNumber(lineNumber);
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)
         {

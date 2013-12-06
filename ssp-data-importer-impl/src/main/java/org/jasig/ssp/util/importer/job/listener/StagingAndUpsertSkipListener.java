@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 
 public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawItem> {
@@ -45,12 +47,17 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
     @Override
     public void onSkipInWrite(RawItem item, Throwable t) {
         logger.error("ERROR on Stage/Upsert Write", t);
-        
+        StepContext stepContext = StepSynchronizationManager.getContext();
+        Integer readCount = stepContext.getStepExecution().getCommitCount();
+        Integer lineNumberError = stepContext.getStepExecution().getWriteSkipCount();
+        lineNumberError = readCount + lineNumberError;
+
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
         stepExecution.getExecutionContext().put("currentEntity",
                 tableName[0]);        
         ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGEUPSERT);
+        error.setLineNumber(readCount.toString());
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)
         {
