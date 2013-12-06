@@ -29,8 +29,9 @@ import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 public class RawItemValidateProcessorListener implements ItemProcessListener<RawItem, RawItem> {
 
+    private static final  Logger logger = LoggerFactory.getLogger(RawItemValidateProcessorListener.class);
     Boolean hasTableViolation = false;
-    Logger logger = LoggerFactory.getLogger(BatchFinalizer.class);
+
     @Override
     public void beforeProcess(RawItem item) {
 
@@ -45,9 +46,7 @@ public class RawItemValidateProcessorListener implements ItemProcessListener<Raw
         if(!e.getClass().equals(TableViolationException.class) || hasTableViolation == false){
             StepContext stepContext = StepSynchronizationManager.getContext();
             Integer readCount = stepContext.getStepExecution().getReadCount();
-            Integer lineNumberError = stepContext.getStepExecution().getSkipCount();
-            lineNumberError = readCount + lineNumberError;
-            logger.error("line:" + lineNumberError.toString() + " " + e.getMessage());
+            logger.error("line:" + readCount + " " + e.getMessage());
         }
         if(e.getClass().equals(TableViolationException.class) && hasTableViolation == false){
             hasTableViolation = true;

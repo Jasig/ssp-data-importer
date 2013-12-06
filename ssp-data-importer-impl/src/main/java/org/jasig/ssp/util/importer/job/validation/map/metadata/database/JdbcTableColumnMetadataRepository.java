@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class JdbcTableColumnMetadataRepository implements
         TableColumnMetaDataRepository {
 
-     private final Logger logger = LoggerFactory.getLogger(JdbcTableColumnMetadataRepository.class);
+        private static final Logger logger = LoggerFactory.getLogger(JdbcTableColumnMetadataRepository.class);
 
         private final DataSource dataSource;
 

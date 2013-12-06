@@ -30,14 +30,14 @@ import org.springframework.batch.item.file.transform.LineAggregator;
 
 public class RawItemLineAggregator implements LineAggregator<RawItem> {
 
+    /** The quote constant to use when you wish to suppress all quoting and escaping, they must be the same for support csv standard. */
+    private static final char NO_QUOTE_CHARACTER = '\u0000';
+    private static final Logger logger = LoggerFactory.getLogger(RawItemLineAggregator.class);
+
     private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
     private char quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
     private String[] columnNames;
     private int INITIAL_STRING_SIZE = 512;
-    /** The quote constant to use when you wish to suppress all quoting and escaping, they must be the same for support csv standard. */
-    private static final char NO_QUOTE_CHARACTER = '\u0000';
-
-    private Logger logger = LoggerFactory.getLogger(RawItemLineAggregator.class);
 
     public RawItemLineAggregator() {
     }

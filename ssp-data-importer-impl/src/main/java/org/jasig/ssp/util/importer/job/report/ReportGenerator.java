@@ -31,31 +31,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.StringUtils;
 
 public class ReportGenerator implements JobExecutionListener {
 
-    @Autowired
-    private transient JavaMailSender javaMailSender;  
-    
+    private transient JavaMailSender javaMailSender;
+
     private String dbInstanceName;
-    
+
     private String emailRecipients;
-    
+
     private String replyTo;
-    
+
     private boolean sendEmail;
-    
+
     Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
-    
-    
+
+
     @Override
     public void beforeJob(JobExecution jobExecution) {
     }
-    
+
     @Override
     public void afterJob(JobExecution jobExecution) {
         String report = buildReport(jobExecution);
@@ -73,14 +71,14 @@ public class ReportGenerator implements JobExecutionListener {
         try {
             for (String recipient : recipients) {
                     mimeMessageHelper.addTo(recipient);
-                    
+
                     if ( !StringUtils.isEmpty(replyTo) ) {
                         mimeMessageHelper.setReplyTo(replyTo);
                     }
                     mimeMessageHelper.setSubject("Data Import Report for SSP Instance: "+dbInstanceName+" JobId: "+jobExecution.getJobId());
                     mimeMessageHelper.setText(report);
                     javaMailSender.send(mimeMessage);
-                    
+
             }
         } catch (MessagingException e) {
             logger.error(e.toString());
@@ -91,24 +89,28 @@ public class ReportGenerator implements JobExecutionListener {
     private String buildReport(JobExecution jobExecution) {
         StringBuffer emailMessage = new StringBuffer();
         String EOL = System.getProperty("line.separator");
-        SimpleDateFormat dt = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss"); 
-        
+        SimpleDateFormat dt = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
+
         emailMessage.append("Start Time:    "+dt.format(jobExecution.getCreateTime())+EOL);
         emailMessage.append("End Time:      "+dt.format(jobExecution.getEndTime())+EOL);
         emailMessage.append("Job Id:        "+ jobExecution.getJobId()+EOL);
         emailMessage.append("Job Paramters: "+ jobExecution.getJobParameters()+EOL);
         emailMessage.append("Job Status:    "+ jobExecution.getExitStatus().getExitCode()+EOL);
 
-        emailMessage.append(EOL).append(EOL); 
-        
+        emailMessage.append(EOL).append(EOL);
+
         emailMessage.append("Job Details: "+EOL);
         Map<String, ReportEntry> report = (Map<String, ReportEntry>) jobExecution.getExecutionContext().get("report");
-        Set<Entry<String, ReportEntry>> entrySet = report.entrySet();
-        for (Entry<String, ReportEntry> entry : entrySet) {
-            emailMessage.append(entry.getValue().toString()+EOL);
+        if(report != null){
+            Set<Entry<String, ReportEntry>> entrySet = report.entrySet();
+            for (Entry<String, ReportEntry> entry : entrySet) {
+                emailMessage.append(entry.getValue().toString()+EOL);
+            }
+        }else{
+            emailMessage.append("No Files Processed." + EOL);
         }
-        
-        emailMessage.append(EOL).append(EOL); 
+
+        emailMessage.append(EOL).append(EOL);
 
         emailMessage.append("Errors: "+EOL);
         List<ErrorEntry> errors =(List<ErrorEntry>) jobExecution.getExecutionContext().get("errors");
@@ -116,8 +118,10 @@ public class ReportGenerator implements JobExecutionListener {
         {
             for (ErrorEntry errorEntry : errors) {
                 emailMessage.append(errorEntry.toString()+EOL);
-                emailMessage.append(EOL); 
+                emailMessage.append(EOL);
             }
+        }else{
+            emailMessage.append("No Errors Found." + EOL);
         }
         logger.info(emailMessage.toString());
         return emailMessage.toString();
@@ -155,6 +159,8 @@ public class ReportGenerator implements JobExecutionListener {
         this.sendEmail = sendEmail;
     }
 
-
+    public void setJavaMailSender(JavaMailSender javaMailSender){
+        this.javaMailSender = javaMailSender;
+    }
 
 }

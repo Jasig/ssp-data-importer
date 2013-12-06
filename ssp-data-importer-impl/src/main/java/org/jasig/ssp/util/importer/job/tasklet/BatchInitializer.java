@@ -38,7 +38,7 @@ public class BatchInitializer implements Tasklet {
     private Resource upsertDirectory;
     private Boolean dulicateResources = false;
 
-    Logger logger = LoggerFactory.getLogger(BatchInitializer.class);
+    private Logger logger = LoggerFactory.getLogger(BatchInitializer.class);
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {

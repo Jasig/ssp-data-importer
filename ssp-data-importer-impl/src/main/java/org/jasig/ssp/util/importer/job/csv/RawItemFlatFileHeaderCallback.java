@@ -29,9 +29,11 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
 public class RawItemFlatFileHeaderCallback implements FlatFileHeaderCallback {
 
+    private static final Logger logger = LoggerFactory.getLogger(RawItemFlatFileHeaderCallback.class);
+
     String[] columnNames;
     private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
-    private Logger logger = LoggerFactory.getLogger(RawItemFlatFileHeaderCallback.class);
+
 
     public RawItemFlatFileHeaderCallback() {
        super();

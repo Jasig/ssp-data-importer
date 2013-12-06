@@ -38,7 +38,7 @@ public class RawItemCsvWriter<RawItem> extends FlatFileItemWriter<RawItem> imple
 
 
     private Resource writeDirectory;
-    private Logger logger = LoggerFactory.getLogger(RawItemCsvWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(RawItemCsvWriter.class);
     private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
 
     public RawItemCsvWriter(Resource writeDirectory) throws Exception{

@@ -33,9 +33,9 @@ import org.springframework.util.Assert;
 
 public class PartialUploadGuard implements Tasklet {
 
+    private static Logger logger = LoggerFactory.getLogger(PartialUploadGuard.class);
     Resource[] resources;
     Integer lagTimeBeforeStartInMinutes = 0;// programmatic default set to 0 for testing, time needs to be set by expected load times
-    Logger logger = LoggerFactory.getLogger(PartialUploadGuard.class);
     final String FILE_SOAK_TIME = "File does not meet minimum time since modification batch processing will not start: ";
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {

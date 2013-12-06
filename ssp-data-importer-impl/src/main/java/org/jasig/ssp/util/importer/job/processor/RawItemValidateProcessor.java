@@ -36,8 +36,9 @@ import org.springframework.batch.item.ItemProcessor;
 
 public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> {
 
+    private static Logger logger = LoggerFactory.getLogger(RawItemValidateProcessor.class);
     private MetadataConfigurations metadataRepository;
-    Logger logger = LoggerFactory.getLogger(RawItemCsvWriter.class);
+
 
     @Override
     public RawItem process(RawItem item) throws Exception {
@@ -55,9 +56,7 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
             else{
                 StepContext stepContext = StepSynchronizationManager.getContext();
                 Integer readCount = stepContext.getStepExecution().getReadCount();
-                Integer lineNumberError = stepContext.getStepExecution().getSkipCount();
-                lineNumberError = readCount + lineNumberError;
-                throw new ViolationException(lineNumberError, validationContext);
+                throw new ViolationException(readCount, validationContext);
             }
         }
         return item;

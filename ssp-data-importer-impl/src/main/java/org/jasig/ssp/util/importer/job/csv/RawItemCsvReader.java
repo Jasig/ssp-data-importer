@@ -42,12 +42,12 @@ import org.springframework.validation.BindException;
 
 public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements StepExecutionListener, LineCallbackHandler, FieldSetMapper<RawItem> {
 
+    private static final Logger logger = LoggerFactory.getLogger(RawItemCsvReader.class);
     final private String COLUMN_NAMES_KEY = "COLUMNS_NAMES_KEY";
     private StepExecution stepExecution;
     private DefaultLineMapper<RawItem> lineMapper;
     private String[] columnNames;
     private Resource itemResource;
-    private Logger logger = LoggerFactory.getLogger(RawItemCsvReader.class);
     private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
     private char quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
 

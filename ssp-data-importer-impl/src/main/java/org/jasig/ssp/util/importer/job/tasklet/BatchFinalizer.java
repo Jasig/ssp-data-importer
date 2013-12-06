@@ -224,7 +224,7 @@ public class BatchFinalizer implements JobExecutionListener {
         File dir = directory.getFile();
         if(!dir.exists())
             if(!dir.mkdirs())
-                throw new Exception("process directory not created");
+                throw new Exception("Archive directory not created");
         return dir;
     }
 

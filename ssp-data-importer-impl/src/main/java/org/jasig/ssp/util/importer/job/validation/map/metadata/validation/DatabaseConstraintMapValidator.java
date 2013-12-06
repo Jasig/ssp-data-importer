@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DatabaseConstraintMapValidator {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConstraintMapValidator.class);
 
     /** Concrete validation logic that should be performed **/
     private final List<DatabaseConstraintMapValidationStep> validationSteps;
