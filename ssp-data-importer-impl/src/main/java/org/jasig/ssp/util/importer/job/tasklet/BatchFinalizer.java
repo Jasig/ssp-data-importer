@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.core.io.Resource;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FilenameFilter;
