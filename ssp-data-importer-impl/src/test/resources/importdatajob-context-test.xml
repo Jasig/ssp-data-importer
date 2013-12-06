@@ -62,17 +62,17 @@
 
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
     <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="${batch.tables.input.folder}${batch.files.accepted}"
+                                p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
                                 p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
     <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
-                                p:resources="${batch.tables.input.folder}${batch.files.accepted}"
+                                p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
                                 p:dulicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
                                 p:upsertDirectory="${batch.tables.upsert.folder}"/>
 
     <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
     <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
-        <property name="resources" value="${batch.tables.process.folder}${batch.files.accepted}"/>
+        <property name="resources" value="${batch.tables.process.folder}/${batch.files.accepted}"/>
     </bean>
 
     <bean scope="step" id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
@@ -135,7 +135,7 @@
     </bean>
 
     <bean  scope="step" id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
-        <property name="resources" value="${batch.tables.upsert.folder}${batch.files.accepted}"/>
+        <property name="resources" value="${batch.tables.upsert.folder}/${batch.files.accepted}"/>
     </bean>
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor"/>
