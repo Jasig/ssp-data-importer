@@ -101,8 +101,6 @@ public class ReportGenerator implements JobExecutionListener {
         SimpleDateFormat dt = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
         long diff = jobExecution.getEndTime().getTime() - jobExecution.getCreateTime().getTime();//as given
 
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
         emailMessage.append("Start Time:    "+dt.format(jobExecution.getCreateTime())+EOL);
         emailMessage.append("End Time:      "+dt.format(jobExecution.getEndTime())+EOL);
         emailMessage.append("Duration:      "+ DurationFormatUtils.formatDurationWords(diff, true, true)
