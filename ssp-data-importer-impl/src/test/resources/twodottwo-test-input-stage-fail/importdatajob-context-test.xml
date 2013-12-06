@@ -40,14 +40,14 @@
     </bean>
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
-    
-	
+
+
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
     <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="${batch.tables.input.files}"
+                                p:resources="${batch.tables.input.folder}/*.csv"
                                 p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
     <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
-                                p:resources="${batch.tables.input.files}"
+                                p:resources="${batch.tables.input.folder}/*.csv"
                                 p:dulicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
                                 p:upsertDirectory="${batch.tables.upsert.folder}"/>
@@ -61,12 +61,10 @@
           <property name="appendAllowed" value="true" />
           <property name="lineAggregator">
                <bean class="org.jasig.ssp.util.importer.job.csv.RawItemLineAggregator">
-                    <property name="delimiter" value="${batch.delimiter}" />
                </bean>
         </property>
          <property name="headerCallback">
             <bean class="org.jasig.ssp.util.importer.job.csv.RawItemFlatFileHeaderCallback">
-                    <property name="delimiter" value="${batch.delimiter}" />
             </bean>
          </property>
     </bean>
@@ -96,7 +94,7 @@
     </bean>
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor"/>
-    
+
     <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener"/>
      <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener"/>
      <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
@@ -117,7 +115,7 @@
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
             <batch:listeners>
-            	<batch:listener ref="stagingTableTruncator"/>
+                <batch:listener ref="stagingTableTruncator"/>
             </batch:listeners>
         </batch:step>
         <!-- Read validated files, write output to staging tables -->
@@ -127,16 +125,16 @@
 
         <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
         free by using or extending DefaultJobParametersValidator -->
-        <!-- 
+        <!--
          <batch:validator ref="importJobValidator" />
-         -->        
+         -->
 
         <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
          the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
          in that event. -->
         <!--<batch:listeners></batch:listeners>-->
     </batch:job>
-    <batch:step id="stageFilteredItemsSlave" > 
+    <batch:step id="stageFilteredItemsSlave" >
         <batch:tasklet>
             <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
             step. Note that this limit applies separately to reads, processes, and writes. -->
@@ -151,8 +149,8 @@
                 <batch:listeners>
                      <batch:listener ref="stagingTableItemWriter" />
                      <batch:listener ref="externalTableUpsertItemWriter" />
-					 <batch:listener ref="stagingAndUpsertSkipListener" />
-					 <batch:listener ref="stagingAndUpsertListener" />
+                     <batch:listener ref="stagingAndUpsertSkipListener" />
+                     <batch:listener ref="stagingAndUpsertListener" />
                 </batch:listeners>
              </batch:chunk>
         </batch:tasklet>
