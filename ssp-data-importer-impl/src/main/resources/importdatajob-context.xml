@@ -46,6 +46,7 @@
         <property name="emailRecipients" value="${batch.email.recipients}"/>
         <property name="replyTo" value="${batch.email.replyTo}"/>
         <property name="sendEmail" value="${batch.sendEmail}" />
+        <property name="javaMailSender" ref="javaMailSender"/>
     </bean>
 
     <!-- Mail Server Configuration -->
