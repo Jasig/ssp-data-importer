@@ -108,6 +108,7 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
             throw new IllegalArgumentException("Must specify a DefaultLineMapper");
         }
         this.lineMapper = (DefaultLineMapper)lineMapper;
+
         super.setLineMapper(lineMapper);
     }
 

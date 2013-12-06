@@ -20,7 +20,6 @@ package org.jasig.ssp.util.importer.job.processor;
 
 
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
-import org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapConstraintValidatorContext;
@@ -28,8 +27,7 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violat
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.scope.context.StepContext;
-import org.springframework.batch.core.scope.context.StepSynchronizationManager;
+import org.springframework.batch.item.ItemCountAware;
 import org.springframework.batch.item.ItemProcessor;
 
 
@@ -38,6 +36,7 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
 
     private static Logger logger = LoggerFactory.getLogger(RawItemValidateProcessor.class);
     private MetadataConfigurations metadataRepository;
+    private int count;
 
 
     @Override
@@ -46,17 +45,16 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
 
+        count++;
+
         MapReference mapReference = new MapReference(item.getRecord(), tableName[0], null);
         MapConstraintValidatorContext validationContext = new  MapConstraintValidatorContext();
         Boolean isValid = metadataRepository.getRepository().isValid(mapReference, validationContext);
         if(isValid == false){
             if(validationContext.hasTableViolation())
-
                 throw new TableViolationException(validationContext);
             else{
-                StepContext stepContext = StepSynchronizationManager.getContext();
-                Integer readCount = stepContext.getStepExecution().getReadCount();
-                throw new ViolationException(readCount, validationContext);
+                throw new ViolationException(count, validationContext);
             }
         }
         return item;
@@ -65,5 +63,4 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
     public void setMetadataRepository(MetadataConfigurations metadataRepository){
         this.metadataRepository = metadataRepository;
     }
-
 }

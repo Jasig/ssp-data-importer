@@ -23,10 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
@@ -47,15 +49,19 @@ public class ReportGenerator implements JobExecutionListener {
 
     private boolean sendEmail;
 
+    private boolean filesProcessed = false;
+
     Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
+
     }
 
     @Override
     public void afterJob(JobExecution jobExecution) {
+        filesProcessed = false;
         String report = buildReport(jobExecution);
         if(sendEmail)
         {
@@ -64,6 +70,9 @@ public class ReportGenerator implements JobExecutionListener {
     }
 
     private void sendEmail(JobExecution jobExecution, String report) {
+        if(filesProcessed == false)
+            return;
+
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
                 mimeMessage);
@@ -90,9 +99,14 @@ public class ReportGenerator implements JobExecutionListener {
         StringBuffer emailMessage = new StringBuffer();
         String EOL = System.getProperty("line.separator");
         SimpleDateFormat dt = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
+        long diff = jobExecution.getEndTime().getTime() - jobExecution.getCreateTime().getTime();//as given
 
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
         emailMessage.append("Start Time:    "+dt.format(jobExecution.getCreateTime())+EOL);
         emailMessage.append("End Time:      "+dt.format(jobExecution.getEndTime())+EOL);
+        emailMessage.append("Duration:      "+ DurationFormatUtils.formatDurationWords(diff, true, true)
+                + " ("+ DurationFormatUtils.formatDurationHMS(diff)+ " )" +EOL);
         emailMessage.append("Job Id:        "+ jobExecution.getJobId()+EOL);
         emailMessage.append("Job Paramters: "+ jobExecution.getJobParameters()+EOL);
         emailMessage.append("Job Status:    "+ jobExecution.getExitStatus().getExitCode()+EOL);
@@ -106,6 +120,8 @@ public class ReportGenerator implements JobExecutionListener {
             for (Entry<String, ReportEntry> entry : entrySet) {
                 emailMessage.append(entry.getValue().toString()+EOL);
             }
+            if(entrySet.size() > 0)
+                filesProcessed = true;
         }else{
             emailMessage.append("No Files Processed." + EOL);
         }

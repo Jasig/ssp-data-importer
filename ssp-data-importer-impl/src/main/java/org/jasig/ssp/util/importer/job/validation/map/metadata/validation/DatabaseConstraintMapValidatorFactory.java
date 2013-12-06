@@ -18,10 +18,6 @@
  */
 package org.jasig.ssp.util.importer.job.validation.map.metadata.validation;
 
-import javax.validation.ValidatorFactory;
-
-import org.jarbframework.constraint.metadata.database.ColumnMetadataRepository;
-import org.jarbframework.utils.orm.SchemaMapper;
 import org.jarbframework.utils.spring.SpringBeanFinder;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableColumnMetaDataRepository;
 
