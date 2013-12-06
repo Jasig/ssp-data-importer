@@ -153,7 +153,7 @@ public class BatchFinalizer implements JobExecutionListener {
     }
 
     private boolean hasAnyNonDirectoryFiles(List<File> files) {
-        if ( files != null && !(files.isEmpty()) ) {
+        if ( files == null || files.isEmpty() ) {
             return false;
         }
         for ( File file: files ) {
