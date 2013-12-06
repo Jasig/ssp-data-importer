@@ -18,21 +18,26 @@
  */
 package org.jasig.ssp.util.importer.job.tasklet;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-
-import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.jasig.ssp.util.importer.job.util.ZipDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.core.io.Resource;
-import org.springframework.util.FileSystemUtils;
+import org.springframework.util.Assert;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class BatchFinalizer implements JobExecutionListener {
 
@@ -100,37 +105,73 @@ public class BatchFinalizer implements JobExecutionListener {
          Long diff = TimeUnit.MILLISECONDS.toMinutes(jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime());
 
          logger.info("Job Duration in minutes: " + diff.toString());
-         System.out.print("Job Duration in minutes: " + diff.toString());
 
         try{
-            if(!archiveFiles.equals(ArchiveType.NONE))
-                archive() ;
-
-            FileSystemUtils.deleteRecursively(processDirectory.getFile());
-            FileSystemUtils.deleteRecursively(upsertDirectory.getFile());
-            if(!retainInputFiles)
-                deleteFiles(inputDirectory.getFile());
+            if(!archiveFiles.equals(ArchiveType.NONE)) {
+                try {
+                    archive();
+                } catch ( Exception e ) {
+                    logger.error("Error Archiving. Proceeding with file cleanup anyway.", e);
+                }
+            }
+            // Always want to at least attempt clean up. Else behavior of next upload probably isn't what you expect.
+            cleanDirectoryQuietly(processDirectory.getFile());
+            cleanDirectoryQuietly(upsertDirectory.getFile());
+            if(!retainInputFiles) {
+                cleanCsvFilesQuietly(inputDirectory.getFile());
+            }
         }catch(Exception e){
             logger.error("Error Delete Process, Upsert And Input Directory", e);
         }
-           }
+    }
 
     private void archive() throws IOException{
         try{
-        if(archiveFiles.equals(ArchiveType.UNIQUE)){
-            if(!retainInputFiles){
-                removeDuplicates(processDirectory.getFile(),inputDirectory.getFile());
-                removeDuplicates(inputDirectory.getFile(), upsertDirectory.getFile());
+            if(archiveFiles.equals(ArchiveType.UNIQUE)){
+                logger.info("Deleting duplicate files prior to archiving");
+                if(!retainInputFiles){
+                    removeDuplicates(processDirectory.getFile(),inputDirectory.getFile());
+                    removeDuplicates(inputDirectory.getFile(), upsertDirectory.getFile());
+                }
+                removeDuplicates(processDirectory.getFile(), upsertDirectory.getFile());
             }
-            removeDuplicates(processDirectory.getFile(), upsertDirectory.getFile());
-        }
 
-        ZipDirectory zippy = new ZipDirectory(generateFileArchive());
-        zippy.zipIt(Arrays.asList(inputDirectory.getFile(), processDirectory.getFile(), upsertDirectory.getFile()), true);
+            final List<File> filesToZip = Arrays.asList(inputDirectory.getFile(), processDirectory.getFile(),
+                    upsertDirectory.getFile());
+            // zipIt() will freak out if filesToZip is empty or consists entirely of empty directories.
+            if ( hasAnyNonDirectoryFiles(filesToZip) ) {
+                logger.info("Archiving [{}]", filesToZip);
+                ZipDirectory zippy = new ZipDirectory(generateFileArchive());
+                zippy.zipIt(filesToZip, true);
+            } else {
+                logger.info("No files to archive after removing duplicates from [{}], [{}], and [{}]",
+                        new Object[] { inputDirectory, processDirectory, upsertDirectory });
+            }
         }catch(IOException e){
-            logger.error("Error Archiving", e);
             throw e;
         }
+    }
+
+    private boolean hasAnyNonDirectoryFiles(List<File> files) {
+        if ( files != null && !(files.isEmpty()) ) {
+            return false;
+        }
+        for ( File file: files ) {
+            if ( !(file.exists()) ) {
+                continue;
+            }
+            if ( file.isFile() ) {
+                return true;
+            }
+            if ( file.isDirectory() ) {
+                final Collection<File> regularFiles = FileUtils.listFiles(file, FileFileFilter.FILE,
+                        TrueFileFilter.INSTANCE);
+                if ( regularFiles != null && !(regularFiles.isEmpty()) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void removeDuplicates(File srcDirectory, File destDirectory){
@@ -155,18 +196,36 @@ public class BatchFinalizer implements JobExecutionListener {
         return new File(archiveDirectory.getFile(), dateFormat.format(processDate) + "_importJOB_" + batchTitle + ".zip");
     }
 
-    private void deleteFiles(File directory) {
-         for(File file: directory.listFiles(csvFilter)){
-             file.delete();
+    private void cleanCsvFilesQuietly(File directory) {
+        final File[] files;
+        try {
+            files = directory.listFiles(csvFilter);
+        } catch ( Exception e ) {
+            logger.error("Unable to list CSV files in [{}]", directory, e);
+            return;
+        }
+
+        for(File file: files){
+             if (!(file.delete())) {
+                logger.error("Failed to delete file [{}]", file);
+             }
          }
     }
 
+    private void cleanDirectoryQuietly(File directory) {
+        try {
+            logger.info("Emptying directory [{}]", directory);
+            FileUtils.cleanDirectory(directory);
+        } catch ( Exception e ) {
+            logger.error("Failed to empty directory [{}]", directory, e);
+        }
+    }
 
     private File createDirectory(Resource directory) throws Exception{
         File dir = directory.getFile();
         if(!dir.exists())
             if(!dir.mkdirs())
-                throw new Exception("process directory not createsd");
+                throw new Exception("process directory not created");
         return dir;
     }
 

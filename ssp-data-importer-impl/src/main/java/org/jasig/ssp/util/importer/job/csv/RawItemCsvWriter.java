@@ -85,7 +85,6 @@ public class RawItemCsvWriter<RawItem> extends FlatFileItemWriter<RawItem> imple
         if(!dir.exists())
             if(!dir.mkdirs())
                 throw new Exception("process directory not created");
-        dir.deleteOnExit();
     }
 
     @Override
