@@ -91,11 +91,59 @@ The default `spring-profile` is "postgres".
 Installing and Running
 ======================
 
+## Database Initialization
+
+`ssp-data-importer` writes to the SSP database, but requires two types of additional tables:
+
+1. SpringBatch `JobRepository` tables - Tracks job progress and ensures multiple copies of the same job aren't running at the same time
+2. Staging tables - Mirror images of `external_*` tables, but always with primary keys. Batch contents are inserted into these tables before being inserted or updated to the "real" `external_*` tables. This acts as an additional validation step and reduces network traffic required to determine whether any given row should be treated as an insert or an update.
+
+Both of these types of tables need to be created out of band. The application will not attempt to create them at startup.
+
+**Step 1:** Extract the DDL files for your database platform and SSP version.
+
+At this writing, `ssp-data-importer` only supports SSP 2.1.0 and 2.2.0.
+The 2.1.0 DDL files can be used for both those SSP versions.
+The examples below assume you have a command prompt open and your current directory is tha `ssp-data-importer` installation directory.
+
+For Postgres:
+```
+# Will extract the file to ./sql/postgres/postgres-2.1.0-create.sql
+$> jar -xf lib/ssp-data-importer-impl-1.0.0.jar sql/postgres/postgres-2.1.0-create.sql
+```
+For SQLServer:
+```
+# Will extract the file to ./sql/sqlserver/sqlserver-2.1.0-create.sql
+$> jar -xf lib/ssp-data-importer-impl-1.0.0.jar sql/sqlserver/sqlserver-2.1.0-create.sql
+```
+Note that there are `-drop.sql` files for each version+platform, which will remove objects created by the `-create.sql` scripts.
+
+**Step 2:** Modify DDL to match your database.
+
+In particular, you may wish to find and replace:
+
+1. Usernames: DDL assumes `sspadmin` and `ssp` usernames by default.
+2. Postgres-specific config, e.g. tablespace. See top of `postgres-2.1.0-create.sql`
+3. SQLServer schema: find and replace all occurrances of `[dbo]`
+4. SQLServer partition scheme name or file group for indexes (defaults to `[PRIMARY]`)
+
+**Step 3:** Execute DDL
+
+For SQLServer, this likely involves opening a connection to your database using SQLServer Management Studio, pasting your customized `sqlserver-2.1.0-create.sql` into a query window, and running the query window.
+
+For Postgres, if you have the `psql` command line tool installed:
+```
+$> psql -h <hostname> -p <port> -U <username> -d <databasename> -f ./sql/postgres/postgres-2.1.0-create.sql
+```
+
+
+## Application Installation
+
 The following assumes the JDK is already installed and the current network configuration allows the host on which the application to open a JDBC connection to the SSP database.
 `ssp-data-importer` can be installed on the same host as SSP or on another host altogether. The application's default memory footprint is very small (JVM-default heap sizing is usually fine), but can be expected to saturate a single CPU during its execution.
 These instructions also assume the directory to be monitored has already been mounted/created. This directory would typically be located on shared storage or otherwise support third-party upload, e.g. via SCP or FTP.
 
-## Linux
+### Linux
 
 ```bash
 # Create installation directory. Can be anywhere you like.
@@ -156,7 +204,7 @@ $> crontab -e
 # Or to test the application just execute runJob.sh.
 ```
 
-## Windows
+### Windows
 
 Open a browser and paste this URL into the location bar: https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.zip
 
