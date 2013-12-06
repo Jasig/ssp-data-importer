@@ -66,8 +66,12 @@ public class RawItemCsvWriter<RawItem> extends FlatFileItemWriter<RawItem> imple
     public void setResource(Resource resource){
         String fileName = resource.getFilename();
         try {
-            File file = new File(writeDirectory.getFile(), fileName);
+           File file = new File(writeDirectory.getFile(), fileName);
            file.createNewFile();
+           if(file.exists())
+               logger.info("File created for writing file name: " + file);
+           else
+               logger.error("File not created for writing file name: " + file);
            super.setResource(new FileSystemResource(file));
         } catch (IOException e) {
             logger.error("Error attempting to create file " + fileName + "for writing raw output.", e);

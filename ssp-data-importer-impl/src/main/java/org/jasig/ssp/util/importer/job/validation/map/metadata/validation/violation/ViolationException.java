@@ -23,6 +23,7 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.MapCon
 public class ViolationException extends Exception {
 
     private MapConstraintValidatorContext violation;
+    private Integer lineNumber = -1;
 
     /**
      *
@@ -35,22 +36,21 @@ public class ViolationException extends Exception {
 
     public ViolationException(String arg0) {
         super(arg0);
-        // TODO Auto-generated constructor stub
     }
 
     public ViolationException(Throwable arg0) {
         super(arg0);
-        // TODO Auto-generated constructor stub
     }
 
-    public ViolationException(MapConstraintValidatorContext violation) {
+    public ViolationException(Integer lineNumber,MapConstraintValidatorContext violation) {
         super();
         this.violation = violation;
+        this.lineNumber = lineNumber;
     }
 
-    public ViolationException(String arg0, Throwable arg1) {
+    public ViolationException(Integer lineNumber, String arg0, Throwable arg1) {
         super(arg0, arg1);
-        // TODO Auto-generated constructor stub
+        this.lineNumber = lineNumber;
     }
 
     public MapConstraintValidatorContext getConstraintValidationContext() {
@@ -66,4 +66,11 @@ public class ViolationException extends Exception {
         return violation.buildShortViolationMessage();
     }
 
+    public void setLineNumber(Integer lineNumber){
+        this.lineNumber = lineNumber;
+    }
+
+    public Integer getLineNumber(){
+        return lineNumber;
+    }
 }

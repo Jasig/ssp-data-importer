@@ -33,13 +33,11 @@ public class RawItemValidateProcessorListener implements ItemProcessListener<Raw
     Logger logger = LoggerFactory.getLogger(BatchFinalizer.class);
     @Override
     public void beforeProcess(RawItem item) {
-        StepContext stepContext = StepSynchronizationManager.getContext();
 
     }
 
     @Override
     public void afterProcess(RawItem item, RawItem result) {
-        StepContext stepContext = StepSynchronizationManager.getContext();
     }
 
     @Override
@@ -47,9 +45,9 @@ public class RawItemValidateProcessorListener implements ItemProcessListener<Raw
         if(!e.getClass().equals(TableViolationException.class) || hasTableViolation == false){
             StepContext stepContext = StepSynchronizationManager.getContext();
             Integer readCount = stepContext.getStepExecution().getReadCount();
-            Integer skipedCount = stepContext.getStepExecution().getSkipCount();
-            skipedCount = readCount + skipedCount;
-            logger.error("line:" + skipedCount.toString() + " " + e.getMessage());
+            Integer lineNumberError = stepContext.getStepExecution().getSkipCount();
+            lineNumberError = readCount + lineNumberError;
+            logger.error("line:" + lineNumberError.toString() + " " + e.getMessage());
         }
         if(e.getClass().equals(TableViolationException.class) && hasTableViolation == false){
             hasTableViolation = true;

@@ -28,6 +28,8 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violat
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.item.ItemProcessor;
 
 
@@ -50,8 +52,13 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
             if(validationContext.hasTableViolation())
 
                 throw new TableViolationException(validationContext);
-            else
-                throw new ViolationException(validationContext);
+            else{
+                StepContext stepContext = StepSynchronizationManager.getContext();
+                Integer readCount = stepContext.getStepExecution().getReadCount();
+                Integer lineNumberError = stepContext.getStepExecution().getSkipCount();
+                lineNumberError = readCount + lineNumberError;
+                throw new ViolationException(lineNumberError, validationContext);
+            }
         }
         return item;
     }
