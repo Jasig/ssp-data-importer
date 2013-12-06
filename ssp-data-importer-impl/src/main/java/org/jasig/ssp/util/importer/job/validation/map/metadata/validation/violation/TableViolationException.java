@@ -42,12 +42,10 @@ public class TableViolationException extends ViolationException {
     }
 
     public TableViolationException(String arg0, Throwable arg1) {
-        super(arg0, arg1);
-        // TODO Auto-generated constructor stub
-    }
+        super(-1, arg0, arg1);
+   }
 
     public TableViolationException(MapConstraintValidatorContext violation) {
-        super(violation);
+        super(-1, violation);
     }
-
 }
