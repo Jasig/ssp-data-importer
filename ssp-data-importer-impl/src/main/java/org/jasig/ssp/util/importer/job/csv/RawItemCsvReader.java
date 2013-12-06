@@ -60,7 +60,7 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
     @Override
     public void afterPropertiesSet() {
         // not in constructor to ensure we invoke the override
-        final DefaultLineMapper<RawItem> lineMapper = new DefaultLineMapper<RawItem>();
+        final DefaultLineMapper<RawItem> lineMapper = new RawItemLineMapper();
         setLineMapper(lineMapper);
     }
 
@@ -115,6 +115,8 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
     private DefaultLineMapper getLineMapper() {
         return this.lineMapper;
     }
+
+
 
     /**
      * Satisfies {@link FieldSetMapper} contract.

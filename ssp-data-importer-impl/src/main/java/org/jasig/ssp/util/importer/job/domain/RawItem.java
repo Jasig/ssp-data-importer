@@ -29,6 +29,7 @@ public class RawItem implements ResourceAware {
 
     private Resource resource;
     private Map<String,String> record;
+    private Integer lineNumber;
 
     public Resource getResource() {
         return resource;
@@ -58,6 +59,14 @@ public class RawItem implements ResourceAware {
             recordAsProperty.put(propertyName, record.get(columnName));
         }
         return recordAsProperty;
+    }
+
+    public Integer getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(Integer lineNumber) {
+        this.lineNumber = lineNumber;
     }
 
 }

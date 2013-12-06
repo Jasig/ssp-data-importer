@@ -27,7 +27,6 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violat
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.ItemCountAware;
 import org.springframework.batch.item.ItemProcessor;
 
 
@@ -36,7 +35,6 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
 
     private static Logger logger = LoggerFactory.getLogger(RawItemValidateProcessor.class);
     private MetadataConfigurations metadataRepository;
-    private int count;
 
 
     @Override
@@ -45,8 +43,6 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
 
-        count++;
-
         MapReference mapReference = new MapReference(item.getRecord(), tableName[0], null);
         MapConstraintValidatorContext validationContext = new  MapConstraintValidatorContext();
         Boolean isValid = metadataRepository.getRepository().isValid(mapReference, validationContext);
@@ -54,7 +50,7 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
             if(validationContext.hasTableViolation())
                 throw new TableViolationException(validationContext);
             else{
-                throw new ViolationException(count, validationContext);
+                throw new ViolationException(item.getLineNumber(), validationContext);
             }
         }
         return item;

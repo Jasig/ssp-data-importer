@@ -21,6 +21,7 @@ package org.jasig.ssp.util.importer.job.listener;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemProcessListener;
@@ -43,14 +44,21 @@ public class RawItemValidateProcessorListener implements ItemProcessListener<Raw
 
     @Override
     public void onProcessError(RawItem item, Exception e) {
-        if(!e.getClass().equals(TableViolationException.class) || hasTableViolation == false){
-            StepContext stepContext = StepSynchronizationManager.getContext();
-            Integer readCount = stepContext.getStepExecution().getReadCount();
-            logger.error("line:" + readCount + " " + e.getMessage());
+        if(!e.getClass().equals(TableViolationException.class) && !e.getClass().equals(ViolationException.class) || hasTableViolation == false){
+            logger.error(e.getMessage());
         }
+
+        if (e.getClass().equals(ViolationException.class)){
+            ViolationException violation = (ViolationException)e;
+            String EOL = System.getProperty("line.separator");
+            logger.error("error on line:" + violation.getLineNumber() + EOL + e.getMessage());
+        }
+
         if(e.getClass().equals(TableViolationException.class) && hasTableViolation == false){
             hasTableViolation = true;
+            ViolationException violation = (TableViolationException)e;
+            String EOL = System.getProperty("line.separator");
+            logger.error("error on line:" + violation.getLineNumber() + EOL + e.getMessage());
         }
     }
-
 }
