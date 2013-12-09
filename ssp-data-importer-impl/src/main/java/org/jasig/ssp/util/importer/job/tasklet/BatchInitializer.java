@@ -21,6 +21,7 @@ package org.jasig.ssp.util.importer.job.tasklet;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
@@ -79,12 +80,23 @@ public class BatchInitializer implements Tasklet {
 
     private File createDirectory(Resource directory) throws Exception{
          File dir = directory.getFile();
-         if(!dir.exists())
+         if(!dir.exists()){
              if(!dir.mkdirs()){
                  logger.error("Process directory was not created at " + dir.getPath());
                  throw new Exception("Process directory was not created at " + dir.getPath());
              }
+         }else
+             cleanDirectoryQuietly(dir);
          return dir;
+    }
+
+    private void cleanDirectoryQuietly(File directory) {
+        try {
+            logger.info("Emptying directory [{}]", directory);
+            FileUtils.cleanDirectory(directory);
+        } catch ( Exception e ) {
+            logger.error("Failed to empty directory [{}]", directory, e);
+        }
     }
 
     private void copyFiles(File processDirectory) throws IOException{
