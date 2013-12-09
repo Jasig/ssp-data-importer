@@ -96,7 +96,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
         // so in cases where the external table does not have any keys, we look
         // towards the corresponding staging table for them
         if (tableKeys.isEmpty()) {
-            metadataRepository.getRepository().getColumnMetadataRepository()
+            tableKeys = metadataRepository.getRepository().getColumnMetadataRepository()
                     .getTableMetadata(new TableReference("stg_" + tableName))
                     .getTableKeys();
         }
