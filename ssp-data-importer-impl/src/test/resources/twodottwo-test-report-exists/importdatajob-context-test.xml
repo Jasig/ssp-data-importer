@@ -95,8 +95,10 @@
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor"/>
 
-    <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener"/>
-     <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener"/>
+    <bean id="stagingAndUpsertSkipListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener">
+            <property name="metadataRepository" ref="metadataRepository" />
+    </bean>     
+    <bean id="stagingAndUpsertListener" class="org.jasig.ssp.util.importer.job.listener.StagingAndUpsertListener"/>
      <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
      <bean id="stagingTableTruncator" class="org.jasig.ssp.util.importer.job.listener.StagingTableTruncator"
              p:dataSource-ref="dataSource">
