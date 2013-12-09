@@ -21,9 +21,11 @@ package org.jasig.ssp.util.importer.job.listener;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.report.ErrorEntry;
 import org.jasig.ssp.util.importer.job.report.StepType;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.SkipListener;
@@ -37,26 +39,59 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
 
     private StepExecution stepExecution;
     
+    private MetadataConfigurations metadataRepository;
+
+    
     private static final Logger logger = LoggerFactory.getLogger(StagingAndUpsertSkipListener.class);
     @Override
     public void onSkipInRead(Throwable t) {
         logger.error("ERROR on Upsert Read", t);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onSkipInWrite(RawItem item, Throwable t) {
+        reportOnError(item, t);
+    }
+
+    @Override
+    public void onSkipInProcess(RawItem item, Throwable t) {
+        logger.error("ERROR on Stage/Upsert Process", t);
+        reportOnError(item, t);
+    }
+
+    
+    @SuppressWarnings("unchecked")
+    private void reportOnError(RawItem item, Throwable t) {
         logger.error("ERROR on Stage/Upsert Write", t);
         StepContext stepContext = StepSynchronizationManager.getContext();
         Integer readCount = stepContext.getStepExecution().getCommitCount();
         Integer lineNumberError = stepContext.getStepExecution().getWriteSkipCount();
         lineNumberError = readCount + lineNumberError;
-
+        
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
         stepExecution.getExecutionContext().put("currentEntity",
-                tableName[0]);        
-        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGEUPSERT);
+                tableName[0]);  
+        List<String> tableKeys = metadataRepository.getRepository()
+                .getColumnMetadataRepository()
+                .getTableMetadata(new TableReference( tableName[0])).getTableKeys();
+
+        // There are a few external tables that don't (yet) have natural keys,
+        // in these cases we've enforced the key on the staging table
+        // so in cases where the external table does not have any keys, we look
+        // towards the corresponding staging table for them
+        if (tableKeys.isEmpty()) {
+            tableKeys = metadataRepository.getRepository().getColumnMetadataRepository()
+                    .getTableMetadata(new TableReference("stg_" +  tableName[0]))
+                    .getTableKeys();
+        }
+        StringBuilder keyBuilder = new StringBuilder();
+        keyBuilder.append("Entity Keys: {");
+        for (String key : tableKeys) {
+            keyBuilder.append(key).append(" : ").append(item.getRecord().get(key)).append(", ");
+        }
+        keyBuilder.append("}");
+        ErrorEntry error = new ErrorEntry(tableName[0],keyBuilder.toString(),t.getCause().toString(),StepType.STAGEUPSERT);
         error.setLineNumber(readCount.toString());
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)
@@ -66,24 +101,6 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
         errors.add(error);
         stepExecution.getJobExecution().getExecutionContext().put("errors", errors);
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onSkipInProcess(RawItem item, Throwable t) {
-        logger.error("ERROR on Stage/Upsert Process", t);
-        
-        String fileName = item.getResource().getFilename();
-        String[] tableName = fileName.split("\\.");
-        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.STAGEUPSERT);
-        List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
-        if(errors == null)
-        {
-            errors = new ArrayList<ErrorEntry>();
-        } 
-        errors.add(error);
-        stepExecution.getJobExecution().getExecutionContext().put("errors", errors);
-    }
-
     public StepExecution getStepExecution() {
         return stepExecution;
     }
@@ -95,6 +112,14 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
+    }
+
+    public MetadataConfigurations getMetadataRepository() {
+        return metadataRepository;
+    }
+
+    public void setMetadataRepository(MetadataConfigurations metadataRepository) {
+        this.metadataRepository = metadataRepository;
     }
 
 }

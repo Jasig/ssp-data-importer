@@ -45,7 +45,7 @@ public class ErrorEntry implements Serializable {
     @Override
     public String toString() {
         String EOL = System.getProperty("line.separator");
-        if(!"external_person".equals(tableName))
+        if(stepType.equals(StepType.STAGEUPSERT))
         {
             return "Table Name: "+tableName+EOL+"Line Number: "+lineNumber+EOL+" Entity: "+entityString+EOL+" Step: "+stepType.name()+EOL+" Message: "+message;
         }
