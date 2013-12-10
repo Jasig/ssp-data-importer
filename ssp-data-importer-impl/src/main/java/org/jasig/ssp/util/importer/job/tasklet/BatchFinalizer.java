@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.jasig.ssp.util.importer.job.util.ZipDirectory;
+import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
@@ -100,6 +101,11 @@ public class BatchFinalizer implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
+         List<Throwable> failureExceptions = jobExecution.getAllFailureExceptions();
+         for(Throwable failureException:failureExceptions){
+             if(failureException.getClass().equals(PartialUploadGuardException.class))
+                return;
+         }
          logger.info("Files deleted and archived");
          Long diff = TimeUnit.MILLISECONDS.toMinutes(jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime());
 
