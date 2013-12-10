@@ -44,15 +44,16 @@ public class PartialUploadGuard implements Tasklet {
             Date modified = new Date(resource.lastModified());
             if(modified.after(lastAllowedModificationTime)){
                 logger.info(FILE_SOAK_TIME + resource.getFilename());
-                throw new Exception(FILE_SOAK_TIME + resource.getFilename());
+                throw new PartialUploadGuardException(FILE_SOAK_TIME + resource.getFilename());
             }
         }
         return RepeatStatus.FINISHED;
     }
 
-    public void setResources(Resource[] resources){
-        if(resources == null || resources.length == 0)
+    public void setResources(Resource[] resources) throws PartialUploadGuardException{
+        if(resources == null || resources.length == 0){
             logger.error("Batch not initialized. No resources found");
+        }
         Assert.notNull(resources, "The resources must not be null");
         this.resources = resources;
     }
