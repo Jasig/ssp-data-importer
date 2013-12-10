@@ -1,0 +1,158 @@
+package org.jasig.ssp.util.importer.job;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+
+import junit.framework.Assert;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/batch-initialization/launch-context-test-finalizer-no-archive.xml")
+public class BatchFinalizerNoArchiveTest {
+
+    @Autowired
+    final private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
+
+
+    final private String processDirectoryPath = "/tmp/batch-initialization/process/";
+    final private String upsertDirectoryPath = "/tmp/batch-initialization/upsert/";
+    final private String inputDirectoryPath = "/tmp/batch-initialization/input/";
+    final private String archiveDirectoryPath = "/tmp/batch-initialization/archive/";
+
+    public BatchFinalizerNoArchiveTest() {
+
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testFinalizeNoArchive() throws Exception {
+
+        deleteDirectory(processDirectoryPath);
+        deleteDirectory(upsertDirectoryPath);
+        deleteDirectory(inputDirectoryPath);
+        deleteDirectory(archiveDirectoryPath);
+        createFiles(inputDirectoryPath);
+        createFiles(upsertDirectoryPath);
+        createFiles(processDirectoryPath);
+
+
+        Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 3, csvFilter));
+        Assert.assertTrue(directoryContainsFiles(upsertDirectoryPath, 3, csvFilter));
+        Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 3, csvFilter));
+
+
+        jobLauncherTestUtils.launchJob();
+
+        Assert.assertTrue(directoryExists(processDirectoryPath));
+        Assert.assertTrue(directoryExists(upsertDirectoryPath));
+        Assert.assertTrue(directoryExists(inputDirectoryPath));
+        Assert.assertTrue(!directoryExists(archiveDirectoryPath));
+        Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 0, csvFilter));
+        Assert.assertTrue(directoryContainsFiles(upsertDirectoryPath, 0, csvFilter));
+        Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 0, csvFilter));
+    }
+
+
+    @After
+    public void cleanup(){
+        try {
+            deleteDirectory(processDirectoryPath);
+            deleteDirectory(upsertDirectoryPath);
+            deleteDirectory(inputDirectoryPath);
+            deleteDirectory(archiveDirectoryPath);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    private void deleteDirectory(String directoryPath) throws IOException{
+        File directory = new File(directoryPath);
+        if(directory.exists())
+            FileUtils.deleteDirectory(directory);
+    }
+
+    private Boolean directoryExists(String directoryPath){
+        File file = new File(directoryPath);
+
+        if(file.exists() && file.isDirectory())
+            return true;
+        return false;
+    }
+
+    private  void createFiles(String directoryPath) throws IOException{
+         File directory = new File(directoryPath);
+        FileUtils.forceMkdir(directory);
+        File file = new File(directory, "test.csv");
+        FileUtils.writeStringToFile(file, "header1,header2,header,3");
+        file = new File(directory, "test1.csv");
+        FileUtils.writeStringToFile(file, "header1,header2,header,3");
+        file = new File(directory, "test3.csv");
+        FileUtils.writeStringToFile(file, "header1,header2,header,3");
+    }
+
+    private Boolean directoryContainsFiles(String directoryPath, int count, FilenameFilter filter){
+        File file = new File(directoryPath);
+
+        if(!file.exists() || !file.isDirectory())
+            return false;
+
+        if(file.list(filter).length == count)
+            return true;
+        return false;
+    }
+
+    private FilenameFilter csvFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                if (lowercaseName.endsWith(".csv")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+
+    private FilenameFilter zipFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                if (lowercaseName.endsWith(".zip")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+
+    public String getProcessDirectoryPath() {
+        return processDirectoryPath;
+    }
+
+
+    public String getUpsertDirectoryPath() {
+        return upsertDirectoryPath;
+    }
+
+
+    public String getInputDirectoryPath() {
+        return inputDirectoryPath;
+    }
+
+    public JobLauncherTestUtils getJobLauncherTestUtils() {
+        return jobLauncherTestUtils;
+    }
+
+
+}
