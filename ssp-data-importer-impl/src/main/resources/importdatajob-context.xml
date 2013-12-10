@@ -67,7 +67,7 @@
                                 p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
     <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
                                 p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
-                                p:dulicateResources="${batch.table.input.duplicate}"
+                                p:duplicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
                                 p:upsertDirectory="${batch.tables.upsert.folder}"/>
 
