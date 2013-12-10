@@ -37,7 +37,7 @@ public class BatchInitializer implements Tasklet {
     private Resource[] resources;
     private Resource processDirectory;
     private Resource upsertDirectory;
-    private Boolean dulicateResources = false;
+    private Boolean duplicateResources = false;
 
     private Logger logger = LoggerFactory.getLogger(BatchInitializer.class);
 
@@ -45,7 +45,7 @@ public class BatchInitializer implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         createDirectory(upsertDirectory);
         File directory = createDirectory(processDirectory);
-        if(dulicateResources){
+        if(duplicateResources){
             copyFiles(directory);
         }else{
             copyDeleteFiles(directory);
@@ -70,12 +70,12 @@ public class BatchInitializer implements Tasklet {
         this.upsertDirectory = upsertDirectory;
     }
 
-    public Boolean getDulicateResources() {
-        return dulicateResources;
+    public Boolean getDuplicateResources() {
+        return duplicateResources;
     }
 
-    public void setDulicateResources(Boolean dulicateResources) {
-        this.dulicateResources = dulicateResources;
+    public void setDuplicateResources(Boolean duplicateResources) {
+        this.duplicateResources = duplicateResources;
     }
 
     private File createDirectory(Resource directory) throws Exception{
