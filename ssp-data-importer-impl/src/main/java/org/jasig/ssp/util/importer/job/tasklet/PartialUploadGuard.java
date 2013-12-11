@@ -35,11 +35,21 @@ public class PartialUploadGuard implements Tasklet {
 
     private static Logger logger = LoggerFactory.getLogger(PartialUploadGuard.class);
     Resource[] resources;
+    Resource resourceFolder;
     Integer lagTimeBeforeStartInMinutes = 0;// programmatic default set to 0 for testing, time needs to be set by expected load times
-    final String FILE_SOAK_TIME = "File does not meet minimum time since modification batch processing will not start: ";
+    final String FILE_SOAK_TIME = "File does not meet minimum lag time since modification. File: ";
+
+    public PartialUploadGuard(){
+        super();
+    }
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         Date lastAllowedModificationTime = getLastAllowedModifiedDate();
+
+        if(resources == null || resources.length == 0){
+            logger.error("Batch not initialized. No resources found");
+            throw new PartialUploadGuardException("Batch not initialized. No resources found");
+        }
         for(Resource resource:resources){
             Date modified = new Date(resource.lastModified());
             if(modified.after(lastAllowedModificationTime)){
@@ -51,10 +61,7 @@ public class PartialUploadGuard implements Tasklet {
     }
 
     public void setResources(Resource[] resources) throws PartialUploadGuardException{
-        if(resources == null || resources.length == 0){
-            logger.error("Batch not initialized. No resources found");
-        }
-        Assert.notNull(resources, "The resources must not be null");
+        Assert.notNull(resources, "Input directory has not been created.");
         this.resources = resources;
     }
 

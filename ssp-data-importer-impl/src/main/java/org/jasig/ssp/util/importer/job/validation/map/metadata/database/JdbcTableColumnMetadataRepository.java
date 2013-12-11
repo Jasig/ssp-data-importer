@@ -57,8 +57,9 @@ public class JdbcTableColumnMetadataRepository implements
 
         private String schema;
 
-        public JdbcTableColumnMetadataRepository(DataSource dataSource) {
+        public JdbcTableColumnMetadataRepository(DataSource dataSource) throws SQLException {
             this.dataSource = dataSource;
+            logger.info("Database url {}", dataSource.getConnection().getMetaData().getURL());
         }
 
         @Override

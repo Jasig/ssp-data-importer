@@ -21,6 +21,7 @@ package org.jasig.ssp.util.importer.job.tasklet;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jasig.ssp.util.importer.job.util.ZipDirectory;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
 import org.slf4j.Logger;
@@ -102,9 +103,13 @@ public class BatchFinalizer implements JobExecutionListener {
     @Override
     public void afterJob(JobExecution jobExecution) {
          List<Throwable> failureExceptions = jobExecution.getAllFailureExceptions();
-         for(Throwable failureException:failureExceptions){
-             if(failureException.getClass().equals(PartialUploadGuardException.class))
-                return;
+
+         if(failureExceptions != null){
+             for(Throwable failureException:failureExceptions){
+                 if(ExceptionUtils.indexOfThrowable(failureException, PartialUploadGuardException.class) >= 0){
+                     return;
+                 }
+             }
          }
          logger.info("Files deleted and archived");
          Long diff = TimeUnit.MILLISECONDS.toMinutes(jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime());
@@ -203,26 +208,34 @@ public class BatchFinalizer implements JobExecutionListener {
 
     private void cleanCsvFilesQuietly(File directory) {
         final File[] files;
-        try {
-            files = directory.listFiles(csvFilter);
-        } catch ( Exception e ) {
-            logger.error("Unable to list CSV files in [{}]", directory, e);
-            return;
-        }
+        if(directory.exists()){
+            try {
+                files = directory.listFiles(csvFilter);
+            } catch ( Exception e ) {
+                logger.error("Unable to list CSV files in [{}]", directory, e);
+                return;
+            }
 
-        for(File file: files){
-             if (!(file.delete())) {
-                logger.error("Failed to delete file [{}]", file);
+            for(File file: files){
+                 if (!(file.delete())) {
+                    logger.error("Failed to delete file [{}]", file);
+                 }
              }
-         }
+        } else{
+            logger.info("Attempting to empty directory [{}], directory does not exist.", directory);
+        }
     }
 
     private void cleanDirectoryQuietly(File directory) {
-        try {
-            logger.info("Emptying directory [{}]", directory);
-            FileUtils.cleanDirectory(directory);
-        } catch ( Exception e ) {
-            logger.error("Failed to empty directory [{}]", directory, e);
+        if(directory.exists()){
+            try {
+                logger.info("Emptying directory [{}]", directory);
+                FileUtils.cleanDirectory(directory);
+            } catch ( Exception e ) {
+                logger.error("Failed to empty directory [{}]", directory, e);
+            }
+        } else{
+            logger.info("Attempting to empty directory [{}], directory does not exist.", directory);
         }
     }
 
@@ -230,7 +243,7 @@ public class BatchFinalizer implements JobExecutionListener {
         File dir = directory.getFile();
         if(!dir.exists())
             if(!dir.mkdirs())
-                throw new Exception("Archive directory not created");
+                throw new Exception("Archive directory not created mkdirs failed. Attempted location: {}" + dir.getAbsolutePath());
         return dir;
     }
 

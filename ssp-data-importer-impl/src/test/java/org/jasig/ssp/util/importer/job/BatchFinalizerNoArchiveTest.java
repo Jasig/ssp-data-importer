@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -51,8 +52,8 @@ public class BatchFinalizerNoArchiveTest {
         Assert.assertTrue(directoryContainsFiles(upsertDirectoryPath, 3, csvFilter));
         Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 3, csvFilter));
 
+        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
 
-        jobLauncherTestUtils.launchJob();
 
         Assert.assertTrue(directoryExists(processDirectoryPath));
         Assert.assertTrue(directoryExists(upsertDirectoryPath));
@@ -61,6 +62,7 @@ public class BatchFinalizerNoArchiveTest {
         Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 0, csvFilter));
         Assert.assertTrue(directoryContainsFiles(upsertDirectoryPath, 0, csvFilter));
         Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 0, csvFilter));
+        Assert.assertEquals(BatchStatus.COMPLETED, exitStatus);
     }
 
 

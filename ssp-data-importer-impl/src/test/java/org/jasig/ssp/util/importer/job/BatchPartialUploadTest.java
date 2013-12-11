@@ -33,6 +33,39 @@ public class BatchPartialUploadTest {
 
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testNoDirectory() throws Exception {
+
+
+        deleteDirectory(inputDirectoryPath);
+
+        Assert.assertTrue(!directoryExists(inputDirectoryPath));
+
+        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
+
+        Assert.assertEquals(BatchStatus.FAILED, exitStatus);
+
+        Assert.assertTrue(!directoryExists(inputDirectoryPath));
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testDirectoryNoFiles() throws Exception {
+
+
+        deleteDirectory(inputDirectoryPath);
+        createDirectory(inputDirectoryPath);
+        Assert.assertTrue(directoryExists(inputDirectoryPath));
+
+        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
+
+        Assert.assertEquals(BatchStatus.FAILED, exitStatus);
+
+        Assert.assertTrue(directoryExists(inputDirectoryPath));
+
+    }
 
     @SuppressWarnings("unchecked")
     @Test
@@ -56,39 +89,6 @@ public class BatchPartialUploadTest {
 
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testDirectoryNoFiles() throws Exception {
-
-
-        deleteDirectory(inputDirectoryPath);
-        createDirectory(inputDirectoryPath);
-        Assert.assertTrue(directoryExists(inputDirectoryPath));
-
-        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
-
-        Assert.assertEquals(BatchStatus.FAILED, exitStatus);
-
-        Assert.assertTrue(directoryExists(inputDirectoryPath));
-
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testNoDirectory() throws Exception {
-
-
-        deleteDirectory(inputDirectoryPath);
-
-        Assert.assertTrue(!directoryExists(inputDirectoryPath));
-
-        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
-
-        Assert.assertEquals(BatchStatus.FAILED, exitStatus);
-
-        Assert.assertTrue(!directoryExists(inputDirectoryPath));
-
-    }
 
 
 
@@ -105,8 +105,10 @@ public class BatchPartialUploadTest {
 
     private void deleteDirectory(String directoryPath) throws IOException{
         File directory = new File(directoryPath);
-        if(directory.exists())
+        if(directory.exists()){
+            FileUtils.cleanDirectory(directory);
             FileUtils.deleteDirectory(directory);
+        }
     }
 
     private void createDirectory(String directoryPath) throws IOException{

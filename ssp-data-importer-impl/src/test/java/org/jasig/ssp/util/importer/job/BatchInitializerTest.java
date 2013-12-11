@@ -12,6 +12,7 @@ import org.jasig.ssp.util.importer.job.tasklet.BatchInitializer;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -52,7 +53,7 @@ public class BatchInitializerTest {
         Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 2));
 
 
-        jobLauncherTestUtils.launchJob();
+        BatchStatus status = jobLauncherTestUtils.launchJob().getStatus();
 
         Assert.assertTrue(directoryExists(processDirectoryPath));
         Assert.assertTrue(directoryExists(upsertDirectoryPath));
@@ -60,6 +61,7 @@ public class BatchInitializerTest {
         Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 2));
         Assert.assertTrue(directoryContainsFiles(upsertDirectoryPath, 0));
         Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 0));
+        Assert.assertEquals(BatchStatus.COMPLETED, status);
     }
 
     @SuppressWarnings("unchecked")
@@ -80,7 +82,7 @@ public class BatchInitializerTest {
         Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 2));
 
 
-        jobLauncherTestUtils.launchJob();
+        BatchStatus status = jobLauncherTestUtils.launchJob().getStatus();
 
         Assert.assertTrue(directoryExists(processDirectoryPath));
         Assert.assertTrue(directoryExists(upsertDirectoryPath));
@@ -88,6 +90,8 @@ public class BatchInitializerTest {
         Assert.assertTrue(directoryContainsFiles(processDirectoryPath, 2));
         Assert.assertTrue(directoryContainsFiles(upsertDirectoryPath, 0));
         Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 0));
+
+        Assert.assertEquals(BatchStatus.COMPLETED, status);
 
     }
 

@@ -29,8 +29,8 @@
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="file:/tmp/batch-initialization/input"
+    <bean scope="step" id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+                                p:resources="file:/tmp/batch-initialization/input/*"
                                 p:lagTimeBeforeStartInMinutes="0"/>
 
 
@@ -42,6 +42,7 @@
             p:batchTitle="Test Batch"
             p:archiveFiles="NONE"
             p:retainInputFiles="false"/>
+
     <batch:job id="importJob" restartable="false">
         <batch:step id="guardPartialUploads">
             <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer

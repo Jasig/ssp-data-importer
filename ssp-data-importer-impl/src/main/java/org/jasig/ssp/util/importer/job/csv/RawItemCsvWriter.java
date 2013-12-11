@@ -94,10 +94,10 @@ public class RawItemCsvWriter<RawItem> extends FlatFileItemWriter<RawItem> imple
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.info("End Raw Read Step for " + stepExecution.getExecutionContext().getString("fileName") +
-                "lines read: " +
+        logger.info("End Raw Write Step for " + stepExecution.getExecutionContext().getString("fileName") +
+                " lines read: " +
                 stepExecution.getReadCount() +
-                "lines skipped: " + stepExecution.getReadSkipCount());
+                " lines skipped: " + stepExecution.getReadSkipCount());
         logger.info(stepExecution.getSummary());
         return ExitStatus.COMPLETED;
     }

@@ -31,7 +31,7 @@
 
 
     <bean scope="step" id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
-                                p:resources="file:/tmp/batch-initialization/input/*.csv"
+                                p:resources="file:/tmp/batch-initialization/input/*"
                                 p:duplicateResources="true"
                                 p:processDirectory="file:/tmp/batch-initialization/process"
                                 p:upsertDirectory="file:/tmp/batch-initialization/upsert"/>

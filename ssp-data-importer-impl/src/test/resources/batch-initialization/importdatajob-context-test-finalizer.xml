@@ -29,8 +29,8 @@
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="file:/tmp/batch-initialization/input"
+    <bean scope="step" id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+                                p:resources="file:/tmp/batch-initialization/input/*"
                                 p:lagTimeBeforeStartInMinutes="0"/>
 
 

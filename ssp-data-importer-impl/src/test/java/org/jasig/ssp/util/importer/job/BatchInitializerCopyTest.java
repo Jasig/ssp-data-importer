@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,8 +50,7 @@ public class BatchInitializerCopyTest {
         Assert.assertTrue(directoryExists(getInputDirectoryPath()));
         Assert.assertTrue(directoryContainsFiles(getInputDirectoryPath(), 2));
 
-
-        getJobLauncherTestUtils().launchJob();
+        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
 
         Assert.assertTrue(directoryExists(getProcessDirectoryPath()));
         Assert.assertTrue(directoryExists(getUpsertDirectoryPath()));
@@ -58,6 +58,7 @@ public class BatchInitializerCopyTest {
         Assert.assertTrue(directoryContainsFiles(getProcessDirectoryPath(), 2));
         Assert.assertTrue(directoryContainsFiles(getUpsertDirectoryPath(), 0));
         Assert.assertTrue(directoryContainsFiles(getInputDirectoryPath(), 2));
+        Assert.assertEquals(BatchStatus.COMPLETED, exitStatus);
     }
 
     @After

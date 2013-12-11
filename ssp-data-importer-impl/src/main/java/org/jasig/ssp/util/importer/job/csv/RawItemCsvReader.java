@@ -155,9 +155,9 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         logger.info("End Raw Read Step for " + itemResource.getFilename() +
-                "lines read: " +
+                " lines read: " +
                 stepExecution.getReadCount() +
-                "lines skipped: " + stepExecution.getReadSkipCount());
+                " lines skipped: " + stepExecution.getReadSkipCount());
         return ExitStatus.COMPLETED;
     }
 
