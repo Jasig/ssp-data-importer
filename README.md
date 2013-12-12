@@ -180,7 +180,8 @@ These instructions also assume the directory to be monitored has already been mo
 # bin/setJobEnv.sh by passing arbitrary system properties in
 # JVM_OPTS. E.g.:
 #
-#   JVM_OPTS="-Dbatch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp \
+#   JVM_OPTS="-Dbatch.tables.input.folder=/opt/ssp/upload
+#             -Dbatch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp \
 #             -Dbatch.jdbc.driver=org.postgresql.Driver"
 #
 $> vim bin/setJobEnv.sh
@@ -214,7 +215,12 @@ $> crontab -e
 Assuming that installation location, create a file at `c:\ssp\ssp-data-importer\bin\setJobEnv.bat` and set local overrides to any of the options described by `c:\ssp\ssp-data-importer\bin\runJob.bat`. E.g.
 
 ```
-set "JVM_OPTS="-Dbatch.jdbc.url=jdbc:jtds:sqlserver://127.0.0.1:1433/ssp" "-Dbatch.jdbc.driver=net.sourceforge.jtds.jdbc.Driver""
+rem NB For SQLServer be sure to override both spring.profiles.active and batch.jdbc.url 
+rem as shown here. Each 'set' should be a single line. They are wrapped here for readability.
+set "JVM_OPTS="-Dspring.profiles.active=sqlserver"
+               "-Dbatch.jdbc.url=jdbc:jtds:sqlserver://127.0.0.1:1433/ssp"
+               "-Dbatch.jdbc.driver=net.sourceforge.jtds.jdbc.Driver"
+               "-Dbatch.tables.input.folder=c:\ssp\upload""
 set "JAVA_HOME=C:\Program Files (x86)\Java\jre6"
 ```
 
