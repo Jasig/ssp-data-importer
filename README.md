@@ -269,8 +269,7 @@ To configure the job to run on a schedule, launch the Windows Task Manager (Star
 
 `ssp-data-importer` uses [Logback](http://logback.qos.ch/manual/configuration.html) as its logging framework.
 The default Logback configuration file is embedded in the `ssp-data-importer-impl-<version>.jar` file at `./logback.xml`. 
-That default configuration will output both to stdout/stderr and to two daily rolled files: `<install>/logs/errorLogFile.log` and `<install>/logs/infoLogFile.log`.
-As its name suggests, the former can be monitored for application errors, whereas the latter is intended for diagnostic messaging.
+That default configuration will output `INFO` messages "and worse" to stdout/stderr and to a daily rolled file: `<install>/logs/ssp-data-importer.log`.
 
 If you just need to change the directory in which logs collect, the easiest way to do that is to change the `LOG_HOME` shell var in `setJobEnv.[sh|bat]`.
 
@@ -287,7 +286,7 @@ Or on Windows take a copy of the jar file, rename it to end in `.zip`, and then 
 
 Edit the extracted file to suit your needs. The Logback project has thorough [documentation](http://logback.qos.ch/manual/configuration.html). Or contact the [ssp-user](https://wiki.jasig.org/display/JSG/ssp-user) mailing list with questions.
 
-If you follow those steps exactly, `ssp-data-importer` will automatically pick up your changes on its next execution. If you would rather place your overrides in a different location, specify that complete path by setting `LOGBACK_FILE` IN `setJobEnv.[sh|bat]`.
+By default, `ssp-data-importer` will look for custom log config at `$CONFIG_DIR/logback.xml`. So if you haven't modified the `CONFIG_DIR` env var and place your modified file in `<install>/conf`, `ssp-data-importer` will automatically pick up your changes on its next execution. Or if you would rather place your overrides in an entirely different location, specify that complete path by setting `LOGBACK_FILE` IN `setJobEnv.[sh|bat]`.
 
 Application Configuration Options
 =================================
