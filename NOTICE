@@ -56,11 +56,13 @@ This project includes:
   JCL 1.1.1 implemented over SLF4J under MIT License
   Jettison under Apache License, Version 2.0
   JPA 2.0 API under Sun Binary Code License
+  jtds under LGPL
   JUnit under Common Public License Version 1.0
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logging under The Apache Software License, Version 2.0
   MXP1: Xml Pull Parser 3rd Edition (XPP3) under Indiana University Extreme! Lab Software License, vesion 1.1.1 or Public Domain
+  Objenesis under Apache 2
   oro under Apache License, Version 2.0
   PostgreSQL JDBC Driver under BSD License
   SLF4J API Module under MIT License
