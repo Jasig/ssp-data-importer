@@ -29,12 +29,12 @@
 			</pattern>
 		</encoder>
 	</appender>
-	<appender name="infoFileAppender"
+	<appender name="fileAppender"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.home:-.}/infoLogFile.log</file>
+		<file>${log.home:-.}/ssp-data-importer.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>${log.home:-.}/infoLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${log.home:-.}/ssp-data-importer.%d{yyyy-MM-dd}.log</fileNamePattern>
 	
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>
@@ -44,29 +44,9 @@
 			</pattern>
 		</encoder>
 	</appender>	
-	
-	<appender name="errorFileAppender"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.home:-.}/errorLogFile.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<!-- daily rollover -->
-			<fileNamePattern>${log.home:-.}/errorLogFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-	
-			<!-- keep 30 days' worth of history -->
-			<maxHistory>30</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-			</pattern>
-		</encoder>
-	</appender>
-	<root level="error">
-		<appender-ref ref="errorFileAppender" />
-		<appender-ref ref="consoleAppender"/>
-	</root>
-	
+
 	<root level="info">
-		<appender-ref ref="infoFileAppender" />
+		<appender-ref ref="fileAppender" />
 		<appender-ref ref="consoleAppender"/>
 	</root>
 </configuration>

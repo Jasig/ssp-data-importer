@@ -31,12 +31,12 @@
 		</encoder>
 	</appender>
  -->
-	<appender name="infoFileAppender"
+	<appender name="fileAppender"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>infoLogFile.log</file>
+		<file>ssp-data-importer.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>ssp-data-importer.%d{yyyy-MM-dd}.log</fileNamePattern>
 	
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>
@@ -46,27 +46,9 @@
 			</pattern>
 		</encoder>
 	</appender>	
-	
-	<appender name="errorFileAppender"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>errorLogFile.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<!-- daily rollover -->
-			<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-	
-			<!-- keep 30 days' worth of history -->
-			<maxHistory>30</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-			</pattern>
-		</encoder>
-	</appender>
-	<root level="error">
-		<appender-ref ref="errorFileAppender" />
-	</root>
+
 	
 	<root level="info">
-		<appender-ref ref="infoFileAppender" />
+		<appender-ref ref="fileAppender" />
 	</root>
 </configuration>
