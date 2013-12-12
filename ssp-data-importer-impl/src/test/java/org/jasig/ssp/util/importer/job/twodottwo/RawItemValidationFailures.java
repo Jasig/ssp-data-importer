@@ -51,7 +51,7 @@ public class RawItemValidationFailures {
 
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         BatchStatus status = jobExecution.getStatus();
-        Assert.assertEquals(BatchStatus.COMPLETED, status);
+        Assert.assertEquals(BatchStatus.FAILED, status);
         Map<String, ReportEntry> report = (Map<String, ReportEntry>)jobExecution.getExecutionContext().get("report");
         Assert.assertNotNull(report);
         Set<Entry<String, ReportEntry>> entrySet = report.entrySet();

@@ -39,8 +39,6 @@ public class BatchInitializerCopyTest {
     @Test
     public void testCopyToProcessDirectory() throws Exception {
 
-        System.setProperty("ssp.importer.configdir", "batch-initialization");
-
         deleteDirectory(this.getProcessDirectoryPath());
         deleteDirectory(getUpsertDirectoryPath());
         createFiles(getInputDirectoryPath());
