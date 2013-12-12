@@ -41,10 +41,16 @@
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
 
+    <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" >
+        <property name="dbInstanceName" value="${db_name}"/>
+        <property name="emailRecipients" value="${batch.email.recipients}"/>
+        <property name="replyTo" value="${batch.email.replyTo}"/>
+        <property name="sendEmail" value="${batch.sendEmail}" />
+    </bean>
 
     <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
     <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
-        <property name="resources" value="twodottwo-test-parse-rawitem-header-fail/*.csv"/>
+        <property name="resources" value="twodottwo-test-rawitem-validation-fail/*.csv"/>
     </bean>
 
     <bean scope="step" id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
@@ -85,6 +91,12 @@
     </bean>
 
     <batch:job id="importJob" restartable="false">
+        <!-- === Start Core Job Step Definition == -->
+
+        <!-- Another step might be need here if we have to guard against concurrent executions (I think the framework
+        takes care of that for us, esp if we're using a db-backed JobRepository.) -->
+        <!--<batch:step id="guardConcurrentExecution">-->
+        <!--</batch:step>-->
 
         <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
         to another set of files -->
@@ -93,10 +105,6 @@
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
         </batch:step>
-
-        <batch:listeners>
-            <batch:listener ref="batchFinaliser"/>
-         </batch:listeners>
 
         <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
          the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
@@ -108,7 +116,7 @@
                 <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
                 step. Note that this limit applies separately to reads, processes, and writes. -->
                 <batch:chunk reader="singleRawCsvItemReader" processor="rawItemValidateProcessor" writer="processedRawCsvItemWriter"
-                             commit-interval="${batch.rawitem.commit.interval}" skip-limit="${batch.rawitem.skip.limit}">
+                             commit-interval="${batch.rawitem.commit.interval}" skip-limit="20">
 
                     <!-- List out exceptions which should result in a record simply being skipped, up to some
                     configurable limit set on the chunk above -->
