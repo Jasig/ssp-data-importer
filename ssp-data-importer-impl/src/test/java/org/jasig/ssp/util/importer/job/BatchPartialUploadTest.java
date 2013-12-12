@@ -3,14 +3,17 @@ package org.jasig.ssp.util.importer.job;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
+import org.jasig.ssp.util.importer.job.report.ReportEntry;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -41,8 +44,11 @@ public class BatchPartialUploadTest {
         deleteDirectory(inputDirectoryPath);
 
         Assert.assertTrue(!directoryExists(inputDirectoryPath));
+        JobExecution jobExecution =jobLauncherTestUtils.launchJob();
+        BatchStatus exitStatus =  jobExecution.getStatus();
 
-        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
+        Map<String, ReportEntry> report = (Map<String, ReportEntry>)jobExecution.getExecutionContext().get("report");
+        Assert.assertNull(report);
 
         Assert.assertEquals(BatchStatus.FAILED, exitStatus);
 
@@ -59,7 +65,11 @@ public class BatchPartialUploadTest {
         createDirectory(inputDirectoryPath);
         Assert.assertTrue(directoryExists(inputDirectoryPath));
 
-        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
+        JobExecution jobExecution =jobLauncherTestUtils.launchJob();
+        BatchStatus exitStatus =  jobExecution.getStatus();
+
+        Map<String, ReportEntry> report = (Map<String, ReportEntry>)jobExecution.getExecutionContext().get("report");
+        Assert.assertNull(report);
 
         Assert.assertEquals(BatchStatus.FAILED, exitStatus);
 
@@ -79,7 +89,11 @@ public class BatchPartialUploadTest {
         Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 3, csvFilter));
 
 
-        BatchStatus exitStatus = jobLauncherTestUtils.launchJob().getStatus();
+        JobExecution jobExecution =jobLauncherTestUtils.launchJob();
+        BatchStatus exitStatus =  jobExecution.getStatus();
+
+        Map<String, ReportEntry> report = (Map<String, ReportEntry>)jobExecution.getExecutionContext().get("report");
+        Assert.assertNull(report);
 
 
         Assert.assertEquals(BatchStatus.FAILED, exitStatus);

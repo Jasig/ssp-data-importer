@@ -62,15 +62,13 @@ public class ReportGenerator implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         filesProcessed = false;
         String report = buildReport(jobExecution);
-        if(sendEmail)
+        if(sendEmail  && filesProcessed)
         {
             sendEmail(jobExecution, report);
         }
     }
 
     private void sendEmail(JobExecution jobExecution, String report) {
-        if(filesProcessed == false)
-            return;
 
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
@@ -120,7 +118,7 @@ public class ReportGenerator implements JobExecutionListener {
             if(entrySet.size() > 0)
                 filesProcessed = true;
         }else{
-            emailMessage.append("No Files Processed." + EOL);
+            emailMessage.append("NO FILES PROCESSED." + EOL);
         }
 
         emailMessage.append(EOL).append(EOL);

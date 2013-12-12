@@ -51,7 +51,7 @@ public class RawItemLineAggregator implements LineAggregator<RawItem> {
             if(item.getResource() != null)
                 logger.error("Column Names Not Found. Unable to process table: " + item.getResource().getFilename());
             else
-                logger.error("Column Names Not Found. Unable to process table, no resource found." + item.getResource().getFilename());
+                logger.error("Column Names Not Found. Unable to process table, no resource found. " + item.getResource().getFilename());
             return "No Columns";
         }
 

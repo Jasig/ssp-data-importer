@@ -18,7 +18,6 @@
  */
 package org.jasig.ssp.util.importer.job.listener;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,14 +27,12 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 
 public class ParsingListener implements StepExecutionListener {
 
     private StepExecution stepExecution;
-    
-  
+
     public StepExecution getStepExecution() {
         return stepExecution;
     }
@@ -43,7 +40,7 @@ public class ParsingListener implements StepExecutionListener {
     public void setStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
     }
-    
+
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
@@ -51,7 +48,7 @@ public class ParsingListener implements StepExecutionListener {
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        
+
     }
 
     @SuppressWarnings("unchecked")
@@ -59,19 +56,19 @@ public class ParsingListener implements StepExecutionListener {
     @AfterStep
     public ExitStatus afterStep(StepExecution arg0) {
         String fileSeparator = System.getProperty("file.separator");
-      
+
         String[] split = this.getStepExecution().getExecutionContext().getString("fileName").split(fileSeparator);
         String pathname = split[split.length-1];
         String[] split1 = pathname.split("\\.");
         String currentEntity = split1[0];
-        
+
         if(currentEntity != null)
         {
             Map<String, ReportEntry> report =  (Map<String, ReportEntry>) this.getStepExecution().getJobExecution()
                     .getExecutionContext().get("report");
             if(report == null)
             {
-                report = new HashMap<String,ReportEntry>(); 
+                report = new HashMap<String,ReportEntry>();
             }
             ReportEntry currentEntry = report.get(currentEntity);
             if(currentEntry != null)
@@ -87,7 +84,7 @@ public class ParsingListener implements StepExecutionListener {
                 currentEntry.setNumberSkippedOnParse(this.getStepExecution().getProcessSkipCount());
             }
             report.put(currentEntity, currentEntry);
-            arg0.getJobExecution().getExecutionContext().put("report", report);            
+            arg0.getJobExecution().getExecutionContext().put("report", report);
         }
 
         return ExitStatus.COMPLETED;

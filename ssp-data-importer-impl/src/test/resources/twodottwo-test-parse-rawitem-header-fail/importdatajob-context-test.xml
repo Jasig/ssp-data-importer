@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to Jasig under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Jasig licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License. You may obtain a
+    copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on
+    an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Database Metadata Repositories  -->
+    <bean id="tableMetaDataRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.JdbcTableColumnMetadataRepository">
+        <constructor-arg name="dataSource" ref ="dataSource"/>
+    </bean>
+
+    <bean id="columnMetadataRepository" class="org.jarbframework.constraint.metadata.database.JdbcColumnMetadataRepository">
+        <constructor-arg name="dataSource" ref ="dataSource"/>
+    </bean>
+    <bean id="databaseConstraintRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.CachingTableColumnMetadataRepository">
+        <constructor-arg name="columnMetadataRepository" ref ="tableMetaDataRepository"/>
+    </bean>
+
+    <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
+
+
+    <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
+    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+                                p:resources="twodottwo-test-parse-rawitem-header-fail/*.csv"
+                                p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
+    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
+                                p:resources="twodottwo-test-parse-rawitem-header-fail/*.csv"
+                                p:duplicateResources="${batch.table.input.duplicate}"
+                                p:processDirectory="${batch.tables.process.folder}"
+                                p:upsertDirectory="${batch.tables.upsert.folder}"/>
+
+    <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
+    <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
+        <property name="resources" value="${batch.tables.process.folder}/${batch.files.accepted}"/>
+    </bean>
+
+    <bean scope="step" id="singleRawCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
+        <property name="resource" value="#{stepExecutionContext[fileName]}"/>
+    </bean>
+
+    <bean scope="step" id="rawItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.RawItemValidateProcessor" >
+        <property name="metadataRepository" ref="metadataRepository" />
+    </bean>
+
+    <bean id="rawItemValidateProcessorListener"
+      class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
+    </bean>
+
+    <bean id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
+          scope="step"
+          p:resource="#{stepExecutionContext[fileName]}" >
+          <constructor-arg name="writeDirectory" value ="${batch.tables.upsert.folder}"/>
+          <property name="appendAllowed" value="true" />
+          <property name="lineAggregator">
+               <bean class="org.jasig.ssp.util.importer.job.csv.RawItemLineAggregator">
+               </bean>
+        </property>
+         <property name="headerCallback">
+            <bean class="org.jasig.ssp.util.importer.job.csv.RawItemFlatFileHeaderCallback">
+            </bean>
+         </property>
+    </bean>
+
+    <bean id="parsingListener" class="org.jasig.ssp.util.importer.job.listener.ParsingListener"/>
+    <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
+
+    <!-- BATCH CLEANUP -->
+
+    <bean id="batchFinaliser" class="org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer"
+            p:archiveDirectory="${batch.tables.archive.folder}"
+            p:inputDirectory="${batch.tables.input.folder}"
+            p:upsertDirectory="${batch.tables.upsert.folder}"
+            p:processDirectory="${batch.tables.process.folder}"
+            p:batchTitle="${batch.title}"
+            p:archiveFiles="${batch.tables.archive}"
+            p:retainInputFiles="${batch.table.input.duplicate}"/>
+
+
+
+
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1"/>
+    </bean>
+
+    <batch:job id="importJob" restartable="false">
+        <!-- === Start Core Job Step Definition == -->
+        <!-- Make sure we don't accidentally process a partial upload -->
+        <batch:step id="guardPartialUploads" next="initializeBatch">
+            <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
+            workflow involved -->
+            <batch:tasklet ref="partialUploadGuard"></batch:tasklet>
+        </batch:step>
+
+        <!-- Another step might be need here if we have to guard against concurrent executions (I think the framework
+        takes care of that for us, esp if we're using a db-backed JobRepository.) -->
+        <!--<batch:step id="guardConcurrentExecution">-->
+        <!--</batch:step>-->
+
+        <!-- Make sure we have a clean working directory, copy new files into it. -->
+        <batch:step id="initializeBatch" next="filterRawItems">
+            <batch:tasklet ref="batchInitializer"></batch:tasklet>
+        </batch:step>
+
+        <!-- Read raw files, map them to validatable beans, validate those beans, write valid records back out
+        to another set of files -->
+         <batch:step id="filterRawItems"  >
+            <batch:partition step="filterRawItemsSlave" partitioner="rawPartitioner" >
+                <batch:handler task-executor="taskExecutor" grid-size="1"/>
+            </batch:partition>
+        </batch:step>
+
+        <batch:listeners>
+            <batch:listener ref="batchFinaliser"/>
+         </batch:listeners>
+
+        <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
+         the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
+         in that event. -->
+        <!--<batch:listeners></batch:listeners>-->
+    </batch:job>
+    <batch:step id="filterRawItemsSlave" >
+            <batch:tasklet  >
+                <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
+                step. Note that this limit applies separately to reads, processes, and writes. -->
+                <batch:chunk reader="singleRawCsvItemReader" processor="rawItemValidateProcessor" writer="processedRawCsvItemWriter"
+                             commit-interval="${batch.rawitem.commit.interval}" skip-limit="${batch.rawitem.skip.limit}">
+
+                    <!-- List out exceptions which should result in a record simply being skipped, up to some
+                    configurable limit set on the chunk above -->
+                    <batch:skippable-exception-classes>
+                        <batch:include class="org.postgresql.util.PSQLException"/>
+                        <batch:include class="org.springframework.beans.factory.BeanCreationException"/>
+                        <batch:include class="org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException"/>
+                        <batch:include class="org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException"/>
+                    </batch:skippable-exception-classes>
+
+                    <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
+                    <batch:listeners>
+                        <batch:listener ref="processedRawCsvItemWriter" />
+                        <batch:listener ref="validationSkipListener" />
+                        <batch:listener ref="parsingListener" />
+                        <batch:listener ref="rawItemValidateProcessorListener" />
+                    </batch:listeners>
+                </batch:chunk>
+            </batch:tasklet>
+        </batch:step>
+</beans>

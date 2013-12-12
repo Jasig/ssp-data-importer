@@ -54,7 +54,7 @@ public class MissingPrimaryKeyViolation implements MapViolation {
 
     @Override
     public String buildMessage() {
-        return "Header missing key column, unable to process  for table"
+        return "Header missing key column, unable to process  for table:  "
                 + mapReference.getTableName() + " " + buildColumnList();
     }
 

@@ -30,8 +30,6 @@ import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableRefere
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -47,12 +45,12 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
     private String[] orderedHeaders = null;
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
- 
+
     @Autowired
     private DataSource dataSource;
     private static final Logger logger = LoggerFactory.getLogger(SqlServerExternalTableUpsertWriter.class);
 
-    
+
     @Override
     public void write(List<? extends RawItem> items) throws Exception {
 
@@ -139,7 +137,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
             numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
             numInsertedUpdated =+ results[0];
             stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
-            
+
             say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
                     + batchStop);
         } catch(Exception e)
