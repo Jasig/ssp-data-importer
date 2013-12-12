@@ -286,7 +286,9 @@ Or on Windows take a copy of the jar file, rename it to end in `.zip`, and then 
 
 Edit the extracted file to suit your needs. The Logback project has thorough [documentation](http://logback.qos.ch/manual/configuration.html). Or contact the [ssp-user](https://wiki.jasig.org/display/JSG/ssp-user) mailing list with questions.
 
-By default, `ssp-data-importer` will look for custom log config at `$CONFIG_DIR/logback.xml`. So if you haven't modified the `CONFIG_DIR` env var and place your modified file in `<install>/conf`, `ssp-data-importer` will automatically pick up your changes on its next execution. Or if you would rather place your overrides in an entirely different location, specify that complete path by setting `LOGBACK_FILE` IN `setJobEnv.[sh|bat]`.
+By default, `ssp-data-importer` will look for custom log config at `$CONFIG_DIR/logback.xml`.
+So if you haven't modified the `CONFIG_DIR` env var and place your modified file in `<install>/conf`, `ssp-data-importer` will automatically pick up your changes on its next execution.
+Or if you would rather place your overrides in an entirely different location, specify that complete path by setting `LOGBACK_FILE` IN `setJobEnv.[sh|bat]`.
 
 Application Configuration Options
 =================================
