@@ -42,7 +42,7 @@
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
 
     <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" >
-        <property name="dbInstanceName" value="${db_name}"/>
+        <property name="batchTitle" value="${batch.title}"/>
         <property name="emailRecipients" value="${batch.email.recipients}"/>
         <property name="replyTo" value="${batch.email.replyTo}"/>
         <property name="sendEmail" value="${batch.sendEmail}" />

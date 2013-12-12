@@ -305,6 +305,9 @@ batch.tables.lagTimeBeforeStartInMinutes=10
 #ARCHIVING
 # Turn archiving on default is true
 batch.tables.retain.input.archive=true
+# Injected into archive file names. Also Injected into the subject of per-job reports.
+# Use this to discriminate between archives and reports from mulitple deployments.
+batch.title=ssp_import
 
 # What files to archive, ALL, NONE, UNIQUE  default: UNIQUE
 batch.tables.archive=UNIQUE
@@ -332,13 +335,10 @@ batch.upsertitem.commit.interval=100
 #
 #       PROFILES=[postgres|sqlserver]
 
-# Name of the target database. Should refer to SSP's database
+# The full URL to the target database. Modify to refer to SSP's database
 # The default value (ssp-change-me) is intended to ensure that
 # tests never accidentally overwrite data in a "real" database
-db_name=ssp-change-me
-
-# The full URL to the source database
-batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${db_name}
+batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp-change-me
 
 # The JDBC driver. Valid values:
 #   org.postgresql.Driver
@@ -352,11 +352,6 @@ batch.jdbc.user=sspadmin
 # Password for connections to the db specified by ${batch.jdbc.url}
 # and ${batch.jdbc.user}. Must be allowed to execute both DML and DDL
 batch.jdbc.password=sspadmin
-
-#REPORTING
-# The subject/title of per-job reports. Use this to discriminate between
-# reports from mulitple deployments.
-batch.title=ssp_import
 
 #EMAIL NOTIFICATION
 # Activate email
@@ -565,8 +560,7 @@ Select all the `external_*` tables and then execute the resulting script against
 Then create a properties file specifying your test db connection coordinates. E.g.:
 
 ```properties
-db_name=${MY_IMPORTER_TEST_DB_NAME}
-batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${db_name}
+batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${MY_IMPORTER_TEST_DB_NAME}
 batch.jdbc.driver=org.postgresql.Driver
 batch.jdbc.user=sspadmin
 batch.jdbc.password=sspadmin

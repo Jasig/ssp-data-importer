@@ -40,7 +40,7 @@ public class ReportGenerator implements JobExecutionListener {
 
     private transient JavaMailSender javaMailSender;
 
-    private String dbInstanceName;
+    private String batchTitle;
 
     private String emailRecipients;
 
@@ -81,7 +81,7 @@ public class ReportGenerator implements JobExecutionListener {
                     if ( !StringUtils.isEmpty(replyTo) ) {
                         mimeMessageHelper.setReplyTo(replyTo);
                     }
-                    mimeMessageHelper.setSubject("Data Import Report for SSP Instance: "+dbInstanceName+" JobId: "+jobExecution.getJobId());
+                    mimeMessageHelper.setSubject("Data Import Report for SSP Instance: "+batchTitle+" JobId: "+jobExecution.getJobId());
                     mimeMessageHelper.setText(report);
                     javaMailSender.send(mimeMessage);
 
@@ -138,12 +138,12 @@ public class ReportGenerator implements JobExecutionListener {
         return emailMessage.toString();
     }
 
-    public String getDbInstanceName() {
-        return dbInstanceName;
+    public String getBatchTitle() {
+        return batchTitle;
     }
 
-    public void setDbInstanceName(String dbInstanceName) {
-        this.dbInstanceName = dbInstanceName;
+    public void setBatchTitle(String batchTitle) {
+        this.batchTitle = batchTitle;
     }
 
     public String getEmailRecipients() {
