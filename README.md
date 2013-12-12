@@ -124,13 +124,14 @@ The examples below assume you have a command prompt open and your current direct
 For Postgres:
 ```
 # Will extract the file to ./sql/postgres/postgres-2.1.0-create.sql
-$> jar -xf lib/ssp-data-importer-impl-1.0.0.jar sql/postgres/postgres-2.1.0-create.sql
+$> ${JAVA_HOME}/bin/jar -xf lib/ssp-data-importer-impl-1.0.0.jar sql/postgres/postgres-2.1.0-create.sql
 ```
 For SQLServer:
 ```
 # Will extract the file to ./sql/sqlserver/sqlserver-2.1.0-create.sql
-$> jar -xf lib/ssp-data-importer-impl-1.0.0.jar sql/sqlserver/sqlserver-2.1.0-create.sql
+$> %JAVA_HOME%\bin\jar -xf lib\ssp-data-importer-impl-1.0.0.jar sql\sqlserver\sqlserver-2.1.0-create.sql
 ```
+Or if you are using a JRE which doesn't include the `jar` utility, you can unzip that jar file using your environment's standard zip management tools. 
 Note that there are `-drop.sql` files for each version+platform, which will remove objects created by the `-create.sql` scripts.
 
 **Step 2:** Modify DDL to match your database.
@@ -259,8 +260,10 @@ For more complex changes, extract the default file as a starting point:
 
 ```
 $> cd <install>/conf
-$> jar -xf ../lib/ssp-data-importer-impl-1.0.0.jar logback.xml
+$> $JAVA_HOME/bin/jar -xf ../lib/ssp-data-importer-impl-${version}.jar logback.xml
 ```
+
+Or if you are using a JRE which doesn't include the `jar` utility, you can unzip that jar file using your environment's standard zip management tools. 
 
 Edit the extracted file to suit your needs. The Logback project has thorough [documentation](http://logback.qos.ch/manual/configuration.html). Or contact the [ssp-user](https://wiki.jasig.org/display/JSG/ssp-user) mailing list with questions.
 
