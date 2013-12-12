@@ -57,37 +57,6 @@ SSP currently supports Postgres 9.1+ and SQLServer 2008 R2.
 To build the application from source you will need a Maven 3+ installation.
 Deployers should not expect to build the application from source, though.
 
-Building
-========
-
-`ssp-data-importer` is a Maven project. It can be built and tested using the standard `mvn` command.
-Note that nearly all tests are integration tests and rely on a database.
-The tests do not provision the database itself since it makes no sense for this application to test against a "dummy," embedded database.
-To build without tests:
-
-```
-%> mvn -DskipTests=true clean install
-```
-
-To build with tests, you'll need to create a properties file specifying your local connection coordinates. E.g.:
-
-```properties
-batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp
-batch.jdbc.driver=org.postgresql.Driver
-batch.jdbc.user=sspadmin
-batch.jdbc.password=sspadmin
-```
-
-Then specify the location of that file and the database platform type as arguments to the `mvn` command:
-
-```
-%> mvn -Dproperties-directory=/path/to/your/config.properties \
--Dspring-profile=[sqlserver|postgres] \
-clean install
-```
-
-The default `spring-profile` is "postgres".
-
 Installing and Running
 ======================
 
@@ -522,3 +491,53 @@ sherman123,FA12,BIO101,Introduction To Biology,BIO101-FA12-001,
 "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
 "sherman"", 123","FA12","this is a string "", with escaped quotes","Introduction To Biology","BIO101-FA12-001",""
 ```
+
+Building
+========
+
+This section is for developers working on `ssp-data-importer` code. It should not be necessary to build `ssp-data-importer` from source for typical installations.
+
+`ssp-data-importer` is a Maven project. It can be built and tested using the standard `mvn` command.
+Note that nearly all tests are integration tests and rely on a database.
+The tests do not provision the database itself since it makes no sense for this application to test against a "dummy," embedded database.
+To build without tests:
+
+```
+%> mvn -DskipTests=true clean install
+```
+
+To build with tests you'll need a dedicated test database (usually local).
+The test database must meet several conditions prior to running the tests:
+
+1. It must exist, and
+2. `${batch.jdbc.user}` must be able to execute DML and DDL on it, and
+3. `external_*` tables must already exist in it.
+
+For the 1.0.0 `ssp-data-importer` release, you are responsible for creating the `external_*` tables yourself. The easiest way to do this is to dump these tables from an existing SSP install. On Postgres:
+
+```bash
+$> pg_dump -t 'external_*' -s ${MY_SSP_DB_NAME} > /tmp/ssp-external-tables.sql
+$> psql -U sspadmin -d ${MY_IMPORTER_TEST_DB_NAME} -f /tmp/ssp-external-tables.sql
+```
+
+Or in SQLServer Management Studio, right click on the source database, select Tasks -> Generate Script. Select all the `external_*` tables and then execute the resulting script against your test database.
+
+Then create a properties file specifying your test db connection coordinates. E.g.:
+
+```properties
+db_name=${MY_IMPORTER_TEST_DB_NAME}
+batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${db_name}
+batch.jdbc.driver=org.postgresql.Driver
+batch.jdbc.user=sspadmin
+batch.jdbc.password=sspadmin
+```
+
+Then specify the location of that file and the database platform type as arguments to the `mvn` command:
+
+```
+%> mvn -Dproperties-directory=/path/to/your/config.properties \
+-Dspring-profile=[sqlserver|postgres] \
+clean install
+```
+
+The default `spring-profile` is "postgres".
