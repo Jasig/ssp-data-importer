@@ -157,7 +157,9 @@
         <property name="corePoolSize" value="1"/>
     </bean>
 
-    <batch:job id="importJob" restartable="false">
+    <bean id="incrementer" class="org.springframework.batch.core.launch.support.RunIdIncrementer" />
+
+    <batch:job id="importJob" restartable="false" incrementer="incrementer">
         <!-- === Start Core Job Step Definition == -->
         <!-- Make sure we don't accidentally process a partial upload -->
         <batch:step id="guardPartialUploads" next="initializeBatch">

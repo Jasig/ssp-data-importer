@@ -167,4 +167,4 @@ IF NOT DEFINED JAVA_HOME (
     EXIT /B
 )
 
-"%JAVA_HOME%/bin/java" -cp "%CLASSPATH%" "-Dssp.importer.configdir=%CONFIG_DIR%" "-Dlogback.configurationFile=%LOGBACK_FILE%" "-Dlog.home=%LOG_HOME%" "-Dbatch.tables.process.folder=%PROCESS_DIR%" "-Dbatch.tables.upsert.folder=%UPSERT_DIR%" "-Dbatch.tables.archive.folder=%ARCHIVE_DIR%" "-Dspring.profiles.active=%PROFILES%" %JVM_OPTS% %MAIN% %JOB_PATH% %JOB_IDENTIFIER% %PROGRAM_OPTS%
+"%JAVA_HOME%/bin/java" -cp "%CLASSPATH%" "-Dssp.importer.configdir=%CONFIG_DIR%" "-Dlogback.configurationFile=%LOGBACK_FILE%" "-Dlog.home=%LOG_HOME%" "-Dbatch.tables.process.folder=%PROCESS_DIR%" "-Dbatch.tables.upsert.folder=%UPSERT_DIR%" "-Dbatch.tables.archive.folder=%ARCHIVE_DIR%" "-Dspring.profiles.active=%PROFILES%" %JVM_OPTS% %MAIN% -next %JOB_PATH% %JOB_IDENTIFIER% %PROGRAM_OPTS%

@@ -134,6 +134,7 @@ $JAVA_HOME/bin/java \
   -Dspring.profiles.active="${PROFILES}" \
   ${JVM_OPTS} \
   "${MAIN}" \
+  -next \
   "${JOB_PATH}" \
   "${JOB_IDENTIFIER}" \
   ${PROGRAM_OPTS}
