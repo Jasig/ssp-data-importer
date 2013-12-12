@@ -18,19 +18,22 @@
  */
 package org.jasig.ssp.util.importer.job.listener;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jasig.ssp.util.importer.job.report.ReportEntry;
-import org.jasig.ssp.util.importer.job.util.RegexUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class ParsingListener implements StepExecutionListener {
+
+    private Logger logger = LoggerFactory.getLogger(ParsingListener.class);
 
     private StepExecution stepExecution;
 
@@ -56,9 +59,11 @@ public class ParsingListener implements StepExecutionListener {
     @Override
     @AfterStep
     public ExitStatus afterStep(StepExecution arg0) {
-        String fileSeparator = System.getProperty("file.separator");
-        String fileSeparatorRegex = RegexUtils.escapeRegex(fileSeparator);
-        String[] split = this.getStepExecution().getExecutionContext().getString("fileName").split(fileSeparatorRegex);
+        // The "fileName" context property has been normalized so the file separator is
+        // not platform-specific
+        String fileSeparatorRegex = "/";
+        String fileName = this.getStepExecution().getExecutionContext().getString("fileName");
+        String[] split = fileName.split(fileSeparatorRegex);
         String pathname = split[split.length-1];
         String[] split1 = pathname.split("\\.");
         String currentEntity = split1[0];
