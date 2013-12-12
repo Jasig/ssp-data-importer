@@ -180,7 +180,7 @@ These instructions also assume the directory to be monitored has already been mo
 # bin/setJobEnv.sh by passing arbitrary system properties in
 # JVM_OPTS. E.g.:
 #
-#   JVM_OPTS="-Dbatch.tables.input.folder=/opt/ssp/upload
+#   JVM_OPTS="-Dbatch.tables.input.folder=file:/opt/ssp/upload
 #             -Dbatch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/ssp \
 #             -Dbatch.jdbc.driver=org.postgresql.Driver"
 #
@@ -230,7 +230,7 @@ rem as shown here. Each 'set' should be a single line. They are wrapped here for
 set "JVM_OPTS="-Dspring.profiles.active=sqlserver"
                "-Dbatch.jdbc.url=jdbc:jtds:sqlserver://127.0.0.1:1433/ssp"
                "-Dbatch.jdbc.driver=net.sourceforge.jtds.jdbc.Driver"
-               "-Dbatch.tables.input.folder=c:\ssp\upload""
+               "-Dbatch.tables.input.folder=file:c:\ssp\upload""
 set "JAVA_HOME=C:\Program Files (x86)\Java\jre6"
 ```
 
