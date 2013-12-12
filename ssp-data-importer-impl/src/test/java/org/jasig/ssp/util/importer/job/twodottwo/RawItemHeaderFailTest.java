@@ -29,7 +29,6 @@ import org.jasig.ssp.util.importer.job.report.ErrorEntry;
 import org.jasig.ssp.util.importer.job.report.ReportEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/twodottwo-test-rawitem-validation-fail/launch-context-test.xml")
-public class RawItemValidationFailures {
+@ContextConfiguration("/twodottwo-test-parse-rawitem-header-fail/launch-context-test.xml")
+public class RawItemHeaderFailTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
@@ -46,26 +45,27 @@ public class RawItemValidationFailures {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testValidation() throws Exception {
+    public void testJob() throws Exception {
 
 
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
-        BatchStatus status = jobExecution.getStatus();
-        Assert.assertEquals(BatchStatus.FAILED, status);
+
+
         Map<String, ReportEntry> report = (Map<String, ReportEntry>)jobExecution.getExecutionContext().get("report");
         Assert.assertNotNull(report);
         Set<Entry<String, ReportEntry>> entrySet = report.entrySet();
-        Assert.assertEquals(2, entrySet.size());
+        Assert.assertEquals(1, entrySet.size());  
         for (Entry<String, ReportEntry> entry : entrySet) {
             Assert.assertNull(entry.getValue().getNumberInsertedUpdated());
-            Assert.assertEquals(new Integer(21), entry.getValue().getNumberParsed());
-            if(entry.getValue().getTableName().equals("external_person"))
-                Assert.assertEquals(new Integer(15), entry.getValue().getNumberSkippedOnParse());
-            else{
-                Assert.assertEquals(new Integer(10), entry.getValue().getNumberSkippedOnParse());
-            }
+            //TODO this should eventually be 1 see SSP-1919
+            Assert.assertEquals(new Integer(3), entry.getValue().getNumberParsed());
+            Assert.assertEquals(new Integer(3), entry.getValue().getNumberSkippedOnParse());
         }
         List<ErrorEntry> errors =(List<ErrorEntry>) jobExecution.getExecutionContext().get("errors");
-        Assert.assertEquals(25, errors.size());
+        Assert.assertEquals(3, errors.size());
+        for (ErrorEntry error : errors) {
+            Assert.assertEquals(new Integer(-1), new Integer(Integer.parseInt(error.getLineNumber())));
+        }
+
     }
 }

@@ -116,7 +116,7 @@
                 <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
                 step. Note that this limit applies separately to reads, processes, and writes. -->
                 <batch:chunk reader="singleRawCsvItemReader" processor="rawItemValidateProcessor" writer="processedRawCsvItemWriter"
-                             commit-interval="${batch.rawitem.commit.interval}" skip-limit="20">
+                             commit-interval="${batch.rawitem.commit.interval}" skip-limit="26">
 
                     <!-- List out exceptions which should result in a record simply being skipped, up to some
                     configurable limit set on the chunk above -->

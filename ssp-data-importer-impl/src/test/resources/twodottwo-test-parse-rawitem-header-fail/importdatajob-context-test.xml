@@ -94,9 +94,6 @@
             </batch:partition>
         </batch:step>
 
-        <batch:listeners>
-            <batch:listener ref="batchFinaliser"/>
-         </batch:listeners>
 
         <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
          the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
