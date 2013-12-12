@@ -201,10 +201,20 @@ $> vim conf/ssp-importer.properties
 $> chmod +x bin/runJob.sh
 
 # To run hourly using cron add the following line to your crontab
-# Generating an email from cron is generally not necessary because
+# Generating an email from cron is typically not necessary because
 # the application generates an email on both successful and errored
-# executions. Check its log files for more detail.
+# executions. Check its log files for more detail. But when first
+# experimenting with this app, you might want to leave off the 2>&1
+# so cron will attempt to email errors.
+#
 #   0 0-23 * * * /opt/ssp/ssp-data-importer/bin/runJob.sh >> /dev/null 2>&1
+#
+# NB The application does not protect against multiple instances of
+# itself running at the same time. Consider wrapping the runJob.sh
+# script in a 'flock' command to protect against simultaneous
+# executions. E.g.
+#
+#   0 0-23 * * * flock -n /tmp/ssp-data-importer.lck /opt/ssp/ssp-data-importer/bin/runJob.sh >> /dev/null 2>&1
 $> crontab -e
 
 # Or to test the application just execute runJob.sh.
