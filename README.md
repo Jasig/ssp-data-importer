@@ -299,7 +299,9 @@ batch.upsertitem.commit.interval=100
 #       PROFILES=[postgres|sqlserver]
 
 # Name of the target database. Should refer to SSP's database
-db_name=ssp
+# The default value (ssp-change-me) is intended to ensure that
+# tests never accidentally overwrite data in a "real" database
+db_name=ssp-change-me
 
 # The full URL to the source database
 batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${db_name}
