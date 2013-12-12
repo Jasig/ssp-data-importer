@@ -60,6 +60,52 @@ Deployers should not expect to build the application from source, though.
 Installing and Running
 ======================
 
+## Download
+
+The application is distributed in `.tar.gz` and `.zip` formats.
+
+The download URL pattern is:
+
+`https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/{version}/ssp-data-importer-assembly-{version}-bin.{format}`
+
+For example, the `tar.gz` for version 1.0.0 is at:
+
+https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.tar.gz
+
+And the `.zip` is at:
+
+https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.zip
+
+### Linux Download
+
+To download and unroll on Linux:
+
+```bash
+# Create installation directory. Can be anywhere you like.
+# Example here assumes you'll install below a standard SSP dir.
+$> mkdir -p /opt/ssp
+$> cd /opt/ssp
+
+# Download and extract the binary.
+# See URL examples above. 
+$> wget https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/${version}/ssp-data-importer-assembly-${version}-bin.tar.gz
+# This will create a directory named ssp-data-importer
+$> tar -xzvf ssp-data-importer-assembly-${version}-bin.tar.gz
+
+# Change into the extracted binary to configure it
+$> cd ssp-data-importer
+```
+
+### Windows Download
+
+Open a browser and paste the version specific URL into the location bar. See above for concrete examples:
+
+`https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/${version}/ssp-data-importer-assembly-${version}-bin.zip`
+
+Using Windows Explorer, find the downloaded zip and extract it.
+
+Find the `ssp-data-importer` directory in the extracted zip and copy it to the intended installation directory, e.g. below `c:\ssp\`.
+
 ## Database Initialization
 
 `ssp-data-importer` writes to the SSP database, but requires two types of additional tables:
@@ -73,7 +119,7 @@ Both of these types of tables need to be created out of band. The application wi
 
 At this writing, `ssp-data-importer` only supports SSP 2.1.0 and 2.2.0.
 The 2.1.0 DDL files can be used for both those SSP versions.
-The examples below assume you have a command prompt open and your current directory is tha `ssp-data-importer` installation directory.
+The examples below assume you have a command prompt open and your current directory is the `ssp-data-importer` installation directory.
 
 For Postgres:
 ```
@@ -115,19 +161,6 @@ These instructions also assume the directory to be monitored has already been mo
 ### Linux
 
 ```bash
-# Create installation directory. Can be anywhere you like.
-# Example here assumes you'll install below a standard SSP dir.
-$> mkdir -p /opt/ssp
-$> cd /opt/ssp
-
-# Download and extract the binary
-$> wget https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.tar.gz
-# This will create a directory named ssp-data-importer
-$> tar -xzvf ssp-data-importer-assembly-1.0.0-bin.tar.gz
-
-# Change into the extracted binary to configure it
-$> cd ssp-data-importer
-
 # A bin/setJobEnv.sh can be used to configure both the launch script and
 # the application itself. Available options are listed in runJob.js.
 # The only required override is to JAVA_HOME. But the launch script does
@@ -174,12 +207,6 @@ $> crontab -e
 ```
 
 ### Windows
-
-Open a browser and paste this URL into the location bar: https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.zip
-
-Using Windows Explorer, find the downloaded zip and extract it.
-
-Find the `ssp-data-importer` directory in the extracted zip and copy it to the intended installation directory, e.g. below `c:\ssp\`.
 
 Assuming that installation location, create a file at `c:\ssp\ssp-data-importer\bin\setJobEnv.bat` and set local overrides to any of the options described by `c:\ssp\ssp-data-importer\bin\runJob.bat`. E.g.
 
