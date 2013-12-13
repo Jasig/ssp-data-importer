@@ -52,6 +52,10 @@
 @REM  LOG_HOME - If using the default logging config, logs will collect in this directory. Optional. Defaults to ..\logs
 @REM             relative to this directory.
 @REM
+@REM  LOG_QUERY_APPENDER - If using the default logging config, this controls the logger to which SQL queries are sent.
+@REM                       Optional. Defaults to 'devNullAppender' which swallows all SQL as a security precaution.
+@REM                       The other OOTB options are 'consoleAppender' and 'fileAppender'.
+@REM
 @REM  PROFILES - Comma-delimited list of enabled Spring profiles. Only recognized values are 'postgres' and 'sqlserver'.
 @REM             This is an optional var and defaults to 'postgres', so should only need to modify this if *not* targeting
 @REM             a Postgres db, in which case it should be set to:
@@ -127,6 +131,11 @@ IF NOT DEFINED LOG_HOME (
 )
 @REM ECHO "LOG_HOME: %LOG_HOME%"
 
+IF NOT DEFINED LOG_QUERY_APPENDER (
+  SET "LOG_QUERY_APPENDER=devNullAppender"
+)
+@REM ECHO "LOG_QUERY_APPENDER: %LOG_QUERY_APPENDER%"
+
 IF NOT DEFINED JOB_PATH (
   SET "JOB_PATH=classpath:/launch-context.xml"
 )
@@ -167,4 +176,4 @@ IF NOT DEFINED JAVA_HOME (
     EXIT /B
 )
 
-"%JAVA_HOME%/bin/java" -cp "%CLASSPATH%" "-Dssp.importer.configdir=%CONFIG_DIR%" "-Dlogback.configurationFile=%LOGBACK_FILE%" "-Dlog.home=%LOG_HOME%" "-Dbatch.tables.process.folder=%PROCESS_DIR%" "-Dbatch.tables.upsert.folder=%UPSERT_DIR%" "-Dbatch.tables.archive.folder=%ARCHIVE_DIR%" "-Dspring.profiles.active=%PROFILES%" %JVM_OPTS% %MAIN% -next %JOB_PATH% %JOB_IDENTIFIER% %PROGRAM_OPTS%
+"%JAVA_HOME%/bin/java" -cp "%CLASSPATH%" "-Dssp.importer.configdir=%CONFIG_DIR%" "-Dlogback.configurationFile=%LOGBACK_FILE%" "-Dlog.home=%LOG_HOME%" "-Dlog.query.appender=%LOG_QUERY_APPENDER%" "-Dbatch.tables.process.folder=%PROCESS_DIR%" "-Dbatch.tables.upsert.folder=%UPSERT_DIR%" "-Dbatch.tables.archive.folder=%ARCHIVE_DIR%" "-Dspring.profiles.active=%PROFILES%" %JVM_OPTS% %MAIN% -next %JOB_PATH% %JOB_IDENTIFIER% %PROGRAM_OPTS%

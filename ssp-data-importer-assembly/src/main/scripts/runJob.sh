@@ -47,6 +47,10 @@
 #  LOG_HOME - If using the default logging config, logs will collect in this directory. Optional. Defaults to ../logs
 #             relative to this directory.
 #
+#  LOG_QUERY_APPENDER - If using the default logging config, this controls the logger to which SQL queries are sent.
+#                       Optional. Defaults to 'devNullAppender' which swallows all SQL as a security precaution.
+#                       The other OOTB options are 'consoleAppender' and 'fileAppender'.
+#
 #  PROFILES - Comma-delimited list of enabled Spring profiles. Only recognized values are 'postgres' and 'sqlserver'.
 #             This is an optional var and defaults to 'postgres', so should only need to modify this if *not* targeting
 #             a Postgres db, in which case it should be set to:
@@ -110,6 +114,7 @@ CLASSPATH=${CLASSPATH:-"${DIR}"/../'lib/*'}
 CONFIG_DIR=${CONFIG_DIR:-"${DIR}/../conf"}
 LOGBACK_FILE=${LOGBACK_FILE:-"${CONFIG_DIR}/logback.xml"}
 LOG_HOME=${LOG_HOME:-"${DIR}/../logs"}
+LOG_QUERY_APPENDER=${LOG_QUERY_APPENDER:-"devNullAppender"}
 JOB_PATH=${JOB_PATH:-"classpath:/launch-context.xml"}
 JOB_IDENTIFIER=${JOB_IDENTIFIER:-"importJob"}
 MAIN=${MAIN:-"org.jasig.ssp.util.importer.job.Main"}
@@ -128,6 +133,7 @@ $JAVA_HOME/bin/java \
   -Dssp.importer.configdir="${CONFIG_DIR}" \
   -Dlogback.configurationFile="${LOGBACK_FILE}" \
   -Dlog.home="${LOG_HOME}" \
+  -Dlog.query.appender="${LOG_QUERY_APPENDER}" \
   -Dbatch.tables.process.folder="${PROCESS_DIR}" \
   -Dbatch.tables.upsert.folder="${UPSERT_DIR}" \
   -Dbatch.tables.archive.folder="${ARCHIVE_DIR}" \

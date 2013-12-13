@@ -49,6 +49,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
     @Autowired
     private DataSource dataSource;
     private static final Logger logger = LoggerFactory.getLogger(SqlServerExternalTableUpsertWriter.class);
+    private static final Logger queryLogger = LoggerFactory.getLogger("QUERYLOG." + SqlServerExternalTableUpsertWriter.class);
 
 
     @Override
@@ -71,7 +72,6 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         }
         Resource itemResource = item.getResource();
         if (!(this.currentResource.equals(itemResource))) {
-            say();
             this.orderedHeaders = writeHeader(item);
             this.currentResource = itemResource;
         }
@@ -129,7 +129,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         insertSql.append(";");
 
         batchedStatements.add(insertSql.toString());
-        say(insertSql);
+        sayQuery(insertSql);
         try {
             int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
             Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
@@ -160,6 +160,10 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
 
     private void say(Object message) {
         logger.info(message.toString());
+    }
+
+    private void sayQuery(Object message) {
+        queryLogger.info(message.toString());
     }
 
     private void say() {

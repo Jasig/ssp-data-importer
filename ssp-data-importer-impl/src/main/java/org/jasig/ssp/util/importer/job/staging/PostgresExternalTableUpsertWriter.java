@@ -18,29 +18,22 @@
  */
 package org.jasig.ssp.util.importer.job.staging;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
-import org.jasig.ssp.util.importer.job.report.ReportEntry;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
 
@@ -50,6 +43,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
     private StepExecution stepExecution;
     
     private static final Logger logger = LoggerFactory.getLogger(PostgresExternalTableUpsertWriter.class);
+    private static final Logger queryLogger = LoggerFactory.getLogger("QUERYLOG." + PostgresExternalTableUpsertWriter.class);
 
 
     @Autowired
@@ -76,7 +70,6 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
         }
         Resource itemResource = item.getResource();
         if (!(this.currentResource.equals(itemResource))) {
-            say();
             this.orderedHeaders = writeHeader(item);
             this.currentResource = itemResource;
         }
@@ -106,7 +99,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
         updateSql.append(" source.batch_id >= " + batchStart
                 + " and source.batch_id <= " + batchStop + ";");
         batchedStatements.add(updateSql.toString());
-        say(updateSql);
+        sayQuery(updateSql);
 
         StringBuilder insertSql = new StringBuilder();
         insertSql.append(" INSERT INTO " + tableName +"(");
@@ -134,7 +127,7 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
                 + " and source.batch_id <= " + batchStop + "");
 
         batchedStatements.add(insertSql.toString());
-        say(insertSql);
+        sayQuery(insertSql);
         try{
             int[] results = jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
            
@@ -163,6 +156,10 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
 
     private void say(Object message) {
         logger.info(message.toString());
+    }
+
+    private void sayQuery(Object message) {
+        queryLogger.info(message.toString());
     }
 
     private void say() {

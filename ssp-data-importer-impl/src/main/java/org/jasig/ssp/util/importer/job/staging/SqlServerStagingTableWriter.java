@@ -48,6 +48,7 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
     private StepExecution stepExecution;
 
     private static final Logger logger = LoggerFactory.getLogger(SqlServerStagingTableWriter.class);
+    private static final Logger queryLogger = LoggerFactory.getLogger("QUERYLOG." + SqlServerStagingTableWriter.class);
 
     @Autowired
     private DataSource dataSource;
@@ -92,7 +93,6 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
         for (RawItem item : items) {
             Resource itemResource = item.getResource();
             if (!(this.currentResource.equals(itemResource))) {
-                say();
                 this.orderedHeaders = writeHeader(item);
                 this.currentResource = itemResource;
             }
@@ -126,7 +126,7 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
             insertSql.append(valuesSqlBuilder);
             batchedStatements.add(insertSql.toString());
             batchStart++;
-            say(insertSql);
+            sayQuery(insertSql);
         }
         jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******CHUNK POSTGRES******");
@@ -154,6 +154,10 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
 
     private void say(Object message) {
         logger.info(message.toString());
+    }
+
+    private void sayQuery(Object message) {
+        queryLogger.info(message.toString());
     }
 
     private void say() {

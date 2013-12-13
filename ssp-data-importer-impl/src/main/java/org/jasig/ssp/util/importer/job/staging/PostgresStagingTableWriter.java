@@ -21,8 +21,6 @@ package org.jasig.ssp.util.importer.job.staging;
 import org.jarbframework.utils.orm.ColumnReference;
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
-import org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.database.MapColumnMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -35,12 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
         StepExecutionListener {
@@ -51,6 +48,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
     private StepExecution stepExecution;
 
     private static final Logger logger = LoggerFactory.getLogger(PostgresStagingTableWriter.class);
+    private static final Logger queryLogger = LoggerFactory.getLogger("QUERYLOG." + PostgresStagingTableWriter.class);
 
     @Autowired
     private DataSource dataSource;
@@ -95,7 +93,6 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
         for (RawItem item : items) {
             Resource itemResource = item.getResource();
             if (!(this.currentResource.equals(itemResource))) {
-                say();
                 this.orderedHeaders = writeHeader(item);
                 this.currentResource = itemResource;
             }
@@ -129,7 +126,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
             insertSql.append(valuesSqlBuilder);
             batchedStatements.add(insertSql.toString());
             batchStart++;
-            say(insertSql);
+            sayQuery(insertSql);
         }
         jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
         say("******CHUNK POSTGRES******");
@@ -166,6 +163,10 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
 
     private void say(Object message) {
         logger.info(message.toString());
+    }
+
+    private void sayQuery(Object message) {
+        queryLogger.info(message.toString());
     }
 
     private void say() {

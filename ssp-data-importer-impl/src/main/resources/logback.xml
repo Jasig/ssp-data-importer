@@ -43,7 +43,13 @@
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
 			</pattern>
 		</encoder>
-	</appender>	
+	</appender>
+
+	<appender name="devNullAppender" class="ch.qos.logback.core.helpers.NOPAppender" />
+
+	<logger name="QUERYLOG" level="info" additivity="false">
+		<appender-ref ref="${log.query.appender:-devNullAppender}" />
+	</logger>
 
 	<root level="info">
 		<appender-ref ref="fileAppender" />

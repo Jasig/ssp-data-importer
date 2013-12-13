@@ -290,6 +290,11 @@ By default, `ssp-data-importer` will look for custom log config at `$CONFIG_DIR/
 So if you haven't modified the `CONFIG_DIR` env var and place your modified file in `<install>/conf`, `ssp-data-importer` will automatically pick up your changes on its next execution.
 Or if you would rather place your overrides in an entirely different location, specify that complete path by setting `LOGBACK_FILE` IN `setJobEnv.[sh|bat]`.
 
+For security reasons the app does not, by default, log SQL statements.
+For debugging purposes, though, the default logging configuration accepts a `log.query.appender` system property which can be used to enable query logging.
+The `LOG_QUERY_APPENDER` env var can also be used to set this property.
+Acceptable values, which should be self-explanatory, are `consoleAppender`, `fileAppender`, and `devNullAppender`
+
 Application Configuration Options
 =================================
 
