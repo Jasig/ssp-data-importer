@@ -137,7 +137,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
             Integer numInsertedUpdated = (Integer) stepExecution.getExecutionContext().get(
                     "numInsertedUpdated");
             numInsertedUpdated = numInsertedUpdated == null ? 0 : numInsertedUpdated;
-            numInsertedUpdated =+ results[0];
+            numInsertedUpdated = numInsertedUpdated + results[0] + results[1];
             stepExecution.getExecutionContext().put("numInsertedUpdated", numInsertedUpdated);
 
             say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
