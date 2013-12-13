@@ -583,7 +583,9 @@ $> psql -U sspadmin -d ${MY_IMPORTER_TEST_DB_NAME} -f /tmp/ssp-external-tables.s
 ```
 
 Or in SQLServer Management Studio, right click on the source database, select Tasks -> Generate Script.
-Select all the `external_*` tables and then execute the resulting script against your test database.
+Select all the `external_*` tables and complete the wizard accepting all the defaults, specifying a target file path that you'll remember.
+Then open that file in SQLServer Management Studio and change the `USE` statement at the top to specify your test database's name.
+Then execute the updated script.
 
 Then create a properties file specifying your test db connection coordinates. E.g.:
 
