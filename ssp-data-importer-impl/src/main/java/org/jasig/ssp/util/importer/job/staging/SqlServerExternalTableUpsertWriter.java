@@ -119,12 +119,10 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         insertSql.append(" WHEN MATCHED AND source.batch_id >= " + batchStart
                 + " and source.batch_id <= " + batchStop + " THEN UPDATE SET ");
 
-        for (String header : this.orderedHeaders) {
-            if (tableKeys.indexOf(header) < 0) {
-                insertSql.append("target." + header + "=source." + header)
-                        .append(",");
-            }
+        for ( String keyCol : tableKeys ) {
+            insertSql.append("target.").append(keyCol).append("=source.").append(keyCol).append(",");
         }
+
         insertSql.setLength(insertSql.length() - 1); // trim comma
         insertSql.append(";");
 
@@ -140,8 +138,7 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
 
             say("******UPSERT******" + " batch start:" + batchStart + " batchstop:"
                     + batchStop);
-        } catch(Exception e)
-        {
+        } catch(Exception e) {
             throw new NotSkippableException(e);
         }
     }
