@@ -419,6 +419,7 @@ CSV FILE FORMAT
 1. Comma (,) is the only supported delimiter character. Use the quote character (") to wrap fields which may themselves contain commas. Repeat the quote character ("") to escape quote characters embedded in field values.
 1. Each file MUST have an initial line containing the column names in the format of the external table. Example: for `external_faculty_course`, the first line of `external_faculty_course.csv` would contain: `faculty_school_id,term_code,formatted_course,title,section_code,section_number`
 1. Partial data updates are supported. However, in addition to the data being updated the key values for the specific table MUST be supplied.
+1. **Multi-line records are not currently supported.** 
 
 For SSP version 2.2, here are the keys for each external table:
 
