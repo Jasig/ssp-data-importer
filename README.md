@@ -66,7 +66,12 @@ Installing and Running
 
 The application is distributed in `.tar.gz` and `.zip` formats.
 
-The download URL pattern is:
+Released binaries are attached to [this page](https://wiki.jasig.org/display/SSP/SSP+Data+Importer)
+
+Or releases and snapshots can be downloaded from the Sonatype Maven repositories.
+Click [here](https://oss.sonatype.org/index.html#nexus-search;quick~ssp-data-importer) to browse all available artifacts there.  
+
+The download URL pattern for released binaries in Sonatype is:
 
 `https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/{version}/ssp-data-importer-assembly-{version}-bin.{format}`
 
