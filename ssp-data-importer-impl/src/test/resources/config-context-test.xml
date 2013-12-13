@@ -48,7 +48,7 @@
     (e.g. -Dspring.profiles.active=postgres)
     -->
     <context:property-placeholder ignore-resource-not-found="true"
-                                  location="classpath:ssp-importer.default.properties,
+                                  location="classpath:ssp-importer.default.properties,classpath:ssp-importer.test.properties,
                                             file:${ssp.importer.configdir}/ssp-importer.properties"/>
 
 </beans>

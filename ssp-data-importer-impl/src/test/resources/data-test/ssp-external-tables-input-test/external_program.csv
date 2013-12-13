@@ -1,1 +1,47 @@
 code,name
+MAT-AS,Associates of Science in Mathematics
+PHY-AS,Associates of Science in Physics
+CHM-AS,Associates of Science in Chemistry
+CST-AS,Associates of Science in Computing
+PSY-AA,Associates of Arts in Psychology
+AES-AS,Associates of Science in Aerospace
+HST-AA,Associates of Arts in History
+ECN-AA,Associates of Arts in Economics
+BIO-AS,Associates of Science in Biology
+COM-AA,Associates of Arts in Communications
+AST-AS,Associates of Science in Astronomy
+IEE-AS,Associates of Science in Industrial Engineering
+SCL-AA,Associates of Arts in Sociology
+PHL-AA,Associates of Arts in Philosophy
+EEE-AS,Associates of Science in Electrical Engineering
+MIC-AS,Associates of Science in Microbiology
+LIT-AA,Literature
+ENG-AA,Associates of Arts in English
+FLM-AA,Associates of Arts in Film
+GEO-AA,Associates of Arts in Geography
+POL-AA,Associates of Arts in Political Science
+FIN-AA,Associates of Arts in Finance
+EDU-AA,Associates of Arts in Education
+MAT-BS,Bachelors of Science in Mathematics
+PHY-BS,Bachelors of Science in Physics
+CHM-BS,Bachelors of Science in Chemistry
+CST-BS,Bachelors of Science in Computing
+PSY-BA,Bachelors of Arts in Psychology
+AES-BS,Bachelors of Science in Aerospace
+HST-BA,Bachelors of Arts in History
+ECN-BA,Bachelors of Arts in Economics
+BIO-BS,Bachelors of Science in Biology
+COM-BA,Bachelors of Arts in Communications
+AST-BS,Bachelors of Science in Astronomy
+IEE-BS,Bachelors of Science in Industrial Engineering
+SCL-BA,Bachelors of Arts in Sociology
+PHL-BA,Bachelors of Arts in Philosophy
+EEE-BS,Bachelors of Science in Electrical Engineering
+MIC-BS,Bachelors of Science in Microbiology
+LIT-BA,Bachelors of Arts in Literature
+ENG-BA,Bachelors of Arts in English
+FLM-BA,Bachelors of Arts in Film
+GEO-BA,Bachelors of Arts in Geography
+POL-BA,Bachelors of Arts in Political Science
+FIN-BA,Bachelors of Arts in Finance
+EDU-BA,Bachelors of Arts in Education
