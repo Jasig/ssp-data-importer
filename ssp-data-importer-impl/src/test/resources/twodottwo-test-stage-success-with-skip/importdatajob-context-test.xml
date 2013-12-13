@@ -30,6 +30,7 @@
     <!-- Database Metadata Repositories  -->
     <bean id="tableMetaDataRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.JdbcTableColumnMetadataRepository">
         <constructor-arg name="dataSource" ref ="dataSource"/>
+        <property name="dateColumnNamePattern" value="${batch.jdbc.date.column.name.pattern}" />
     </bean>
 
     <bean id="columnMetadataRepository" class="org.jarbframework.constraint.metadata.database.JdbcColumnMetadataRepository">

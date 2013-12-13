@@ -32,6 +32,8 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -57,6 +59,8 @@ public class JdbcTableColumnMetadataRepository implements
 
         private String schema;
 
+        private Pattern dateColumnNamePattern = Pattern.compile("date", Pattern.CASE_INSENSITIVE);
+
         public JdbcTableColumnMetadataRepository(DataSource dataSource) throws SQLException {
             this.dataSource = dataSource;
             logger.info("Database url {}", dataSource.getConnection().getMetaData().getURL());
@@ -79,7 +83,11 @@ public class JdbcTableColumnMetadataRepository implements
                     logger.debug("Querying column metadata for table: {}, column: {}.", tableName, columnName);
                     ResultSet resultSet = databaseMetaData.getColumns(catalog, schema, tableName, columnName);
 
-                    return mapToColumnMetadata(columnReference, resultSet);
+                    final MapColumnMetadata mapColumnMetadata = mapToColumnMetadata(columnReference, resultSet);
+                    logger.debug("Found column metadata for table: {}, column: {}: {}",
+                            new Object[] { tableName, columnName, mapColumnMetadata });
+
+                    return mapColumnMetadata;
                 }
 
             });
@@ -103,7 +111,11 @@ public class JdbcTableColumnMetadataRepository implements
                     columnMetadata.setMaximumLength(columnSize);
                 }
 
-                columnMetadata.setJavaSqlType(getValueAsInteger(resultSet, "DATA_TYPE"));
+                if ( dateColumnNamePattern.matcher(columnReference.getColumnName()).find() ) {
+                    columnMetadata.setJavaSqlType(Types.DATE);
+                } else {
+                    columnMetadata.setJavaSqlType(getValueAsInteger(resultSet, "DATA_TYPE"));
+                }
 
                 Integer fractionLength = getValueAsInteger(resultSet, "DECIMAL_DIGITS");
                 if (fractionLength != null) {
@@ -236,5 +248,9 @@ public class JdbcTableColumnMetadataRepository implements
             return tableMetadata;
         }
 
+
+        public void setDateColumnNamePattern(String dateColumnNamePattern) {
+            this.dateColumnNamePattern = Pattern.compile(dateColumnNamePattern, Pattern.CASE_INSENSITIVE);
+        }
 
 }
