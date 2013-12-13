@@ -47,7 +47,7 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
     private MetadataConfigurations metadataRepository;
     private StepExecution stepExecution;
 
-    private static final Logger logger = LoggerFactory.getLogger(SqlServerExternalTableUpsertWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(SqlServerStagingTableWriter.class);
 
     @Autowired
     private DataSource dataSource;
@@ -110,7 +110,7 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
                         .getColumnMetadata(
                                 new ColumnReference(tableName, header))
                         .getJavaSqlType();
-                if (isQuotedType(sqlType)) {
+                if (isQuotedType(sqlType) && record.get(header) != null) {
                     value = "'" + record.get(header) + "'";
                 } else {
                     value = record.get(header);
