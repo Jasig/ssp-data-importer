@@ -87,7 +87,7 @@ $> mkdir -p /opt/ssp
 $> cd /opt/ssp
 
 # Download and extract the binary.
-# See URL examples above. 
+# See URL examples above.
 $> wget https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/${version}/ssp-data-importer-assembly-${version}-bin.tar.gz
 # This will create a directory named ssp-data-importer
 $> tar -xzvf ssp-data-importer-assembly-${version}-bin.tar.gz
@@ -225,7 +225,7 @@ $> crontab -e
 Assuming that installation location, create a file at `c:\ssp\ssp-data-importer\bin\setJobEnv.bat` and set local overrides to any of the options described by `c:\ssp\ssp-data-importer\bin\runJob.bat`. E.g.
 
 ```
-rem NB For SQLServer be sure to override both spring.profiles.active and batch.jdbc.url 
+rem NB For SQLServer be sure to override both spring.profiles.active and batch.jdbc.url
 rem as shown here. Each 'set' should be a single line. They are wrapped here for readability.
 set "JVM_OPTS="-Dspring.profiles.active=sqlserver"
                "-Dbatch.jdbc.url=jdbc:jtds:sqlserver://127.0.0.1:1433/ssp"
@@ -268,7 +268,7 @@ To configure the job to run on a schedule, launch the Windows Task Manager (Star
 ## Logging
 
 `ssp-data-importer` uses [Logback](http://logback.qos.ch/manual/configuration.html) as its logging framework.
-The default Logback configuration file is embedded in the `ssp-data-importer-impl-<version>.jar` file at `./logback.xml`. 
+The default Logback configuration file is embedded in the `ssp-data-importer-impl-<version>.jar` file at `./logback.xml`.
 That default configuration will output `INFO` messages "and worse" to stdout/stderr and to a daily rolled file: `<install>/logs/ssp-data-importer.log`.
 
 If you just need to change the directory in which logs collect, the easiest way to do that is to change the `LOG_HOME` shell var in `setJobEnv.[sh|bat]`.
@@ -301,7 +301,7 @@ Application Configuration Options
 There are a number of properties that are required for the program to run properly.
 
 ```properties
-#FOLDER LOCATIONS 
+#FOLDER LOCATIONS
 # NB: For all 'batch.tables.*.folder' properties, the 'file:' prefix must be present.
 
 # Full path to folder that will contain initial csv files.
@@ -310,7 +310,7 @@ batch.tables.input.folder=file:/location/of/input/folder/
 
 # Full path to folder where csv files will be processed
 # **IGNORED IF USING runJob.[sh|bat]. Override in setJobEnv.[sh|bat] in that case**
-batch.tables.process.folder=file:/location/of/process/folder/ 
+batch.tables.process.folder=file:/location/of/process/folder/
 
 # Full path to folder where csv files will be upserted
 # **IGNORED IF USING runJob.[sh|bat]. Override in setJobEnv.[sh|bat] in that case**
@@ -342,12 +342,12 @@ batch.rawitem.skip.limit=10
 batch.rawitem.commit.interval=100
 
 # Number of lines generating validation errors to allow during upsert
-batch.upsertitem.skip.limit=10                                      
+batch.upsertitem.skip.limit=10
 
 # Number of lines to be prorcessed as a unit during database interactions.
 # Larger batch sizes will reduce processing time make errors less specific
 # and increase memory footprint
-batch.upsertitem.commit.interval=100                                
+batch.upsertitem.commit.interval=100
 
 #DATABASE
 # NB: In addition to specifying driver and connection coordinates below,
@@ -394,7 +394,7 @@ batch.smtp.protocol=smtp
 # SMTP username
 # **REQUIRED IF batch.sentMail=true**
 batch.smtp.username=sysadmin
-    
+
 # SMTP password
 # **REQUIRED IF batch.sentMail=true**
 batch.smtp.password=password
@@ -405,7 +405,7 @@ batch.email.recipients="SSP DATA IMPORTER"<sysadmin@localhost>
 
 # # **REQUIRED IF batch.sentMail=true**
 batch.email.replyTo="SSP DATA IMPORTER"<sysadmin@localhost>
-    
+
 #TESTING
 batch.table.input.duplicate=false
 exists.only.for.testing.1=default.value.1
@@ -533,7 +533,7 @@ sherman123,FA12,BIO101,Introduction To Biology,BIO101-FA12-001,
 
 **All quotes (note the enclosed comma in column 1):**
 
-```csv   
+```csv
 "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
 "sherman, 123","FA12","BIO101,"Introduction To Biology","BIO101-FA12-001",""
 ```
@@ -544,6 +544,12 @@ sherman123,FA12,BIO101,Introduction To Biology,BIO101-FA12-001,
 "faculty_school_id","term_code","formatted_course","title","section_code","section_number"
 "sherman"", 123","FA12","this is a string "", with escaped quotes","Introduction To Biology","BIO101-FA12-001",""
 ```
+**The suggested DATE format:**
+```
+YYYY-MM-DD  example: 2012-12-31
+```
+
+**Note:** All date fields are implemented as date in both SQLServer and PostreSQL deployments.
 
 Building
 ========
