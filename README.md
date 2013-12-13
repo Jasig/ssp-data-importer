@@ -26,6 +26,8 @@ This program inserts data from `csv` files into a database. `csv` files have som
 Currently, the program supports only updates and inserts. It is possible to upload partial data updating specific columns.
 When used as a method to update already existing data, the only requirement is that the columns containing key values be supplied.
 
+Source code in the `org.jasig.ssp.util.importer.validation.map.metadata` package is based on source code generously shared by the [Jarb Framework](http://jarbframework.org/). Special thanks to Jeroen van Schagen.
+
 High-Level Workflow
 ===================
 
