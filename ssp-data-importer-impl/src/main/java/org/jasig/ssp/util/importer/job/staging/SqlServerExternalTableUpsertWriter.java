@@ -119,8 +119,12 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         insertSql.append(" WHEN MATCHED AND source.batch_id >= " + batchStart
                 + " and source.batch_id <= " + batchStop + " THEN UPDATE SET ");
 
-        for ( String keyCol : tableKeys ) {
-            insertSql.append("target.").append(keyCol).append("=source.").append(keyCol).append(",");
+        for (String header : this.orderedHeaders) {
+            // We don't skip key columns b/c some tables are entirely keys.
+            // so a bit wasteful, but makes statement building logic a bit
+            // simpler than figuring out if we can leave the update
+            // clause off altogether
+            insertSql.append("target.").append(header).append("=source.").append(header).append(",");
         }
 
         insertSql.setLength(insertSql.length() - 1); // trim comma
