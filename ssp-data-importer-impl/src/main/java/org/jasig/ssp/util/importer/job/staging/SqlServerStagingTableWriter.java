@@ -18,10 +18,13 @@
  */
 package org.jasig.ssp.util.importer.job.staging;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
 
@@ -37,7 +40,12 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.SqlTypeValue;
+import org.springframework.jdbc.core.StatementCreatorUtils;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
         StepExecutionListener {
@@ -54,12 +62,11 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
     private DataSource dataSource;
 
     @Override
-    public void write(List<? extends RawItem> items) {
+    public void write(final List<? extends RawItem> items) {
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        List<String> batchedStatements = new ArrayList<String>();
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         String fileName = items.get(0).getResource().getFilename();
-        String[] fileNameSplit = fileName.split("\\.");
+        final String[] tableName = fileName.split("\\.");
 
         Integer batchStart = (Integer) (stepExecution.getExecutionContext()
                 .get("batchStart") == null ? null : stepExecution
@@ -70,12 +77,12 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
         Object currentEntity = stepExecution.getExecutionContext().get(
                 "currentEntity");
 
-        String tableName = fileNameSplit[0];
-        if (currentEntity == null || !currentEntity.equals(tableName)) {
+        if (currentEntity == null || !currentEntity.equals(tableName[0])) {
             batchStart = 0;
             batchStop = items.size() - 1;
-            currentEntity = tableName;
-            stepExecution.getExecutionContext().put("currentEntity", tableName);
+            currentEntity = tableName[0];
+            stepExecution.getExecutionContext().put("currentEntity",
+                    currentEntity);
             stepExecution.getExecutionContext().put("batchStart", batchStart);
             stepExecution.getExecutionContext().put("batchStop", batchStop);
         } else {
@@ -85,59 +92,60 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
             stepExecution.getExecutionContext().put("batchStop", batchStop);
         }
 
-        if (currentResource == null) {
-            this.orderedHeaders = writeHeader(items.get(0));
-            this.currentResource = items.get(0).getResource();
+        RawItem firstItem = items.get(0);
+        Resource firstItemResource = firstItem.getResource();
+
+        if (currentResource == null || !(this.currentResource.equals(firstItemResource))) {
+            this.orderedHeaders = writeHeader(firstItem);
+            this.currentResource = firstItemResource;
         }
 
-        for (RawItem item : items) {
-            Resource itemResource = item.getResource();
-            if (!(this.currentResource.equals(itemResource))) {
-                this.orderedHeaders = writeHeader(item);
-                this.currentResource = itemResource;
-            }
-            StringBuilder insertSql = new StringBuilder();
-            insertSql.append("INSERT INTO stg_" + tableName + " (batch_id,");
+        StringBuilder insertSql = new StringBuilder();
+        insertSql.append("INSERT INTO stg_" + tableName[0] + " (batch_id,");
+        StringBuilder valuesSqlBuilder = new StringBuilder();
+        valuesSqlBuilder.append(" VALUES (?,");
+        for (String header : this.orderedHeaders) {
+            insertSql.append(header).append(",");
+            valuesSqlBuilder.append("?").append(",");
+        }
+        insertSql.setLength(insertSql.length() - 1); // trim comma
+        valuesSqlBuilder.setLength(valuesSqlBuilder.length() - 1); // trim comma
+        insertSql.append(")");
+        valuesSqlBuilder.append(");");
+        insertSql.append(valuesSqlBuilder);
 
-            StringBuilder valuesSqlBuilder = new StringBuilder();
-            valuesSqlBuilder.append(" VALUES ( " + batchStart + ",");
-            final Map<String, String> record = item.getRecord();
-            for (String header : this.orderedHeaders) {
-                String value;
-                Integer sqlType = metadataRepository
-                        .getRepository()
-                        .getColumnMetadataRepository()
-                        .getColumnMetadata(
-                                new ColumnReference(tableName, header))
-                        .getJavaSqlType();
-                if (isQuotedType(sqlType) && record.get(header) != null) {
-                    value = "'" + record.get(header) + "'";
-                } else {
-                    value = record.get(header);
+        final AtomicInteger batchStartRef = new AtomicInteger(batchStart);
+        final String sql = insertSql.toString();
+        jdbcTemplate.getJdbcOperations().execute(sql, new PreparedStatementCallback() {
+            @Override
+            public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+                for (RawItem item : items) {
+                    final List<Object> paramsForLog = new ArrayList(orderedHeaders.length);
+                    int counter = 1;
+                    paramsForLog.add(batchStartRef.get());
+                    StatementCreatorUtils.setParameterValue(ps, counter, SqlTypeValue.TYPE_UNKNOWN, batchStartRef.getAndIncrement());
+                    counter++;
+                    for ( String header : orderedHeaders ) {
+                        final Map<String, String> record = item.getRecord();
+                        String value = record.get(header);
+                        final Integer sqlType = metadataRepository
+                                .getRepository()
+                                .getColumnMetadataRepository()
+                                .getColumnMetadata(
+                                        new ColumnReference(tableName[0], header))
+                                .getJavaSqlType();
+                        paramsForLog.add(value);
+                        StatementCreatorUtils.setParameterValue(ps, counter, sqlType, value);
+                        counter++;
+                    }
+                    sayQuery(sql, paramsForLog);
+                    ps.addBatch();
                 }
-                insertSql.append(header).append(",");
-                valuesSqlBuilder.append(value).append(",");
+                return ps.executeBatch();
             }
-            insertSql.setLength(insertSql.length() - 1); // trim comma
-            valuesSqlBuilder.setLength(valuesSqlBuilder.length() - 1); // trim
-                                                                       // comma
-            insertSql.append(")");
-            valuesSqlBuilder.append(");");
-            insertSql.append(valuesSqlBuilder);
-            batchedStatements.add(insertSql.toString());
-            batchStart++;
-            sayQuery(insertSql);
-        }
-        jdbcTemplate.batchUpdate(batchedStatements.toArray(new String[]{}));
-        say("******CHUNK POSTGRES******");
-    }
-
-    private boolean isQuotedType(Integer sqlType) {
-        return Types.CHAR == sqlType || Types.DATE == sqlType
-                || Types.LONGNVARCHAR == sqlType
-                || Types.LONGVARCHAR == sqlType || Types.NCHAR == sqlType
-                || Types.NVARCHAR == sqlType || Types.TIME == sqlType
-                || Types.TIMESTAMP == sqlType || Types.VARCHAR == sqlType;
+        });
+        batchStart = batchStartRef.get();
+        say("******CHUNK SQLSERVER******");
     }
 
     private String[] writeHeader(RawItem item) {
@@ -156,8 +164,8 @@ public class SqlServerStagingTableWriter implements ItemWriter<RawItem>,
         logger.info(message.toString());
     }
 
-    private void sayQuery(Object message) {
-        queryLogger.info(message.toString());
+    private void sayQuery(String sql, List<Object> bindParams) {
+        queryLogger.info("Query: [{}] Bind Params: [{}]", sql, bindParams);
     }
 
     private void say() {
