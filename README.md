@@ -546,7 +546,7 @@ sherman123,FA12,BIO101,Introduction To Biology,BIO101-FA12-001,
 ```
 **The suggested DATE format:**
 ```
-YYYY-MM-DD  example: 2012-12-31
+YYYY-MM-DD  examples: 2012-12-31, 2012-08-09
 ```
 
 **Note:** All date fields are implemented as date in both SQLServer and PostreSQL deployments.
