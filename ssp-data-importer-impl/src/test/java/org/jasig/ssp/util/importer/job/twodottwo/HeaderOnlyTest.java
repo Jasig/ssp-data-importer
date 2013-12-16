@@ -18,14 +18,12 @@
  */
 package org.jasig.ssp.util.importer.job.twodottwo;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.jasig.ssp.util.importer.job.report.ErrorEntry;
 import org.jasig.ssp.util.importer.job.report.ReportEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
