@@ -36,8 +36,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/twodottwo-test-parse-rawitem-header-fail/launch-context-test.xml")
-public class RawItemHeaderFailTest {
+@ContextConfiguration("/twodottwo-test-parse-rawitem-header-only/launch-context-test.xml")
+public class HeaderOnlyTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
@@ -56,16 +56,10 @@ public class RawItemHeaderFailTest {
         Set<Entry<String, ReportEntry>> entrySet = report.entrySet();
         Assert.assertEquals(1, entrySet.size());
         for (Entry<String, ReportEntry> entry : entrySet) {
+            Assert.assertEquals(new Integer(0), entry.getValue().getNumberParsed());
+            Assert.assertEquals(new Integer(0), entry.getValue().getNumberSkippedOnParse());
+            Assert.assertEquals(new Integer(0), entry.getValue().getNumberSkippedOnDatabaseWrite());
             Assert.assertEquals(new Integer(0), entry.getValue().getNumberInsertedUpdated());
-            //TODO this should eventually be 1 see SSP-1919
-            Assert.assertEquals(new Integer(3), entry.getValue().getNumberParsed());
-            Assert.assertEquals(new Integer(3), entry.getValue().getNumberSkippedOnParse());
         }
-        List<ErrorEntry> errors =(List<ErrorEntry>) jobExecution.getExecutionContext().get("errors");
-        Assert.assertEquals(3, errors.size());
-        for (ErrorEntry error : errors) {
-            Assert.assertEquals(new Integer(-1), new Integer(Integer.parseInt(error.getLineNumber())));
-        }
-
     }
 }
