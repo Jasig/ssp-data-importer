@@ -266,29 +266,13 @@ public class MapColumnMetadata extends ColumnMetadata {
     /**
      * Date format pattern used to parse HTTP date headers in RFC 1123 format.
      */
-    private static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
-    private static final String PATTERN_RFC1036 = "EEEE, dd-MMM-yy HH:mm:ss zzz";
-    private static final String PATTERN_ASCTIME = "EEE MMM d HH:mm:ss yyyy";
 
     private static final String PATTERN_BIRTH_DATE_1 = "yyyy-MM-dd";
-    private static final String PATTERN_BIRTH_DATE_2 = "MM/dd/yy";
 
-    private static final String PATTERN_TERM_DATE_1 = "MM/dd/yyyy HH:mm:ss";
-    private static final String PATTERN_TERM_DATE_2 = "MM/dd/yyyy HH:mm";
-    private static final String PATTERN_TERM_DATE_3 = "yyyy-MM-dd HH:mm:ss";
-    private static final String PATTERN_TERM_DATE_4 = "MM-dd-yyyy HH:mm:ss";
 
 
     private static final String[] DATE_PATTERNS = new String[] {
-        PATTERN_RFC1036,
-        PATTERN_RFC1123,
-        PATTERN_ASCTIME,
         PATTERN_BIRTH_DATE_1,
-        PATTERN_BIRTH_DATE_2,
-        PATTERN_TERM_DATE_1,
-        PATTERN_TERM_DATE_2,
-        PATTERN_TERM_DATE_3,
-        PATTERN_TERM_DATE_4
     };
 
     private static final String TIME_PATTERN = "hh:mm:ss a";

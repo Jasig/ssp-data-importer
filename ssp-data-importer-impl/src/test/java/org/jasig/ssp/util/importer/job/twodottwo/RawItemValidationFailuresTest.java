@@ -57,15 +57,15 @@ public class RawItemValidationFailuresTest {
         Set<Entry<String, ReportEntry>> entrySet = report.entrySet();
         Assert.assertEquals(2, entrySet.size());
         for (Entry<String, ReportEntry> entry : entrySet) {
-            Assert.assertNull(entry.getValue().getNumberInsertedUpdated());
+            Assert.assertEquals(new Integer(0), entry.getValue().getNumberInsertedUpdated());
             Assert.assertEquals(new Integer(21), entry.getValue().getNumberParsed());
             if(entry.getValue().getTableName().equals("external_person"))
-                Assert.assertEquals(new Integer(15), entry.getValue().getNumberSkippedOnParse());
+                Assert.assertEquals(new Integer(20), entry.getValue().getNumberSkippedOnParse());
             else{
-                Assert.assertEquals(new Integer(10), entry.getValue().getNumberSkippedOnParse());
+                Assert.assertEquals(new Integer(21), entry.getValue().getNumberSkippedOnParse());
             }
         }
         List<ErrorEntry> errors =(List<ErrorEntry>) jobExecution.getExecutionContext().get("errors");
-        Assert.assertEquals(25, errors.size());
+        Assert.assertEquals(41, errors.size());
     }
 }
