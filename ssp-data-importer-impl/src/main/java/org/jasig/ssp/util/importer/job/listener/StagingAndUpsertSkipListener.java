@@ -28,6 +28,7 @@ import org.jasig.ssp.util.importer.job.report.StepType;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -35,13 +36,13 @@ import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
 
-public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawItem> {
+public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawItem>, ItemWriteListener<RawItem> {
 
     private StepExecution stepExecution;
-    
+
     private MetadataConfigurations metadataRepository;
 
-    
+
     private static final Logger logger = LoggerFactory.getLogger(StagingAndUpsertSkipListener.class);
     @Override
     public void onSkipInRead(Throwable t) {
@@ -50,7 +51,8 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
 
     @Override
     public void onSkipInWrite(RawItem item, Throwable t) {
-        reportOnError(item, t);
+        //logger.error("ERROR on Write Process", t);
+        //reportOnError(item, t);
     }
 
     @Override
@@ -59,19 +61,16 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
         reportOnError(item, t);
     }
 
-    
+
     @SuppressWarnings("unchecked")
     private void reportOnError(RawItem item, Throwable t) {
         logger.error("ERROR on Stage/Upsert Write", t);
-        StepContext stepContext = StepSynchronizationManager.getContext();
-        Integer readCount = stepContext.getStepExecution().getCommitCount();
-        Integer lineNumberError = stepContext.getStepExecution().getWriteSkipCount();
-        lineNumberError = readCount + lineNumberError;
-        
+
+
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
         stepExecution.getExecutionContext().put("currentEntity",
-                tableName[0]);  
+                tableName[0]);
         List<String> tableKeys = metadataRepository.getRepository()
                 .getColumnMetadataRepository()
                 .getTableMetadata(new TableReference( tableName[0])).getTableKeys();
@@ -92,7 +91,7 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
         }
         keyBuilder.append("}");
         ErrorEntry error = new ErrorEntry(tableName[0],keyBuilder.toString(),t.getCause().toString(),StepType.STAGEUPSERT);
-        error.setLineNumber(readCount.toString());
+        error.setLineNumber(item.getLineNumber().toString());
         List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
         if(errors == null)
         {
@@ -108,7 +107,7 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
     public void setStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
     }
-    
+
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
@@ -120,6 +119,27 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
 
     public void setMetadataRepository(MetadataConfigurations metadataRepository) {
         this.metadataRepository = metadataRepository;
+    }
+
+    @Override
+    public void beforeWrite(List<? extends RawItem> items) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void afterWrite(List<? extends RawItem> items) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onWriteError(Exception t, List<? extends RawItem> items) {
+        if(items.size() > 1)
+            return;
+        for(RawItem item:items)
+          reportOnError(item, t);
+
     }
 
 }

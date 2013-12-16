@@ -42,18 +42,12 @@
 
     <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
 
-
-    <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="${batch.tables.input.folder}/*.csv"
-                                p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
-    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
-                                p:resources="${batch.tables.input.folder}/*.csv"
-                                p:duplicateResources="${batch.table.input.duplicate}"
-                                p:processDirectory="${batch.tables.process.folder}"
-                                p:upsertDirectory="${batch.tables.upsert.folder}"/>
-
-
+    <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" >
+        <property name="batchTitle" value="${batch.title}"/>
+        <property name="emailRecipients" value="${batch.email.recipients}"/>
+        <property name="replyTo" value="${batch.email.replyTo}"/>
+        <property name="sendEmail" value="false" />
+    </bean>
 
     <bean id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
           scope="step"
@@ -70,7 +64,10 @@
          </property>
     </bean>
 
-    <!-- FINAL PROCESSING OF UPSERT FOLDER INSERT CONTENTS OF UPSERT FOLDER -> DATABASE  -->
+     <bean  scope="step" id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
+        <property name="resources" value="twodottwo-test-error-reporting/*.csv"/>
+    </bean>
+
     <bean  scope="step" id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
         <property name="resource" value="#{stepExecutionContext[fileName]}"/>
     </bean>
@@ -79,15 +76,12 @@
         class="org.springframework.batch.item.support.CompositeItemWriter" >
         <property name="delegates">
              <list>
-                 <ref local="stagingTableItemWriter"/>
                  <ref local="externalTableUpsertItemWriter"/>
+                 <ref local="stagingTableItemWriter"/>
              </list>
        </property>
     </bean>
 
-    <bean  scope="step" id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
-        <property name="resources" value="twodottwo-test-report-accuracy/*.csv"/>
-    </bean>
 
     <bean id="processedItemValidateProcessor" class="org.jasig.ssp.util.importer.job.processor.ProcessedItemValidateProcessor"/>
 
@@ -116,32 +110,23 @@
                 <batch:listener ref="stagingTableTruncator"/>
             </batch:listeners>
         </batch:step>
-        <!-- Read validated files, write output to staging tables -->
+        <batch:listeners>
+            <batch:listener ref="reportGenerator"/>
+         </batch:listeners>
 
-        <!-- === End Core Job Step Definition == -->
-
-
-        <!-- Use this for custom JobParameter validation, if necessary. Note that you get some simple validation for
-        free by using or extending DefaultJobParametersValidator -->
-        <!--
-         <batch:validator ref="importJobValidator" />
-         -->
-
-        <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
-         the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
-         in that event. -->
-        <!--<batch:listeners></batch:listeners>-->
     </batch:job>
     <batch:step id="stageFilteredItemsSlave" >
         <batch:tasklet>
             <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
             step. Note that this limit applies separately to reads, processes, and writes. -->
             <batch:chunk reader="singleFilteredCsvItemReader" processor="processedItemValidateProcessor" writer="compositeTableWriter"
-                     commit-interval="${batch.upsertitem.commit.interval}" skip-limit="1">
+                     commit-interval="${batch.upsertitem.commit.interval}" skip-limit="20">
                 <!-- List out exceptions which should result in a record simply being skipped, up to some
                 configurable limit set on the chunk above -->
                 <batch:skippable-exception-classes>
                         <batch:include class="java.lang.Exception"/>
+                        <batch:include class="org.postgresql.util.PSQLException"/>
+                        <batch:include class="org.springframework.beans.factory.BeanCreationException"/>
                  </batch:skippable-exception-classes>
                 <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                 <batch:listeners>

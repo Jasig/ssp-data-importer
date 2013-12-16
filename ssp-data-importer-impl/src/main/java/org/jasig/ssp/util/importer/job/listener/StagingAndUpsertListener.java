@@ -33,8 +33,8 @@ import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 public class StagingAndUpsertListener implements StepExecutionListener {
 
     private StepExecution stepExecution;
-    
-  
+
+
     public StepExecution getStepExecution() {
         return stepExecution;
     }
@@ -42,7 +42,7 @@ public class StagingAndUpsertListener implements StepExecutionListener {
     public void setStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
     }
-    
+
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
@@ -50,7 +50,7 @@ public class StagingAndUpsertListener implements StepExecutionListener {
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        
+
     }
 
     @SuppressWarnings("unchecked")
@@ -61,14 +61,14 @@ public class StagingAndUpsertListener implements StepExecutionListener {
                 .get("numInsertedUpdated");
         String currentEntity = (String) stepExecution.getExecutionContext().get(
                 "currentEntity");
-      
+
         if(currentEntity != null)
         {
             Map<String, ReportEntry> report =  (Map<String, ReportEntry>) stepExecution.getJobExecution()
                     .getExecutionContext().get("report");
             if(report == null)
             {
-                report = new HashMap<String,ReportEntry>(); 
+                report = new HashMap<String,ReportEntry>();
             }
             ReportEntry currentEntry = report.get(currentEntity);
             if(currentEntry != null)
@@ -81,10 +81,10 @@ public class StagingAndUpsertListener implements StepExecutionListener {
                 currentEntry = new ReportEntry();
                 currentEntry.setTableName(currentEntity);
                 currentEntry.setNumberInsertedUpdated(numInsertedUpdated == null ? 0 : numInsertedUpdated);
-                currentEntry.setNumberSkippedOnDatabaseWrite(arg0.getWriteSkipCount());                
+                currentEntry.setNumberSkippedOnDatabaseWrite(arg0.getWriteSkipCount());
             }
             report.put(currentEntity, currentEntry);
-            stepExecution.getJobExecution().getExecutionContext().put("report", report);            
+            stepExecution.getJobExecution().getExecutionContext().put("report", report);
         }
 
         return ExitStatus.COMPLETED;

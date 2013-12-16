@@ -125,15 +125,23 @@ public class ReportGenerator implements JobExecutionListener {
 
         emailMessage.append("Errors: "+EOL);
         List<ErrorEntry> errors =(List<ErrorEntry>) jobExecution.getExecutionContext().get("errors");
+        List<Throwable> failureExceptions = jobExecution.getAllFailureExceptions();
         if(errors != null)
         {
             for (ErrorEntry errorEntry : errors) {
                 emailMessage.append(errorEntry.toString()+EOL);
                 emailMessage.append(EOL);
             }
-        }else{
+        }else if(failureExceptions == null || failureExceptions.size()==0){
             emailMessage.append("No Errors Found." + EOL);
         }
+
+        if(failureExceptions != null){
+            for(Throwable failureException:failureExceptions){
+                emailMessage.append(failureException.getMessage() + EOL);
+            }
+        }
+
         logger.info(emailMessage.toString());
         return emailMessage.toString();
     }

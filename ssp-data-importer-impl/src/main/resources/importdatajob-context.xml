@@ -117,14 +117,10 @@
     </bean>
 
     <!-- FINAL PROCESSING OF UPSERT FOLDER INSERT CONTENTS OF UPSERT FOLDER -> DATABASE  -->
-    <bean id="compositeFilteredCsvItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader"
-          scope="step"
-          p:delegate-ref="singleFilteredCsvItemReader">
-        <property name="resources" value="#{stepExecutionContext[fileName]}"/>
+    <bean scope="step" id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
+        <property name="resource" value="#{stepExecutionContext[fileName]}"/>
     </bean>
 
-    <bean  scope="step" id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.staging.ProcessedItemCsvReader" >
-    </bean>
 
     <bean  scope="step" id="compositeTableWriter"
         class="org.springframework.batch.item.support.CompositeItemWriter" >
@@ -244,7 +240,7 @@
         <batch:tasklet>
             <!-- Can add a @skip-limit we can control how many exceptional skips we'll allow before abandoning the
             step. Note that this limit applies separately to reads, processes, and writes. -->
-            <batch:chunk reader="compositeFilteredCsvItemReader" processor="processedItemValidateProcessor" writer="compositeTableWriter"
+            <batch:chunk reader="singleFilteredCsvItemReader" processor="processedItemValidateProcessor" writer="compositeTableWriter"
                      commit-interval="${batch.upsertitem.commit.interval}" skip-limit="${batch.upsertitem.skip.limit}">
                 <!-- List out exceptions which should result in a record simply being skipped, up to some
                 configurable limit set on the chunk above -->

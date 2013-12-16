@@ -116,6 +116,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
 
         final AtomicInteger batchStartRef = new AtomicInteger(batchStart);
         final String sql = insertSql.toString();
+
         jdbcTemplate.getJdbcOperations().execute(sql, new PreparedStatementCallback() {
             @Override
             public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -144,12 +145,13 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
                 return ps.executeBatch();
             }
         });
+
         batchStart = batchStartRef.get();
 
         say("******CHUNK POSTGRES******");
     }
 
-    
+
     @OnSkipInWrite
     private void saveCurrentResource(RawItem item, Throwable t)
     {

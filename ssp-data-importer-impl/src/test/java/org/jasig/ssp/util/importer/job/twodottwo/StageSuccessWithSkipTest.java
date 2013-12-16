@@ -41,7 +41,7 @@ public class StageSuccessWithSkipTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
-    
+
 
     @Test
     public void testStageSuccessWithSkip() throws Exception {
@@ -51,13 +51,13 @@ public class StageSuccessWithSkipTest {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         Collection<StepExecution> stepExecutions = jobExecution.getStepExecutions();
         for (StepExecution stepExecution : stepExecutions) {
-            Assert.assertEquals(stepExecution.getWriteCount(),1);
-            Assert.assertEquals(stepExecution.getSkipCount(),1);
+            Assert.assertEquals(1, stepExecution.getWriteCount());
+            Assert.assertEquals(1, stepExecution.getSkipCount());
         }
         BatchStatus exitStatus = jobExecution.getStatus();
 
         Assert.assertEquals(BatchStatus.COMPLETED, exitStatus);
 
-        
+
     }
 }
