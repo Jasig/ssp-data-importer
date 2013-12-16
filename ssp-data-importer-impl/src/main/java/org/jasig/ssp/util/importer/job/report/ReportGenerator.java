@@ -101,7 +101,7 @@ public class ReportGenerator implements JobExecutionListener {
         emailMessage.append("Start Time:    "+dt.format(jobExecution.getCreateTime())+EOL);
         emailMessage.append("End Time:      "+dt.format(jobExecution.getEndTime())+EOL);
         emailMessage.append("Duration:      "+ DurationFormatUtils.formatDurationWords(diff, true, true)
-                + " ("+ DurationFormatUtils.formatDurationHMS(diff)+ " )" +EOL);
+                + " ("+ DurationFormatUtils.formatDurationHMS(diff)+ ")" +EOL);
         emailMessage.append("Job Id:        "+ jobExecution.getJobId()+EOL);
         emailMessage.append("Job Paramters: "+ jobExecution.getJobParameters()+EOL);
         emailMessage.append("Job Status:    "+ jobExecution.getExitStatus().getExitCode()+EOL);
