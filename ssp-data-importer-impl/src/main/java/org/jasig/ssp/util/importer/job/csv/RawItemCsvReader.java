@@ -136,9 +136,6 @@ public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements Ste
         RawItem item = new RawItem();
         item.setResource(itemResource);
         item.setRecord(record);
-        // TODO for now we're not worrying about setting the Resource b/c we happen to know the wrapping
-        // MultiResourceItemReader will do it for us and there's no accessible getter on our super class. But
-        // would be better to do it here.
         return item;
     }
 
