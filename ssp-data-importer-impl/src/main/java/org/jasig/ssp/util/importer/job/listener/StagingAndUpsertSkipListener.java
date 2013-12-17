@@ -85,10 +85,14 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
                     .getTableKeys();
         }
         StringBuilder keyBuilder = new StringBuilder();
+        Integer index = -1;
         keyBuilder.append("Entity Keys: {");
         for (String key : tableKeys) {
             keyBuilder.append(key).append(" : ").append(item.getRecord().get(key)).append(", ");
+            index = keyBuilder.lastIndexOf(", ");
         }
+        if(index >= 0)
+            keyBuilder.delete(index, index + 2);
         keyBuilder.append("}");
         ErrorEntry error = new ErrorEntry(tableName[0],keyBuilder.toString(),t.getCause().toString(),StepType.STAGEUPSERT);
         error.setLineNumber(item.getLineNumber().toString());
