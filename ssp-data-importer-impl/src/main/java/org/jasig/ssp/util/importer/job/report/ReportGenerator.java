@@ -27,11 +27,14 @@ import java.util.Set;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuardException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.StringUtils;
@@ -48,7 +51,7 @@ public class ReportGenerator implements JobExecutionListener {
 
     private boolean sendEmail;
 
-    private boolean filesProcessed = false;
+    private boolean emailReport = false;
 
     Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
@@ -60,9 +63,9 @@ public class ReportGenerator implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-        filesProcessed = false;
+        emailReport = false;
         String report = buildReport(jobExecution);
-        if(sendEmail  && filesProcessed)
+        if(sendEmail  && emailReport)
         {
             sendEmail(jobExecution, report);
         }
@@ -74,6 +77,8 @@ public class ReportGenerator implements JobExecutionListener {
         final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
                 mimeMessage);
         String[] recipients = emailRecipients.split(",");
+        String EOL = System.getProperty("line.separator");
+
         try {
             for (String recipient : recipients) {
                     mimeMessageHelper.addTo(recipient);
@@ -86,6 +91,7 @@ public class ReportGenerator implements JobExecutionListener {
                     javaMailSender.send(mimeMessage);
 
             }
+            logger.info("Report emailed" + EOL);
         } catch (MessagingException e) {
             logger.error(e.toString());
         };
@@ -116,7 +122,7 @@ public class ReportGenerator implements JobExecutionListener {
                 emailMessage.append(entry.getValue().toString()+EOL);
             }
             if(entrySet.size() > 0)
-                filesProcessed = true;
+                emailReport = true;
         }else{
             emailMessage.append("NO FILES PROCESSED." + EOL);
         }
@@ -138,6 +144,12 @@ public class ReportGenerator implements JobExecutionListener {
 
         if(failureExceptions != null){
             for(Throwable failureException:failureExceptions){
+                 if(ExceptionUtils.indexOfThrowable(failureException, PartialUploadGuardException.class) >= 0 ||
+                         ExceptionUtils.indexOfThrowable(failureException, BeanCreationException.class) >= 0){
+                     emailReport = true;
+                     logger.info("emailReport:" + emailReport);
+                 }
+                logger.info("failureException:" + failureException.getClass().getName());
                 emailMessage.append(failureException.getMessage() + EOL);
             }
         }

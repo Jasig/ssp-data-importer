@@ -89,7 +89,7 @@ public class BatchPartialUploadTest {
         Map<String, ReportEntry> report = (Map<String, ReportEntry>)jobExecution.getExecutionContext().get("report");
         Assert.assertNull(report);
 
-        Assert.assertEquals(BatchStatus.FAILED, exitStatus);
+        Assert.assertEquals(BatchStatus.STOPPED, exitStatus);
 
         Assert.assertTrue(directoryExists(inputDirectoryPath));
 
@@ -114,7 +114,7 @@ public class BatchPartialUploadTest {
         Assert.assertNull(report);
 
 
-        Assert.assertEquals(BatchStatus.FAILED, exitStatus);
+        Assert.assertEquals(BatchStatus.STOPPED, exitStatus);
 
         Assert.assertTrue(directoryExists(inputDirectoryPath));
         Assert.assertTrue(directoryContainsFiles(inputDirectoryPath, 3, csvFilter));

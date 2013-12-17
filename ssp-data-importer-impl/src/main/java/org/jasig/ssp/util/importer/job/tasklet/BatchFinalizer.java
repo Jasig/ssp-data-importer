@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.JobInterruptedException;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
@@ -106,7 +107,7 @@ public class BatchFinalizer implements JobExecutionListener {
 
          if(failureExceptions != null){
              for(Throwable failureException:failureExceptions){
-                 if(ExceptionUtils.indexOfThrowable(failureException, PartialUploadGuardException.class) >= 0){
+                 if(ExceptionUtils.indexOfThrowable(failureException, JobInterruptedException.class) >= 0){
                      return;
                  }
              }

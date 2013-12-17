@@ -19,6 +19,7 @@
 package org.jasig.ssp.util.importer.job.tasklet;
 
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,17 +29,22 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
-public class PartialUploadGuard implements Tasklet {
+public class PartialUploadGuard implements Tasklet,StepExecutionListener {
 
     private static Logger logger = LoggerFactory.getLogger(PartialUploadGuard.class);
     Resource[] resources;
-    Resource resourceFolder;
+    Resource directory;
+    JobOperator jobOperator;
+    StepExecution stepExecution;
     Integer lagTimeBeforeStartInMinutes = 0;// programmatic default set to 0 for testing, time needs to be set by expected load times
     final String FILE_SOAK_TIME = "File does not meet minimum lag time since modification. File: ";
 
@@ -50,14 +56,16 @@ public class PartialUploadGuard implements Tasklet {
         Date lastAllowedModificationTime = getLastAllowedModifiedDate();
 
         if(resources == null || resources.length == 0){
-            logger.error("Batch not initialized. No resources found");
-            throw new PartialUploadGuardException("Batch not initialized. No resources found");
+            logger.error("Job not started. No resources found");
+            stopJob();
+            return RepeatStatus.FINISHED;
         }
         for(Resource resource:resources){
             Date modified = new Date(resource.lastModified());
             if(modified.after(lastAllowedModificationTime)){
                 logger.info(FILE_SOAK_TIME + resource.getFilename());
-                throw new PartialUploadGuardException(FILE_SOAK_TIME + resource.getFilename());
+                stopJob();
+                return RepeatStatus.FINISHED;
             }
         }
         return RepeatStatus.FINISHED;
@@ -76,5 +84,33 @@ public class PartialUploadGuard implements Tasklet {
         Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
         calendar.add(Calendar.MINUTE, -lagTimeBeforeStartInMinutes);
         return calendar.getTime();
+    }
+
+    public void setJobOperator(JobOperator jobOperator){
+        this.jobOperator = jobOperator;
+    }
+
+    public void setDirectory(Resource directory) throws PartialUploadGuardException, IOException{
+        this.directory = directory;
+        if(!directory.getFile().exists())
+            throw new PartialUploadGuardException("Input directory does not exist. Locoation:" + directory.getFile().getPath());
+    }
+
+    private Long getJobExecutionId(){
+        return stepExecution.getJobExecutionId();
+    }
+
+    private void stopJob() throws NoSuchJobExecutionException, JobExecutionNotRunningException{
+        if(jobOperator != null)
+            jobOperator.stop(getJobExecutionId());
+    }
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
+
+    }
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        return null;
     }
 }
