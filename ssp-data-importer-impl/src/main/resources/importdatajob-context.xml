@@ -63,10 +63,13 @@
     </bean>
 
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
-    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+    <bean scope="step" id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
                                 p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
-                                p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
-    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
+                                p:directory="${batch.tables.input.folder}"
+                                p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"
+                                p:jobOperator-ref="jobOperator"/>
+
+    <bean scope="step" id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
                                 p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
                                 p:duplicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
@@ -160,8 +163,6 @@
         <!-- === Start Core Job Step Definition == -->
         <!-- Make sure we don't accidentally process a partial upload -->
         <batch:step id="guardPartialUploads" next="initializeBatch">
-            <!-- Probably just needs to be a TaskletStep rather than a chunk b/c there's not really read/process/writer
-            workflow involved -->
             <batch:tasklet ref="partialUploadGuard"></batch:tasklet>
         </batch:step>
 
@@ -201,14 +202,10 @@
          <batch:validator ref="importJobValidator" />
          -->
         <batch:listeners>
-               <batch:listener ref="reportGenerator"/>
-            <batch:listener ref="batchFinaliser"/>
+              <batch:listener ref="batchFinaliser"/>
+             <batch:listener ref="reportGenerator"/>
          </batch:listeners>
 
-        <!-- Watch for beforeJob() and afterJob() events here. Note that afterJob() is always fired unless
-         the entire job crashes catastrophically. I.e. you can expect to handle job-level failures and successes
-         in that event. -->
-        <!--<batch:listeners></batch:listeners>-->
     </batch:job>
     <batch:step id="filterRawItemsSlave" >
             <batch:tasklet  >

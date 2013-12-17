@@ -29,9 +29,32 @@
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <bean id="reportGenerator" class="org.jasig.ssp.util.importer.job.report.ReportGenerator" >
+        <property name="batchTitle" value="${batch.title}"/>
+        <property name="emailRecipients" value="${batch.email.recipients}"/>
+        <property name="replyTo" value="${batch.email.replyTo}"/>
+        <property name="sendEmail" value="${batch.sendEmail}" />
+        <property name="javaMailSender" ref="javaMailSender"/>
+    </bean>
+
+    <!-- Mail Server Configuration -->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${batch.smtp.host}" />
+        <property name="port" value="${batch.smtp.port}" />
+        <property name="protocol" value="${batch.smtp.protocol}" />
+        <!-- If MS Exchange does not expect authentication username and password
+        must both be null else all connection attempts will fail. Empty strings
+        are not sufficient to skip authN -->
+        <property name="username" value="${batch.smtp.username}" />
+        <property name="password" value="${batch.smtp.password}" />
+    </bean>
+
     <bean scope="step" id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
                                 p:resources="file:/tmp/batch-initialization/input/*"
-                                p:lagTimeBeforeStartInMinutes="2"/>
+                                p:directory="file:/tmp/batch-initialization/input"
+                                p:lagTimeBeforeStartInMinutes="2">
+                                <property name="jobOperator" ref="jobOperator"/>
+                                </bean>
 
 
    <bean id="batchFinaliser" class="org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer"
@@ -47,9 +70,9 @@
         <batch:step id="guardPartialUploads">
             <batch:tasklet ref="partialUploadGuard"></batch:tasklet>
         </batch:step>
-
            <batch:listeners>
              <batch:listener ref="batchFinaliser"/>
+             <batch:listener ref="reportGenerator"/>
          </batch:listeners>
     </batch:job>
 

@@ -31,17 +31,6 @@
      swapped out, especially during testing. Individual bean def will generally assume some other "supervisor" file,
      such as this one, takes care of loading dependencies. -->
 
-    <import resource="config-context-test.xml" />
-    <import resource="datasource-context-test.xml" />
-    <import resource="jobrepository-context-test.xml" />
-    <import resource="joblauncher-context-test.xml" />
-    <import resource="postgres-context-test.xml" />
-    <import resource="sqlserver-context-test.xml" />
-    <import resource="importdatajob-context-test.xml" />
-    
-	<bean id="jobLauncherTestUtils" class="org.springframework.batch.test.JobLauncherTestUtils" >
-	    <property name="job" ref="importJob"/>
-	    <property name="jobRepository" ref="jobRepository"/>
-	    <property name="jobLauncher" ref="jobLauncher"/>
-	</bean>
+    <import resource="launch-context-base-test.xml" />
+    <import resource="importdatajob-context.xml" />
 </beans>

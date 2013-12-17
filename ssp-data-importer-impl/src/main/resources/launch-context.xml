@@ -38,6 +38,8 @@
     <import resource="postgres-context.xml" />
     <import resource="sqlserver-context.xml" />
     <import resource="jobrepository-context.xml" />
+    <import resource="jobregistry-context.xml" />
+    <import resource="joboperator-context.xml" />
     <import resource="joblauncher-context.xml" />
     <import resource="importdatajob-context.xml" />
 </beans>
