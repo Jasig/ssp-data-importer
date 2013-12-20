@@ -21,12 +21,10 @@ package org.jasig.ssp.util.importer.job;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
-import org.jasig.ssp.util.importer.job.tasklet.BatchInitializer;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +32,6 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -57,7 +54,6 @@ public class BatchInitializerTest {
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testCreateDirectories() throws Exception {
 
@@ -82,7 +78,6 @@ public class BatchInitializerTest {
         Assert.assertEquals(BatchStatus.COMPLETED, status);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testRemoveStaleFiles() throws Exception {
 

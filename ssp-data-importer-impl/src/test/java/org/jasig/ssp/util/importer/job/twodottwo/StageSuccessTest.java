@@ -22,6 +22,8 @@ import java.util.Collection;
 
 import junit.framework.Assert;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,13 +38,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/twodottwo-test-input-stage-success/launch-context-test.xml")
-public class StageSuccessTest {
+public class StageSuccessTest extends TestBase {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
-    
+
     private static final Logger logger = LoggerFactory.getLogger(StageSuccessTest.class);
-    
+
 
     @Test
     public void testStageSuccess() throws Exception {
@@ -58,6 +60,18 @@ public class StageSuccessTest {
 
         Assert.assertEquals(BatchStatus.COMPLETED, exitStatus);
 
-        
+
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        super.cleanup();
+    }
+
+    @After
+    public void cleanup() throws Exception
+    {
+        super.cleanup();
     }
 }

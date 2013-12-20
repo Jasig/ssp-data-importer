@@ -41,6 +41,7 @@ public class BatchFinalizerTest {
 
     @Autowired
     private ApplicationContext applicationContext;
+
     @Autowired
     final private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 

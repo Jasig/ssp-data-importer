@@ -97,9 +97,6 @@
     <bean id="parsingListener" class="org.jasig.ssp.util.importer.job.listener.ParsingListener"/>
     <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
 
-
-
-
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="1"/>
     </bean>

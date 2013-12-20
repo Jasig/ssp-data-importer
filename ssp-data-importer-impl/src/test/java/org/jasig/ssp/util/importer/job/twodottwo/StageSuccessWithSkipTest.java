@@ -23,6 +23,8 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -37,7 +39,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/twodottwo-test-stage-success-with-skip/launch-context-test.xml")
-public class StageSuccessWithSkipTest {
+public class StageSuccessWithSkipTest extends TestBase {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
@@ -59,5 +61,17 @@ public class StageSuccessWithSkipTest {
         Assert.assertEquals(BatchStatus.COMPLETED, exitStatus);
 
 
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        super.cleanup();
+    }
+
+    @After
+    public void cleanup() throws Exception
+    {
+        super.cleanup();
     }
 }

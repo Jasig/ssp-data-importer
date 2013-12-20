@@ -27,6 +27,8 @@ import junit.framework.Assert;
 
 import org.jasig.ssp.util.importer.job.report.ErrorEntry;
 import org.jasig.ssp.util.importer.job.report.ReportEntry;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
@@ -37,7 +39,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/twodottwo-test-error-reporting/launch-context-test.xml")
-public class ErrorReportingTest {
+public class ErrorReportingTest extends TestBase {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
@@ -64,5 +66,17 @@ public class ErrorReportingTest {
         List<ErrorEntry> errors =(List<ErrorEntry>) jobExecution.getExecutionContext().get("errors");
         Assert.assertEquals(2, errors.size());
 
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        super.cleanup();
+    }
+
+    @After
+    public void cleanup() throws Exception
+    {
+        super.cleanup();
     }
 }

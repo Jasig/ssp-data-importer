@@ -21,6 +21,8 @@ package org.jasig.ssp.util.importer.job;
 import junit.framework.Assert;
 
 import org.jasig.ssp.util.importer.job.twodottwo.StageFailTest;
+import org.jasig.ssp.util.importer.job.twodottwo.TestBase;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/launch-context-test.xml")
-public class PrototypeJobRunnerTest {
+public class PrototypeJobRunnerTest extends TestBase {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
@@ -47,7 +49,11 @@ public class PrototypeJobRunnerTest {
 
         BatchStatus jobExecution = jobLauncherTestUtils.launchJob().getStatus();
 
-
         Assert.assertEquals(BatchStatus.COMPLETED, jobExecution);
+    }
+
+    @After
+    public void cleanup() throws Exception{
+        super.cleanup();
     }
 }

@@ -24,6 +24,8 @@ import java.net.URISyntaxException;
 import junit.framework.Assert;
 
 import org.jasig.ssp.util.importer.job.listener.StagingAndUpsertSkipListener;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,13 +39,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/twodottwo-test-input-stage-fail/launch-context-test.xml")
-public class StageFailTest {
+public class StageFailTest extends TestBase {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
-    
+
     private static final Logger logger = LoggerFactory.getLogger(StageFailTest.class);
-    
+
 
     @Test
     public void testStageFail() throws Exception {
@@ -54,6 +56,18 @@ public class StageFailTest {
 
 
         Assert.assertEquals(BatchStatus.FAILED, exitStatus);
-        
+
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        super.cleanup();
+    }
+
+    @After
+    public void cleanup() throws Exception
+    {
+        super.cleanup();
     }
 }

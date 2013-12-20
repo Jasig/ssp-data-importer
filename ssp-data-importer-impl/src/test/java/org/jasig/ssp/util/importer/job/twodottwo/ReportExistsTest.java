@@ -20,6 +20,8 @@ package org.jasig.ssp.util.importer.job.twodottwo;
 
 import junit.framework.Assert;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
@@ -30,21 +32,33 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/twodottwo-test-report-exists/launch-context-test.xml")
-public class ReportExistsTest {
+public class ReportExistsTest extends TestBase {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
-    
+
 
     @Test
     public void testJob() throws Exception {
 
 
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
-        
+
 
         Assert.assertNotNull(jobExecution.getExecutionContext().get("report"));
 
-        
+
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        super.cleanup();
+    }
+
+    @After
+    public void cleanup() throws Exception
+    {
+        super.cleanup();
     }
 }
