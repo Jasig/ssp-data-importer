@@ -68,7 +68,7 @@ public class ReportAccuracyTest extends TestBase {
     }
 
     @After
-    public void cleanup() throws Exception
+    public void cleanup()  throws Exception
     {
         super.cleanup();
     }

@@ -40,9 +40,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class BatchFinalizerTest {
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
     final private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 
 

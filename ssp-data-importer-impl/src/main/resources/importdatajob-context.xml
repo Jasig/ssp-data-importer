@@ -63,13 +63,13 @@
     </bean>
 
     <!-- PRE PROCESSING VERIFY INPUT FILE SOAK TIME COPY CONTENTS OF INPUT FOLDER -> PROCESS FOLDER -->
-    <bean scope="step" id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
+    <bean id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
                                 p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
                                 p:directory="${batch.tables.input.folder}"
                                 p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"
                                 p:jobOperator-ref="jobOperator"/>
 
-    <bean scope="step" id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
+    <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
                                 p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
                                 p:duplicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"

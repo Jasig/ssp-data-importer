@@ -23,6 +23,7 @@ import junit.framework.Assert;
 import org.jasig.ssp.util.importer.job.twodottwo.StageFailTest;
 import org.jasig.ssp.util.importer.job.twodottwo.TestBase;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -54,6 +55,11 @@ public class PrototypeJobRunnerTest extends TestBase {
 
     @After
     public void cleanup() throws Exception{
+        super.cleanup();
+    }
+
+    @Before
+    public void setup() throws Exception{
         super.cleanup();
     }
 }
