@@ -28,9 +28,25 @@
             http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!-- Database Metadata Repositories  -->
+    <bean id="tableMetaDataRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.JdbcTableColumnMetadataRepository">
+        <constructor-arg name="dataSource" ref ="dataSource"/>
+        <property name="dateColumnNamePattern" value="${batch.jdbc.date.column.name.pattern}" />
+    </bean>
+
+    <bean id="columnMetadataRepository" class="org.jarbframework.constraint.metadata.database.JdbcColumnMetadataRepository">
+        <constructor-arg name="dataSource" ref ="dataSource"/>
+    </bean>
+    <bean id="databaseConstraintRepository" class="org.jasig.ssp.util.importer.job.validation.map.metadata.database.CachingTableColumnMetadataRepository">
+        <constructor-arg name="columnMetadataRepository" ref ="tableMetaDataRepository"/>
+    </bean>
+
+    <bean id="metadataRepository" class="org.jasig.ssp.util.importer.job.config.MetadataConfigurations" scope="singleton"/>
+
 
 
     <bean scope="step" id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
+                                p:metadataRepository-ref="metadataRepository"
                                 p:resources="file:/tmp/batch-initialization/input/*"
                                 p:duplicateResources="${batch.duplicate:false}"
                                 p:processDirectory="file:/tmp/batch-initialization/process"

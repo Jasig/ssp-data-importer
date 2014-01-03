@@ -73,7 +73,8 @@
                                 p:resources="${batch.tables.input.folder}/${batch.files.accepted}"
                                 p:duplicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
-                                p:upsertDirectory="${batch.tables.upsert.folder}"/>
+                                p:upsertDirectory="${batch.tables.upsert.folder}"
+                                p:metadataRepository-ref="metadataRepository"/>
 
     <!-- INITIAL PROCESSING OF PROCESS FOLDER COPY CONTENTS OF PROCESS FOLDER -> UPSERT FOLDER  -->
     <bean scope="step" id="rawPartitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">

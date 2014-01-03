@@ -48,6 +48,7 @@
                                 p:resources="${batch.tables.input.folder}/*.csv"
                                 p:lagTimeBeforeStartInMinutes="${batch.tables.lagTimeBeforeStartInMinutes}"/>
     <bean id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
+                                p:metadataRepository-ref="metadataRepository"
                                 p:resources="${batch.tables.input.folder}/*.csv"
                                 p:duplicateResources="${batch.table.input.duplicate}"
                                 p:processDirectory="${batch.tables.process.folder}"
