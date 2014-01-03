@@ -40,7 +40,7 @@ import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.core.io.Resource;
 import org.springframework.validation.BindException;
 
-public class RawItemCsvReader extends FlatFileItemReader<RawItem> implements StepExecutionListener, LineCallbackHandler, FieldSetMapper<RawItem> {
+public class RawItemCsvReader extends FlatFileItemReaderNewLine<RawItem> implements StepExecutionListener, LineCallbackHandler, FieldSetMapper<RawItem> {
 
     private static final Logger logger = LoggerFactory.getLogger(RawItemCsvReader.class);
     final private String COLUMN_NAMES_KEY = "COLUMNS_NAMES_KEY";
