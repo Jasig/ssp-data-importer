@@ -73,3 +73,7 @@ DROP TABLE  IF EXISTS external_student_transcript;
 DROP TABLE  IF EXISTS external_student_transcript_course;
 DROP TABLE  IF EXISTS external_student_transcript_term;
 DROP TABLE  IF EXISTS external_term;
+
+DROP TABLE  IF EXISTS marital_status;
+DROP TABLE  IF EXISTS ethnicity;
+DROP TABLE  IF EXISTS student_type;

@@ -1174,6 +1174,32 @@ CREATE TABLE external_term (
 
 ALTER TABLE public.external_term OWNER TO sspadmin;
 
+CREATE TABLE marital_status (
+    name character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.marital_status OWNER TO sspadmin;
+
+
+CREATE TABLE ethnicity (
+    name character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.ethnicity OWNER TO sspadmin;
+
+CREATE TABLE student_type (
+    code character varying(50) NOT NULL
+);
+
+ALTER TABLE public.student_type OWNER TO sspadmin;
+
+CREATE TABLE race (
+    code character varying(50) NOT NULL
+);
+
+ALTER TABLE public.race OWNER TO sspadmin;
 
 --
 -- Name: external_course_code_key; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
@@ -1485,6 +1511,64 @@ ALTER TABLE ONLY external_term
 
 ALTER TABLE ONLY external_term
     ADD CONSTRAINT external_term_pkey PRIMARY KEY (code);
+    
+
+ ALTER TABLE ONLY marital_status
+    ADD CONSTRAINT marital_status_name_key UNIQUE (name);
+
+
+--
+-- Name: marital_status_name_pkey; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--
+
+ALTER TABLE ONLY marital_status
+    ADD CONSTRAINT marital_status_name_pkey PRIMARY KEY (name);
+    
+--
+-- Name: ethnicity_name_key; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--    
+    
+ ALTER TABLE ONLY ethnicity
+    ADD CONSTRAINT ethnicity_name_key UNIQUE (name);
+
+
+--
+-- Name: ethnicity_name_pkey; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--
+
+ALTER TABLE ONLY ethnicity
+    ADD CONSTRAINT ethnicity_name_pkey PRIMARY KEY (name);
+    
+--
+-- Name: student_type_key; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--    
+    
+ ALTER TABLE ONLY student_type
+    ADD CONSTRAINT student_type_code_key UNIQUE (code);
+
+
+--
+-- Name: student_type_code_pkey; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--
+
+ALTER TABLE ONLY student_type
+    ADD CONSTRAINT student_type_code_pkey PRIMARY KEY (code);
+    
+--
+-- Name: student_type_key; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--    
+    
+ ALTER TABLE ONLY race
+    ADD CONSTRAINT race_code_key UNIQUE (code);
+
+
+--
+-- Name: student_type_code_pkey; Type: CONSTRAINT; Schema: public; Owner: sspadmin; Tablespace:
+--
+
+ALTER TABLE ONLY race
+    ADD CONSTRAINT race_code_pkey PRIMARY KEY (code);
+
 
 
 --
@@ -1695,3 +1779,276 @@ REVOKE ALL ON TABLE external_term FROM PUBLIC;
 REVOKE ALL ON TABLE external_term FROM sspadmin;
 GRANT ALL ON TABLE external_term TO sspadmin;
 GRANT ALL ON TABLE external_term TO ssp;
+
+REVOKE ALL ON TABLE marital_status FROM PUBLIC;
+REVOKE ALL ON TABLE marital_status FROM sspadmin;
+GRANT ALL ON TABLE marital_status TO sspadmin;
+GRANT ALL ON TABLE marital_status TO ssp;
+
+REVOKE ALL ON TABLE ethnicity FROM PUBLIC;
+REVOKE ALL ON TABLE ethnicity FROM sspadmin;
+GRANT ALL ON TABLE ethnicity TO sspadmin;
+GRANT ALL ON TABLE ethnicity TO ssp;
+
+REVOKE ALL ON TABLE student_type FROM PUBLIC;
+REVOKE ALL ON TABLE student_type FROM sspadmin;
+GRANT ALL ON TABLE student_type TO sspadmin;
+GRANT ALL ON TABLE student_type TO ssp;
+
+REVOKE ALL ON TABLE race FROM PUBLIC;
+REVOKE ALL ON TABLE race FROM sspadmin;
+GRANT ALL ON TABLE race TO sspadmin;
+GRANT ALL ON TABLE race TO ssp;
+
+--
+-- Name: external_course; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_course FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_course FROM sspadmin;
+GRANT ALL ON TABLE stg_external_course TO sspadmin;
+GRANT ALL ON TABLE stg_external_course TO ssp;
+
+
+--
+-- Name: external_course_program; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_course_program FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_course_program FROM sspadmin;
+GRANT ALL ON TABLE stg_external_course_program TO sspadmin;
+GRANT ALL ON TABLE stg_external_course_program TO ssp;
+
+
+--
+-- Name: external_course_requisite; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_course_requisite FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_course_requisite FROM sspadmin;
+GRANT ALL ON TABLE stg_external_course_requisite TO sspadmin;
+GRANT ALL ON TABLE stg_external_course_requisite TO ssp;
+
+
+--
+-- Name: external_course_tag; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_course_tag FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_course_tag FROM sspadmin;
+GRANT ALL ON TABLE stg_external_course_tag TO sspadmin;
+GRANT ALL ON TABLE stg_external_course_tag TO ssp;
+
+
+--
+-- Name: external_course_term; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_course_term FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_course_term FROM sspadmin;
+GRANT ALL ON TABLE stg_external_course_term TO sspadmin;
+GRANT ALL ON TABLE stg_external_course_term TO ssp;
+
+
+--
+-- Name: external_department; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_department FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_department FROM sspadmin;
+GRANT ALL ON TABLE stg_external_department TO sspadmin;
+GRANT ALL ON TABLE stg_external_department TO ssp;
+
+
+--
+-- Name: external_division; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_division FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_division FROM sspadmin;
+GRANT ALL ON TABLE stg_external_division TO sspadmin;
+GRANT ALL ON TABLE stg_external_division TO ssp;
+
+
+--
+-- Name: external_faculty_course; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_faculty_course FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_faculty_course FROM sspadmin;
+GRANT ALL ON TABLE stg_external_faculty_course TO sspadmin;
+GRANT ALL ON TABLE stg_external_faculty_course TO ssp;
+
+
+--
+-- Name: external_faculty_course_roster; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_faculty_course_roster FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_faculty_course_roster FROM sspadmin;
+GRANT ALL ON TABLE stg_external_faculty_course_roster TO sspadmin;
+GRANT ALL ON TABLE stg_external_faculty_course_roster TO ssp;
+
+
+--
+-- Name: external_person; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_person FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_person FROM sspadmin;
+GRANT ALL ON TABLE stg_external_person TO sspadmin;
+GRANT ALL ON TABLE stg_external_person TO ssp;
+
+
+--
+-- Name: external_person_note; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_person_note FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_person_note FROM sspadmin;
+GRANT ALL ON TABLE stg_external_person_note TO sspadmin;
+GRANT ALL ON TABLE stg_external_person_note TO ssp;
+
+
+--
+-- Name: external_person_planning_status; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_person_planning_status FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_person_planning_status FROM sspadmin;
+GRANT ALL ON TABLE stg_external_person_planning_status TO sspadmin;
+GRANT ALL ON TABLE stg_external_person_planning_status TO ssp;
+
+
+--
+-- Name: external_program; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_program FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_program FROM sspadmin;
+GRANT ALL ON TABLE stg_external_program TO sspadmin;
+GRANT ALL ON TABLE stg_external_program TO ssp;
+
+
+--
+-- Name: external_registration_status_by_term; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_registration_status_by_term FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_registration_status_by_term FROM sspadmin;
+GRANT ALL ON TABLE stg_external_registration_status_by_term TO sspadmin;
+GRANT ALL ON TABLE stg_external_registration_status_by_term TO ssp;
+
+
+--
+-- Name: external_student_academic_program; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_student_academic_program FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_student_academic_program FROM sspadmin;
+GRANT ALL ON TABLE stg_external_student_academic_program TO sspadmin;
+GRANT ALL ON TABLE stg_external_student_academic_program TO ssp;
+
+
+--
+-- Name: external_student_financial_aid; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_student_financial_aid FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_student_financial_aid FROM sspadmin;
+GRANT ALL ON TABLE stg_external_student_financial_aid TO sspadmin;
+GRANT ALL ON TABLE stg_external_student_financial_aid TO ssp;
+
+
+--
+-- Name: external_student_test; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_student_test FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_student_test FROM sspadmin;
+GRANT ALL ON TABLE stg_external_student_test TO sspadmin;
+GRANT ALL ON TABLE stg_external_student_test TO ssp;
+
+
+--
+-- Name: external_student_transcript; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_student_transcript FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_student_transcript FROM sspadmin;
+GRANT ALL ON TABLE stg_external_student_transcript TO sspadmin;
+GRANT ALL ON TABLE stg_external_student_transcript TO ssp;
+
+
+--
+-- Name: external_student_transcript_course; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_student_transcript_course FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_student_transcript_course FROM sspadmin;
+GRANT ALL ON TABLE stg_external_student_transcript_course TO sspadmin;
+GRANT ALL ON TABLE stg_external_student_transcript_course TO ssp;
+
+
+--
+-- Name: external_student_transcript_term; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_student_transcript_term FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_student_transcript_term FROM sspadmin;
+GRANT ALL ON TABLE stg_external_student_transcript_term TO sspadmin;
+GRANT ALL ON TABLE stg_external_student_transcript_term TO ssp;
+
+
+--
+-- Name: external_term; Type: ACL; Schema: public; Owner: sspadmin
+--
+
+REVOKE ALL ON TABLE stg_external_term FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_term FROM sspadmin;
+GRANT ALL ON TABLE stg_external_term TO sspadmin;
+GRANT ALL ON TABLE stg_external_term TO ssp;
+
+
+REVOKE ALL ON TABLE BATCH_JOB_INSTANCE FROM PUBLIC;
+REVOKE ALL ON TABLE BATCH_JOB_INSTANCE FROM sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_INSTANCE TO sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_INSTANCE TO ssp;
+
+
+REVOKE ALL ON TABLE BATCH_JOB_EXECUTION FROM PUBLIC;
+REVOKE ALL ON TABLE BATCH_JOB_EXECUTION FROM sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_EXECUTION TO sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_EXECUTION TO ssp;
+
+
+REVOKE ALL ON TABLE BATCH_JOB_EXECUTION_PARAMS FROM PUBLIC;
+REVOKE ALL ON TABLE BATCH_JOB_EXECUTION_PARAMS FROM sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_EXECUTION_PARAMS TO sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_EXECUTION_PARAMS TO ssp;
+
+
+REVOKE ALL ON TABLE BATCH_STEP_EXECUTION FROM PUBLIC;
+REVOKE ALL ON TABLE BATCH_STEP_EXECUTION FROM sspadmin;
+GRANT ALL ON TABLE BATCH_STEP_EXECUTION TO sspadmin;
+GRANT ALL ON TABLE BATCH_STEP_EXECUTION TO ssp;
+
+
+REVOKE ALL ON TABLE BATCH_STEP_EXECUTION_CONTEXT FROM PUBLIC;
+REVOKE ALL ON TABLE BATCH_STEP_EXECUTION_CONTEXT FROM sspadmin;
+GRANT ALL ON TABLE BATCH_STEP_EXECUTION_CONTEXT TO sspadmin;
+GRANT ALL ON TABLE BATCH_STEP_EXECUTION_CONTEXT TO ssp;
+
+
+REVOKE ALL ON TABLE BATCH_JOB_EXECUTION_CONTEXT FROM PUBLIC;
+REVOKE ALL ON TABLE BATCH_JOB_EXECUTION_CONTEXT FROM sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_EXECUTION_CONTEXT TO sspadmin;
+GRANT ALL ON TABLE BATCH_JOB_EXECUTION_CONTEXT TO ssp;
+
+ALTER TABLE batch_job_execution_seq OWNER TO sspadmin;
+ALTER TABLE batch_job_seq OWNER TO sspadmin;
+ALTER TABLE batch_step_execution_seq OWNER TO sspadmin;
+
+
+
+

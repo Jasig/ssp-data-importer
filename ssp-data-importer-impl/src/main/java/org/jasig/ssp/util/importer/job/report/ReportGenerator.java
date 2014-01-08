@@ -153,6 +153,11 @@ public class ReportGenerator implements JobExecutionListener {
                 emailMessage.append(failureException.getMessage() + EOL);
             }
         }
+        
+        String validations = (String)jobExecution.getExecutionContext().get("databaseValidations");
+        if(validations != null){
+        	emailMessage.append("Database Validations:"  + EOL + validations);
+        }
 
         logger.info(emailMessage.toString());
         return emailMessage.toString();

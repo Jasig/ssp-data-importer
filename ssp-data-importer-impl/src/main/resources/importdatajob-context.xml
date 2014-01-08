@@ -153,6 +153,11 @@
         <property name="truncateExclusions" value="${batch.truncate.exclusions}"></property>
         <property name="metadataRepository" ref="metadataRepository" />
     </bean>
+    
+    <bean id="databaseValidation" class="org.jasig.ssp.util.importer.job.tasklet.DatabaseValidation"
+             p:dataSource-ref="dataSource">
+        <property name="validateDatabase" value="${batch.validateDatabase}"></property>
+    </bean>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="1"/>
@@ -184,13 +189,18 @@
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
         </batch:step>
-        <batch:step id="stageFilteredItems"  >
+        <batch:step id="stageFilteredItems" next="validateDatabaseTasklet">
              <batch:partition step="stageFilteredItemsSlave" partitioner="partitioner" >
                 <batch:handler task-executor="taskExecutor" grid-size="1"/>
             </batch:partition>
             <batch:listeners>
                 <batch:listener ref="stagingTableTruncator"/>
             </batch:listeners>
+        </batch:step>
+        
+         <!-- Make sure we have a clean working directory, copy new files into it. -->
+        <batch:step id="validateDatabaseTasklet">
+            <batch:tasklet ref="databaseValidation"></batch:tasklet>
         </batch:step>
         <!-- Read validated files, write output to staging tables -->
 
