@@ -180,6 +180,11 @@ public class DatabaseValidation implements Tasklet, StepExecutionListener  {
     	/*** external_student_financial_aid  ****/
     	statements.add(new ImmutablePair<String,String>("external_student_financial_aid has school_id that does not exist: ",
     			"select distinct school_id from external_student_financial_aid where school_id IS NOT NULL AND school_id NOT IN (select distinct school_id from external_person)"));
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid has sap_status_code that does not exist: ",
+    			"select distinct school_id,sap_status_code from external_student_financial_aid where sap_status_code IS NOT NULL AND sap_status_code NOT IN (select distinct code from sap_status)"));
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid has school_id that does not exist: ",
+    			"select distinct school_id,financial_aid_file_status from external_student_financial_aid where financial_aid_file_status IS NOT NULL AND financial_aid_file_status NOT IN ('COMPLETE','PENDING','INCOMPLETE')"));
+
     	
     	/*** external_student_test  ****/
     	statements.add(new ImmutablePair<String,String>("external_student_test has school_id that does not exist: ",
@@ -202,6 +207,21 @@ public class DatabaseValidation implements Tasklet, StepExecutionListener  {
     	statements.add(new ImmutablePair<String,String>("external_student_transcript_course has formatted_course that does not exist: ",
     			"select distinct formatted_course from external_student_transcript_course where formatted_course IS NOT NULL AND formatted_course NOT IN (select distinct formatted_course from external_person)"));
 
+    	/*** external_student_financial_aid_file  ****/
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid_file has school_id that does not exist: ",
+    			"select distinct school_id from external_student_financial_aid_file where school_id IS NOT NULL AND school_id NOT IN (select distinct school_id from external_person)"));
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid_file has status that does not exist: ",
+    			"select school_id,file_status from external_student_financial_aid_file where file_status IS NOT NULL AND file_status NOT IN ('COMPLETE','PENDING','INCOMPLETE')"));
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid_file has status that does not exist: ",
+    			"select school_id,financial_file_code from external_student_financial_aid_file where financial_file_code IS NOT NULL AND financial_file_code NOT IN (select distinct code from financial_aid_file)"));
+
+    	/*** external_student_financial_aid_award_term  ****/
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid_award_term has school_id that does not exist: ",
+    			"select distinct school_id from external_student_financial_aid_award_term where school_id IS NOT NULL AND school_id NOT IN (select distinct school_id from external_person)"));
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid_award_term has accepted that does not exist: ",
+    			"select school_id,accepted from external_student_financial_aid_award_term where accepted IS NOT NULL AND accepted NOT IN ('Y','N','y','n')"));
+    	statements.add(new ImmutablePair<String,String>("external_student_financial_aid_award_term has term code that does not exist: ",
+    			"select school_id,term_code from external_student_financial_aid_award_term where term_code IS NOT NULL AND term_code NOT IN (select distinct code from external_term)"));
 
     	statements.add(new ImmutablePair<String,String>("Count of External Courses: ",
     			"SELECT COUNT(code) from external_course"));
