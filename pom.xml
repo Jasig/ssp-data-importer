@@ -17,7 +17,7 @@
         <connection>scm:git:git://github.com/Jasig/ssp-data-import.git</connection>
         <developerConnection>scm:git:git@github.com:Jasig/ssp-data-import.git</developerConnection>
         <url>https://github.com/Jasig/ssp-data-import</url>
-        <tag>HEAD</tag>
+        <tag>rel-1-1-patches</tag>
     </scm>
 
     <properties>
