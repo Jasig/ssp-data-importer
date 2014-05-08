@@ -376,11 +376,11 @@ CREATE TABLE stg_external_substitutable_course (
     source_formatted_course character varying(35) NOT NULL,
     source_course_code  character varying(50) ,
     source_course_title character varying(100) ,
-    source_course_hours  numeric(9,2) ,
+    source_credit_hours  numeric(9,2) ,
     target_formatted_course  character varying(35) NOT NULL,
     target_course_code character varying(50),
     target_course_title  character varying(100),
-    target_course_hours  numeric(9,2)
+    target_credit_hours  numeric(9,2)
 );
 
 ALTER TABLE ONLY stg_external_course
@@ -840,11 +840,11 @@ CREATE TABLE external_substitutable_course (
     source_formatted_course character varying(35) NOT NULL,
     source_course_code  character varying(50) ,
     source_course_title character varying(100) ,
-    source_course_hours  numeric(9,2) ,
+    source_credit_hours  numeric(9,2) ,
     target_formatted_course  character varying(35) NOT NULL,
     target_course_code character varying(50),
     target_course_title  character varying(100),
-    target_course_hours  numeric(9,2)
+    target_credit_hours  numeric(9,2)
 );
 
 ALTER TABLE public.race OWNER TO sspadmin;
