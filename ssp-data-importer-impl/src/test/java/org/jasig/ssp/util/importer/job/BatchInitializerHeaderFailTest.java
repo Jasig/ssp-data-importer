@@ -19,12 +19,9 @@
 package org.jasig.ssp.util.importer.job;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import junit.framework.Assert;
 
@@ -53,8 +50,9 @@ public class BatchInitializerHeaderFailTest {
     @Autowired
     private ApplicationContext applicationContext;
 
-    final private String processDirectoryPath = "/tmp/batch-initialization/process/";
-    final private String upsertDirectoryPath = "/tmp/batch-initialization/upsert/";
+    private final String tempDir = System.getProperty("java.io.tmpdir");
+    final private String processDirectoryPath = tempDir + "/batch-initialization/process/";
+    final private String upsertDirectoryPath = tempDir + "/batch-initialization/upsert/";
 
     public BatchInitializerHeaderFailTest() {
 
@@ -118,28 +116,6 @@ public class BatchInitializerHeaderFailTest {
             return true;
         return false;
     }
-
-    private Boolean directoryContainsFiles(String directoryPath, int count){
-        File file = new File(directoryPath);
-
-        if(!file.exists() || !file.isDirectory())
-            return false;
-
-        if(file.list(csvFilter).length == count)
-            return true;
-        return false;
-    }
-
-    private FilenameFilter csvFilter = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                String lowercaseName = name.toLowerCase();
-                if (lowercaseName.endsWith(".csv")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
 
     public String getProcessDirectoryPath() {
         return processDirectoryPath;

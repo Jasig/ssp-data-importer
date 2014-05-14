@@ -33,7 +33,6 @@ import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableColumnMetaDataRepository;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.TableViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
@@ -41,8 +40,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.file.BufferedReaderFactory;
 import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
-import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
-import org.springframework.batch.item.file.separator.SimpleRecordSeparatorPolicy;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -73,7 +70,8 @@ public class BatchInitializer implements Tasklet {
         if(duplicateResources){
             copyFiles(directory);
         }else{
-            copyDeleteFiles(directory);
+            copyFiles(directory);
+            deleteFiles(directory);
         }
        
         return RepeatStatus.FINISHED;
@@ -165,6 +163,11 @@ public class BatchInitializer implements Tasklet {
             File source = resource.getFile();
             File dest =  new File(processDirectory, source.getName());
             int count = FileCopyUtils.copy(source, dest);
+            /* Java bug workaround - Windows Specific Issue
+             * Even though the streams are closed the file is still held open until gc is called
+             */
+            System.gc();
+            
             if(count <= 0 && source.length() > 0){
                 throw new IOException("File: " +
                         source.getName() +
@@ -176,12 +179,10 @@ public class BatchInitializer implements Tasklet {
         }
     }
 
-    private void copyDeleteFiles(File processDirectory) throws IOException{
+    private void deleteFiles(File processDirectory) throws IOException{
         for(Resource resource:resources){
-            File file = resource.getFile();
-            logger.info("Move file from " + file.getPath() + " to " + processDirectory.getPath());
-            file.renameTo(new File(processDirectory, file.getName()));
-
+            resource.getFile().delete();
+            logger.info("Deleted file from " + resource.getFile().getPath());
         }
     }
 
