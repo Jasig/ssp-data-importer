@@ -93,7 +93,7 @@ public class PartialUploadGuard implements Tasklet,StepExecutionListener {
     public void setDirectory(Resource directory) throws PartialUploadGuardException, IOException{
         this.directory = directory;
         if(!directory.getFile().exists())
-            throw new PartialUploadGuardException("Input directory does not exist. Locoation:" + directory.getFile().getPath());
+            throw new PartialUploadGuardException("Input directory does not exist. Location:" + directory.getFile().getPath());
     }
 
     private Long getJobExecutionId(){
