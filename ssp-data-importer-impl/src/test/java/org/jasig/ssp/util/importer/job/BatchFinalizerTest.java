@@ -31,7 +31,6 @@ import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -43,17 +42,16 @@ public class BatchFinalizerTest {
     final private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 
 
-    final private String processDirectoryPath = "/tmp/batch-initialization/process/";
-    final private String upsertDirectoryPath = "/tmp/batch-initialization/upsert/";
-    final private String inputDirectoryPath = "/tmp/batch-initialization/input/";
-    final private String archiveDirectoryPath = "/tmp/batch-initialization/archive/";
+    private final String tempDir = System.getProperty("java.io.tmpdir");
+    final private String processDirectoryPath = tempDir + "/batch-initialization/process/";
+    final private String upsertDirectoryPath = tempDir + "/batch-initialization/upsert/";
+    final private String inputDirectoryPath = tempDir + "/batch-initialization/input/";
+    final private String archiveDirectoryPath = tempDir + "/batch-initialization/archive/";
 
     public BatchFinalizerTest() {
 
     }
 
-
-    @SuppressWarnings("unchecked")
     @Test
     public void testFinalizer() throws Exception {
 

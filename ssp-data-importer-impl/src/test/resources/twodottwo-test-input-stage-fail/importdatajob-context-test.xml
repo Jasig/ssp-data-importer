@@ -73,7 +73,7 @@
     <!-- FINAL PROCESSING OF UPSERT FOLDER INSERT CONTENTS OF UPSERT FOLDER -> DATABASE  -->
 
     <bean  scope="step" id="singleFilteredCsvItemReader" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvReader" >
-        <property name="resources" value="#{stepExecutionContext[fileName]}"/>
+        <property name="resource" value="#{stepExecutionContext[fileName]}"/>
     </bean>
 
     <bean  scope="step" id="compositeTableWriter"

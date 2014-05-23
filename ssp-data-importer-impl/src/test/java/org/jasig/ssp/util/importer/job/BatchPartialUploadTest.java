@@ -48,7 +48,9 @@ public class BatchPartialUploadTest {
     final private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 
 
-    final private String inputDirectoryPath = "/tmp/batch-initialization/input/";
+    private final String tempDir = System.getProperty("java.io.tmpdir");
+    final private String inputDirectoryPath = tempDir + "/batch-initialization/input/";
+
 
     public BatchPartialUploadTest() {
 
@@ -61,6 +63,7 @@ public class BatchPartialUploadTest {
 
         deleteDirectory(inputDirectoryPath);
 
+     
         Assert.assertTrue(!directoryExists(inputDirectoryPath));
         JobExecution jobExecution =jobLauncherTestUtils.launchJob();
         BatchStatus exitStatus =  jobExecution.getStatus();
@@ -183,17 +186,6 @@ public class BatchPartialUploadTest {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
                 if (lowercaseName.endsWith(".csv")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-
-    private FilenameFilter zipFilter = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                String lowercaseName = name.toLowerCase();
-                if (lowercaseName.endsWith(".zip")) {
                     return true;
                 } else {
                     return false;

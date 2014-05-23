@@ -47,10 +47,10 @@
 
     <bean scope="step" id="batchInitializer" class="org.jasig.ssp.util.importer.job.tasklet.BatchInitializer"
                                 p:metadataRepository-ref="metadataRepository"
-                                p:resources="file:/tmp/batch-initialization/input/*"
+                                p:resources="file:${java.io.tmpdir}/batch-initialization/input/*"
                                 p:duplicateResources="true"
-                                p:processDirectory="file:/tmp/batch-initialization/process"
-                                p:upsertDirectory="file:/tmp/batch-initialization/upsert"/>
+                                p:processDirectory="file:${java.io.tmpdir}/batch-initialization/process"
+                                p:upsertDirectory="file:${java.io.tmpdir}/batch-initialization/upsert"/>
 
 
     <batch:job id="importJob" restartable="false">

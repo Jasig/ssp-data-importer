@@ -49,8 +49,8 @@
                                 p:metadataRepository-ref="metadataRepository"
                                 p:resources="batch-initialization-header-fail/*.csv"
                                 p:duplicateResources="false"
-                                p:processDirectory="file:/tmp/batch-initialization/process"
-                                p:upsertDirectory="file:/tmp/batch-initialization/upsert"/>
+                                p:processDirectory="file:${java.io.tmpdir}/batch-initialization/process"
+                                p:upsertDirectory="file:${java.io.tmpdir}/batch-initialization/upsert"/>
 
 
     <batch:job id="importJob" restartable="false">
