@@ -918,6 +918,50 @@ UNIQUE NONCLUSTERED
 GO
 SET ANSI_PADDING OFF
 GO
+/****** Object:  Table [dbo].[external_student_financial_aid_file]    Script Date: 05/23/2014 15:51:23 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[external_student_financial_aid_file](
+	[school_id] [nvarchar](50) NOT NULL,
+	[file_status] [nvarchar](10) NOT NULL,
+	[financial_file_code] [nvarchar](25) NOT NULL,
+ CONSTRAINT [external_student_financial_aid_file_pkey] PRIMARY KEY CLUSTERED
+(
+	[school_id] ASC,
+	[financial_file_code] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[external_student_financial_aid_award_term]    Script Date: 05/23/2014 15:53:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING ON
+GO
+
+CREATE TABLE [dbo].[external_student_financial_aid_award_term](
+	[school_id] [nvarchar](50) NOT NULL,
+	[accepted] [char](1) NOT NULL,
+	[term_code] [nvarchar](25) NOT NULL,
+ CONSTRAINT [external_student_financial_aid_award_term_pkey] PRIMARY KEY CLUSTERED
+(
+	[school_id] ASC,
+	[term_code] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
 /****** Object:  Table [dbo].[external_student_academic_program]    Script Date: 12/20/2013 14:08:40 ******/
 SET ANSI_NULLS ON
 GO
