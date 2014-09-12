@@ -479,6 +479,12 @@ CREATE TABLE stg_external_substitutable_course (
 );
 
 
+CREATE TABLE stg_external_catalog_year (
+    batch_id BIGINT,
+    code character varying(50),
+    name character varying(50)
+);
+
 
 
 ALTER TABLE ONLY stg_external_course
@@ -640,7 +646,10 @@ ALTER TABLE ONLY stg_external_substitutable_course
 
 ALTER TABLE ONLY stg_external_substitutable_course
     ADD CONSTRAINT stg_stg_external_substitutable_course_unq UNIQUE (source_formatted_course, target_formatted_course);  
-    
+
+ALTER TABLE ONLY stg_external_catalog_year
+	ADD CONSTRAINT stg_stg_external_catalog_year_pkey PRIMARY KEY (code,name);
+
 REVOKE ALL ON TABLE stg_external_course FROM PUBLIC;
 REVOKE ALL ON TABLE stg_external_course FROM sspadmin;
 GRANT ALL ON TABLE stg_external_course TO sspadmin;
@@ -792,3 +801,9 @@ REVOKE ALL ON TABLE stg_external_substitutable_course FROM PUBLIC;
 REVOKE ALL ON TABLE stg_external_substitutable_course FROM sspadmin;
 GRANT ALL ON TABLE stg_external_substitutable_course TO sspadmin;
 GRANT ALL ON TABLE stg_external_substitutable_course TO ssp;
+
+REVOKE ALL ON TABLE stg_external_catalog_year FROM PUBLIC;
+REVOKE ALL ON TABLE stg_external_catalog_year FROM sspadmin;
+GRANT ALL ON TABLE stg_external_catalog_year TO sspadmin;
+GRANT ALL ON TABLE stg_external_catalog_year TO ssp;
+

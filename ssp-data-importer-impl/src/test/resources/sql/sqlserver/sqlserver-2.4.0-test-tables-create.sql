@@ -796,6 +796,18 @@ UNIQUE NONCLUSTERED
 
 ;
 
+CREATE TABLE stg_external_catalog_year (
+	[batch_id] [bigint],
+	[code] [nvarchar](50),
+	[name] [nvarchar](50),
+	PRIMARY KEY CLUSTERED
+(
+	[code] ASC,
+	[name] ASC
+))WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+);
+
 SET ANSI_NULLS ON
 ;
 

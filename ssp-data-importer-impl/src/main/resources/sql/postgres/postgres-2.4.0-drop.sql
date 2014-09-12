@@ -54,3 +54,4 @@ DROP TABLE  IF EXISTS stg_external_student_transcript_course;
 DROP TABLE  IF EXISTS stg_external_student_transcript_term;
 DROP TABLE  IF EXISTS stg_external_term;
 DROP TABLE  IF EXISTS stg_external_substitutable_course;
+DROP TABLE  IF EXISTS stg_external_catalog_year;

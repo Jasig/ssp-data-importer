@@ -55,6 +55,7 @@ DROP TABLE  IF EXISTS stg_external_term;
 DROP TABLE  IF EXISTS stg_external_student_financial_aid_award_term;
 DROP TABLE  IF EXISTS stg_external_student_financial_aid_file;
 DROP TABLE  IF EXISTS stg_external_substitutable_course;
+DROP TABLE  IF EXISTS stg_external_catalog_year;
 
 DROP TABLE  IF EXISTS external_course;
 DROP TABLE  IF EXISTS external_course_program;

@@ -141,3 +141,6 @@ IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[stg_ex
 DROP TABLE  dbo.stg_external_student_financial_aid_file ;
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[stg_external_substitutable_course]') AND type in (N'U'))
 DROP TABLE  dbo.stg_external_substitutable_course ;
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[stg_external_catalog_year]') AND type in (N'U'))
+DROP TABLE  dbo.stg_external_catalog_year ;
+
