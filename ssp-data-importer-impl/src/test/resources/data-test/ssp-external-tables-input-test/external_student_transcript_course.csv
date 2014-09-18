@@ -23,4 +23,4 @@ school_id,subject_abbreviation,number,formatted_course,section_number,title,desc
 "pjones12t","EDU","222","EDU222","914","College level Education","College level Education","F",51.00,"FA2016","Institutional","Patricia","Mumford","Jones","N","E","EDU222-914"
 "pjones12t","CST","410","CST410","406","International Computing","International Computing","A",52.00,"SP2014","Proficiency","Patricia","Mumford","Jones","Y","E","CST410-406"
 "mjones13t","PHL","158","PHL158","696","College level Philosophy","College level Philosophy","C",51.00,"FA2014","Proficiency","Maria","Mumford","Jones","Y","E","PHL158-696"
-"mjones13t","MIC","176","MIC176","864","Inquiry into Microbiology","Inquiry into Microbiology","A",52.00,"SU2016","Institutional","Maria","Mumford","Jones","N","E","MIC176-864"
+"mjones13t","MIC","176","MIC176","864","Inquiry into Microbiology","Inquiry into Microbiology",,52.00,"SU2016","Institutional","Maria","Mumford","Jones","N","E","MIC176-864"
