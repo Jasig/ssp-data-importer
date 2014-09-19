@@ -91,6 +91,18 @@ public class DatabaseConstraintMapValidator {
     private Boolean validateKeys(MapReference tableMapReference, DatabaseConstraintMapValidationContext validation){
             TableReference tableReference = new TableReference(tableMapReference.getTableName());
             TableMetadata tableMetadata = columnMetadataRepository.getTableMetadata(tableReference);
+            if (tableMetadata.getTableKeys().size() == 0) {
+            	// table has no primary key; build one from all table fields.
+            	for (String key: tableMapReference.getTableMap().keySet()) {
+            		ColumnReference columnReference = new ColumnReference(tableMapReference.getTableName(), key);
+                	ColumnMetadata columnMetadata = columnMetadataRepository.getColumnMetadata(columnReference);
+                	if (columnMetadata != null) {
+                		tableMetadata.addKey(key);
+                	} else {
+                		logger.warn("Table does not have a primary key and is attempting to build a key from all table fields.  [" + key + "] does not exist in table");
+                	}
+            	}
+            }
             if(!tableMetadata.hasKeys(tableMapReference.getTableMap())){
                 validation.addViolation(new MissingPrimaryKeyViolation(tableMapReference,
                         tableMetadata.missingKeys(tableMapReference.getTableMap())));

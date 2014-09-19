@@ -641,12 +641,6 @@ ALTER TABLE ONLY stg_external_faculty_course_roster
 ALTER TABLE ONLY stg_external_faculty_course_roster
     ADD CONSTRAINT stg_stg_external_faculty_course_roster_unq UNIQUE (school_id, section_code);  
 
-ALTER TABLE ONLY stg_external_substitutable_course
-    ADD CONSTRAINT stg_stg_external_substitutable_course_pkey PRIMARY KEY (source_formatted_course, target_formatted_course);
-
-ALTER TABLE ONLY stg_external_substitutable_course
-    ADD CONSTRAINT stg_stg_external_substitutable_course_unq UNIQUE (source_formatted_course, target_formatted_course);  
-
 ALTER TABLE ONLY stg_external_catalog_year
 	ADD CONSTRAINT stg_stg_external_catalog_year_pkey PRIMARY KEY (code,name);
 
