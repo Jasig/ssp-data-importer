@@ -225,7 +225,12 @@ public class JdbcTableColumnMetadataRepository implements
                     logger.debug("Querying table metadata for table: {}.", tableName);
                     ResultSet resultSet = databaseMetaData.getPrimaryKeys(catalog, schema, tableName);
 
-                    return mapToTableMetadata(tableReference, resultSet);
+                    TableMetadata tableMetadata = mapToTableMetadata(tableReference, resultSet);
+                    if (tableMetadata.getTableKeys().size() == 0) {
+                    	ResultSet columns = databaseMetaData.getColumns(catalog, schema, tableName, null);
+                    	tableMetadata = mapToTableMetadata(tableReference, columns);
+                    }
+                    return tableMetadata;
                 }
 
             });
