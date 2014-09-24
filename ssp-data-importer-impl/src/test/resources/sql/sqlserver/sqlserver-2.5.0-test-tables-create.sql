@@ -891,7 +891,7 @@ CREATE TABLE [dbo].[external_student_transcript_course](
     [section_number] [nvarchar](10) NULL,
     [title] [nvarchar](100) NULL,
     [description] [nvarchar](2500) NULL,
-    [grade] [nvarchar](10) NULL,
+    [grade] [nvarchar](10) NOT NULL,
     [credit_earned] [decimal](9, 2) NULL,
     [term_code] [nvarchar](25) NOT NULL,
     [credit_type] [nvarchar](25) NULL,
