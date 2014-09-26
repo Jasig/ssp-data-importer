@@ -50,15 +50,15 @@
     <!--<bean id="sspTransactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" /> -->
     <beans profile="sqlserver">
     <jdbc:initialize-database data-source="dataSource" >
-        <jdbc:script location="classpath:sql/sqlserver/sqlserver-2.1.0-drop.sql"/>
-        <jdbc:script location="classpath:sql/sqlserver/sqlserver-2.1.0-create.sql"/>
+        <jdbc:script location="classpath:sql/sqlserver/sqlserver-2.5.0-drop.sql"/>
+        <jdbc:script location="classpath:sql/sqlserver/sqlserver-2.5.0-create.sql"/>
     </jdbc:initialize-database>
  </beans>
  
  <beans profile="postgres">
     <jdbc:initialize-database data-source="dataSource" >
-        <jdbc:script location="classpath:sql/postgres/postgres-2.1.0-drop.sql"/>
-        <jdbc:script location="classpath:sql/postgres/postgres-2.1.0-create.sql"/>
+        <jdbc:script location="classpath:sql/postgres/postgres-2.5.0-drop.sql"/>
+        <jdbc:script location="classpath:sql/postgres/postgres-2.5.0-create.sql"/>
     </jdbc:initialize-database>
 </beans>
 </beans>
