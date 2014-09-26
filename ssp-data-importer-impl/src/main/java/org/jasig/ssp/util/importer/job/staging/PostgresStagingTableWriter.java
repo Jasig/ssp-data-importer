@@ -32,7 +32,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.SqlTypeValue;
 import org.springframework.jdbc.core.StatementCreatorUtils;
@@ -41,11 +40,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_BATCH_ID_COLUMN;
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
 
 public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
         StepExecutionListener {
@@ -101,7 +102,7 @@ public class PostgresStagingTableWriter implements ItemWriter<RawItem>,
         }
 
         StringBuilder insertSql = new StringBuilder();
-        insertSql.append("INSERT INTO stg_" + tableName[0] + " (batch_id,");
+        insertSql.append("INSERT INTO " + STAGING_TABLE_PREFIX + tableName[0] + " (" + STAGING_TABLE_BATCH_ID_COLUMN + ",");
         StringBuilder valuesSqlBuilder = new StringBuilder();
         valuesSqlBuilder.append(" VALUES (?,");
         for (String header : this.orderedHeaders) {

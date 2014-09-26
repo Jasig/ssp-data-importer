@@ -18,7 +18,6 @@
  */
 package org.jasig.ssp.util.importer.job.processor;
 
-
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
 import org.jasig.ssp.util.importer.job.domain.RawItem;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.MapReference;
@@ -29,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 
-
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
 
 public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> {
 
@@ -43,7 +42,7 @@ public class RawItemValidateProcessor implements ItemProcessor<RawItem,RawItem> 
         String fileName = item.getResource().getFilename();
         String[] tableName = fileName.split("\\.");
 
-        MapReference mapReference = new MapReference(item.getRecord(), tableName[0], null);
+        MapReference mapReference = new MapReference(item.getRecord(), STAGING_TABLE_PREFIX + tableName[0], null);
         MapConstraintValidatorContext validationContext = new  MapConstraintValidatorContext();
         Boolean isValid = metadataRepository.getRepository().isValid(mapReference, validationContext);
         if(isValid == false){

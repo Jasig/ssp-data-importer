@@ -34,6 +34,8 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
+
 
 public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawItem> {
 
@@ -72,19 +74,10 @@ public class StagingAndUpsertSkipListener implements SkipListener<RawItem, RawIt
         String[] tableName = fileName.split("\\.");
         stepExecution.getExecutionContext().put("currentEntity",
                 tableName[0]);  
-        List<String> tableKeys = metadataRepository.getRepository()
-                .getColumnMetadataRepository()
-                .getTableMetadata(new TableReference( tableName[0])).getTableKeys();
-
-        // There are a few external tables that don't (yet) have natural keys,
-        // in these cases we've enforced the key on the staging table
-        // so in cases where the external table does not have any keys, we look
-        // towards the corresponding staging table for them
-        if (tableKeys.isEmpty()) {
-            tableKeys = metadataRepository.getRepository().getColumnMetadataRepository()
-                    .getTableMetadata(new TableReference("stg_" +  tableName[0]))
+        List<String> tableKeys = metadataRepository.getRepository().getColumnMetadataRepository()
+                    .getTableMetadata(new TableReference(STAGING_TABLE_PREFIX +  tableName[0]))
                     .getTableKeys();
-        }
+
         StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append("Entity Keys: {");
         for (String key : tableKeys) {

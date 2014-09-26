@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_BATCH_ID_COLUMN;
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
+
 public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
 
     private Resource currentResource;
@@ -79,25 +82,16 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
             updateSql.append(header + "=source." + header + ",");
         }
         updateSql.deleteCharAt(updateSql.lastIndexOf(","));
-        updateSql.append(" FROM stg_" + tableName + " AS source WHERE ");
-        List<String> tableKeys = metadataRepository.getRepository()
-                .getColumnMetadataRepository()
-                .getTableMetadata(new TableReference(tableName)).getTableKeys();
-
-        // There are a few external tables that don't (yet) have natural keys,
-        // in these cases we've enforced the key on the staging table
-        // so in cases where the external table does not have any keys, we look
-        // towards the corresponding staging table for them
-        if (tableKeys.isEmpty()) {
-            tableKeys = metadataRepository.getRepository().getColumnMetadataRepository()
-                    .getTableMetadata(new TableReference("stg_" + tableName))
+        updateSql.append(" FROM " + STAGING_TABLE_PREFIX + tableName + " AS source WHERE ");
+        List<String> tableKeys = metadataRepository.getRepository().getColumnMetadataRepository()
+                    .getTableMetadata(new TableReference(STAGING_TABLE_PREFIX + tableName))
                     .getTableKeys();
-        }
+
         for (String key : tableKeys) {
-            updateSql.append(" target." + key + " = source." + key + " AND ");
+            updateSql.append(" (target." + key + " = source." + key + " or target." + key + " is null and source." + key + " is null) AND ");
         }
-        updateSql.append(" source.batch_id >= " + batchStart
-                + " and source.batch_id <= " + batchStop + ";");
+        updateSql.append(" source." + STAGING_TABLE_BATCH_ID_COLUMN + " >= " + batchStart
+                + " and source." + STAGING_TABLE_BATCH_ID_COLUMN + " <= " + batchStop + ";");
         batchedStatements.add(updateSql.toString());
         sayQuery(updateSql);
 
@@ -113,18 +107,18 @@ public class PostgresExternalTableUpsertWriter implements ItemWriter<RawItem> {
             insertSql.append(" source." + header).append(",");
         }
         insertSql.setLength(insertSql.length() - 1); // trim comma
-        insertSql.append(" FROM stg_" + tableName + " AS source ");
+        insertSql.append(" FROM " + STAGING_TABLE_PREFIX + tableName + " AS source ");
         insertSql.append(" LEFT OUTER JOIN " + tableName + " AS target ON ");
         for (String key : tableKeys) {
-            insertSql.append(" source." + key + " = target." + key+" AND");
+            insertSql.append(" (source." + key + " = target." + key + " or source." + key + " is null and target." + key + " is null) AND ");
         }
-        insertSql.setLength(insertSql.length() - 3); // trim comma
+        insertSql.setLength(insertSql.length() - 4); // trim "AND "
         insertSql.append(" WHERE ");
         for (String key : tableKeys) {
             insertSql.append(" target." + key + " IS NULL AND ");
         }
-        insertSql.append(" source.batch_id >= " + batchStart
-                + " and source.batch_id <= " + batchStop + "");
+        insertSql.append(" source." + STAGING_TABLE_BATCH_ID_COLUMN + " >= " + batchStart
+                + " and source." + STAGING_TABLE_BATCH_ID_COLUMN + " <= " + batchStop + "");
 
         batchedStatements.add(insertSql.toString());
         sayQuery(insertSql);

@@ -25,10 +25,8 @@ import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.apache.commons.lang3.StringUtils.substringBetween;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -37,14 +35,15 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.jasig.ssp.util.importer.job.validation.map.metadata.database.TableMetadata;
-import org.jasig.ssp.util.importer.job.validation.map.metadata.database.MapColumnMetadata;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.utils.TableReference;
 import org.jarbframework.utils.JdbcConnectionCallback;
 import org.jarbframework.utils.JdbcUtils;
 import org.jarbframework.utils.orm.ColumnReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_BATCH_ID_COLUMN;
 
 public class JdbcTableColumnMetadataRepository implements
         TableColumnMetaDataRepository {
@@ -226,9 +225,10 @@ public class JdbcTableColumnMetadataRepository implements
                     ResultSet resultSet = databaseMetaData.getPrimaryKeys(catalog, schema, tableName);
 
                     TableMetadata tableMetadata = mapToTableMetadata(tableReference, resultSet);
-                    if (tableMetadata.getTableKeys().size() == 0) {
-                    	ResultSet columns = databaseMetaData.getColumns(catalog, schema, tableName, null);
-                    	tableMetadata = mapToTableMetadata(tableReference, columns);
+                    if (tableMetadata.getTableKeys().size() == 0 &&
+                            tableName.toLowerCase().startsWith(STAGING_TABLE_PREFIX.toLowerCase())) {
+                        ResultSet columns = databaseMetaData.getColumns(catalog, schema, tableName, null);
+                        tableMetadata = mapToTableMetadata(tableReference, columns);
                     }
                     return tableMetadata;
                 }
@@ -246,8 +246,14 @@ public class JdbcTableColumnMetadataRepository implements
             TableMetadata tableMetadata = new TableMetadata(tableReference);
             ResultSetMetaData rsmd = resultSet.getMetaData();
 
+            boolean isStagingTable = tableReference.getTableName().toLowerCase().startsWith(STAGING_TABLE_PREFIX.toLowerCase());
+
             while(resultSet.next()) {
-                tableMetadata.addKey(resultSet.getString("COLUMN_NAME"));
+                // Would much rather have this filtering in the client, but writing that ResultSet wrapper is more trouble
+                // than it's worth.
+                if ( isStagingTable && !(resultSet.getString("COLUMN_NAME").toLowerCase().equals(STAGING_TABLE_BATCH_ID_COLUMN.toLowerCase()))) {
+                    tableMetadata.addKey(resultSet.getString("COLUMN_NAME"));
+                }
             }
             resultSet.close();
             return tableMetadata;

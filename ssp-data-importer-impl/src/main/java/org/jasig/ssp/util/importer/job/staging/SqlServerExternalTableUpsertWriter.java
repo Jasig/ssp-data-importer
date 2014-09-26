@@ -38,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_BATCH_ID_COLUMN;
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
+
 public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         StepExecutionListener {
 
@@ -77,31 +80,21 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         }
         StringBuilder insertSql = new StringBuilder();
         insertSql.append(" MERGE INTO " + tableName[0]
-                + " as target USING stg_" + tableName[0] + " as source ON (");
+                + " as target USING " + STAGING_TABLE_PREFIX + tableName[0] + " as source ON (");
 
-        List<String> tableKeys = metadataRepository.getRepository()
-                .getColumnMetadataRepository()
-                .getTableMetadata(new TableReference(tableName[0]))
-                .getTableKeys();
-
-        // There are a few external tables that don't (yet) have natural keys,
-        // in these cases we've enforced the key on the staging table
-        // so in cases where the external table does not have any keys, we look
-        // towards the corresponding staging table for them
-        if (tableKeys.isEmpty()) {
-            tableKeys = metadataRepository
+        List<String> tableKeys = metadataRepository
                     .getRepository()
                     .getColumnMetadataRepository()
-                    .getTableMetadata(new TableReference("stg_" + tableName[0]))
+                    .getTableMetadata(new TableReference(STAGING_TABLE_PREFIX + tableName[0]))
                     .getTableKeys();
-        }
-        for (String key : tableKeys) {
-            insertSql.append("target." + key + " = source." + key + " and ");
-        }
-        insertSql.setLength(insertSql.length() - 4); // trim comma
 
-        insertSql.append(") WHEN NOT MATCHED AND source.batch_id >= "
-                + batchStart + " and source.batch_id <= " + batchStop
+        for (String key : tableKeys) {
+            insertSql.append(" (target." + key + " = source." + key + " or target." + key + " is null and source." + key + " is null) and ");
+        }
+        insertSql.setLength(insertSql.length() - 4); // trim 'and '
+
+        insertSql.append(") WHEN NOT MATCHED AND source." + STAGING_TABLE_BATCH_ID_COLUMN + " >= "
+                + batchStart + " and source." + STAGING_TABLE_BATCH_ID_COLUMN + " <= " + batchStop
                 + " THEN INSERT (");
 
         StringBuilder valuesSqlBuilder = new StringBuilder();
@@ -116,8 +109,8 @@ public class SqlServerExternalTableUpsertWriter implements ItemWriter<RawItem>,
         valuesSqlBuilder.setLength(valuesSqlBuilder.length() - 1); // trim comma
         insertSql.append(valuesSqlBuilder);
         insertSql.append(")");
-        insertSql.append(" WHEN MATCHED AND source.batch_id >= " + batchStart
-                + " and source.batch_id <= " + batchStop + " THEN UPDATE SET ");
+        insertSql.append(" WHEN MATCHED AND source." + STAGING_TABLE_BATCH_ID_COLUMN + " >= " + batchStart
+                + " and source." + STAGING_TABLE_BATCH_ID_COLUMN + " <= " + batchStop + " THEN UPDATE SET ");
 
         for (String header : this.orderedHeaders) {
             // We don't skip key columns b/c some tables are entirely keys.

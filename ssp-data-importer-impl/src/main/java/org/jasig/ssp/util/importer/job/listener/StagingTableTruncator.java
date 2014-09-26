@@ -25,13 +25,14 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.jasig.ssp.util.importer.job.config.MetadataConfigurations;
-import org.jasig.ssp.util.importer.job.staging.PostgresExternalTableUpsertWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import static org.jasig.ssp.util.importer.job.staging.StagingConstants.STAGING_TABLE_PREFIX;
 
 public class StagingTableTruncator implements StepExecutionListener {
 
@@ -64,7 +65,7 @@ public class StagingTableTruncator implements StepExecutionListener {
         try {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             dataSource.getConnection().setAutoCommit(true);
-            ResultSet tables = dataSource.getConnection().getMetaData().getTables(null, null, "stg_%", new String[]{"TABLE"});
+            ResultSet tables = dataSource.getConnection().getMetaData().getTables(null, null, STAGING_TABLE_PREFIX + "%", new String[]{"TABLE"});
             String[] exclusions = truncateExclusions == null ? new String[]{} : truncateExclusions.split(",");
             while(tables.next())
             {
