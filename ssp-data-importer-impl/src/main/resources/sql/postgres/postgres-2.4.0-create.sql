@@ -482,8 +482,8 @@ CREATE TABLE stg_external_substitutable_course (
 
 CREATE TABLE stg_external_catalog_year (
     batch_id BIGINT,
-    code character varying(50),
-    name character varying(100)
+    code character varying(50) NOT NULL,
+    name character varying(100) NOT NULL
 );
 
 
