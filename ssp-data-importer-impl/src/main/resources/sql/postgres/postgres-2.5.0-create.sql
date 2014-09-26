@@ -475,14 +475,15 @@ CREATE TABLE stg_external_substitutable_course (
     target_formatted_course  character varying(35) NOT NULL,
     target_course_code character varying(50),
     target_course_title  character varying(100),
-    target_credit_hours  numeric(9,2)
+    target_credit_hours  numeric(9,2),
+    catalog_year_code character varying(50)
 );
 
 
 CREATE TABLE stg_external_catalog_year (
     batch_id BIGINT,
-    code character varying(50),
-    name character varying(50)
+    code character varying(50) NOT NULL,
+    name character varying(100) NOT NULL
 );
 
 
@@ -642,7 +643,7 @@ ALTER TABLE ONLY stg_external_faculty_course_roster
     ADD CONSTRAINT stg_stg_external_faculty_course_roster_unq UNIQUE (school_id, section_code);  
 
 ALTER TABLE ONLY stg_external_catalog_year
-	ADD CONSTRAINT stg_stg_external_catalog_year_pkey PRIMARY KEY (code,name);
+	ADD CONSTRAINT stg_stg_external_catalog_year_pkey PRIMARY KEY (code);
 
 REVOKE ALL ON TABLE stg_external_course FROM PUBLIC;
 REVOKE ALL ON TABLE stg_external_course FROM sspadmin;

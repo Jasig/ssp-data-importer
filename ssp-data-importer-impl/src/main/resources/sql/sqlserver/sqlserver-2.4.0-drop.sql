@@ -91,6 +91,7 @@ DROP TABLE  dbo.stg_external_student_financial_aid_award_term ;
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[stg_external_student_financial_aid_file]') AND type in (N'U'))
 DROP TABLE  dbo.stg_external_student_financial_aid_file ;
 
+/* ADDED TABLES 2.4 **/
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[stg_external_substitutable_course]') AND type in (N'U'))
 DROP TABLE  dbo.stg_external_substitutable_course ;
 

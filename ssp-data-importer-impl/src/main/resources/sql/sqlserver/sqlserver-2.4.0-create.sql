@@ -820,27 +820,26 @@ CREATE TABLE stg_external_substitutable_course (
     [target_course_code] [nvarchar](50),
     [target_course_title]  [nvarchar](100),
     [target_credit_hours]  [decimal](9,2),
-    PRIMARY KEY CLUSTERED 
-(
-    [source_formatted_course] ASC,
-    [target_formatted_course] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
-UNIQUE NONCLUSTERED 
-(
-    [source_formatted_course] ASC,
-    [target_formatted_course] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+    [catalog_year_code] [nvarchar](50) NULL
 ) ON [PRIMARY]
+;
+
+SET ANSI_PADDING OFF
+;
+
+SET ANSI_NULLS ON
+;
+
+SET QUOTED_IDENTIFIER ON
 ;
 
 CREATE TABLE stg_external_catalog_year (
 	[batch_id] [bigint],
-	[code] [nvarchar](50),
-	[name] [nvarchar](50),
+	[code] [nvarchar](50) NOT NULL,
+	[name] [nvarchar](100) NOT NULL,
 	PRIMARY KEY CLUSTERED
 (
-	[code] ASC,
-	[name] ASC
-))WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	[code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ;
