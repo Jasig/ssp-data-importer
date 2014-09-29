@@ -490,7 +490,7 @@ SET QUOTED_IDENTIFIER ON
 CREATE TABLE [dbo].[stg_external_student_financial_aid_award_term] (  
     [batch_id] [BIGINT] ,
     [school_id] [nvarchar](50) NOT NULL,
-    [accepted] [nchar](1) NOT NULL,
+    [accepted] [char](1) NOT NULL,
     [term_code] [nvarchar](25) NOT NULL
 PRIMARY KEY CLUSTERED 
 (
