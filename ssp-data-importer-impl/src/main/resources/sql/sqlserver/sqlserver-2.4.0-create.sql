@@ -607,6 +607,11 @@ CREATE TABLE [dbo].[stg_external_student_financial_aid](
 	[financial_aid_remaining] [decimal](9, 2) NULL,
 	[original_loan_amount] [decimal](9, 2) NULL,
 	[remaining_loan_amount] [decimal](9, 2) NULL,
+	[sap_status_code] [nvarchar](25) NULL,
+	[institutional_loan_amount] [decimal](9, 2) NULL,
+	[eligible_federal_aid] [char](1) NULL,
+	[financial_aid_file_status] [nvarchar](10) NULL,
+	[terms_left] [int] NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[school_id] ASC
