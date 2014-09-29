@@ -643,6 +643,7 @@ CREATE TABLE [dbo].[stg_external_student_test](
 	[score] [decimal](9, 2) NOT NULL,
 	[status] [nvarchar](25) NOT NULL,
 	[discriminator] [nvarchar](1) NOT NULL,
+	[outcome] [nvarchar](255) NULL,
  CONSTRAINT [stg_external_student_test_pk] PRIMARY KEY CLUSTERED 
 (
 	[school_id] ASC,
