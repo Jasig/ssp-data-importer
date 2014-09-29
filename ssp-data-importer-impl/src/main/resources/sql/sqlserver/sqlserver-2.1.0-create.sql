@@ -555,7 +555,7 @@ CREATE TABLE [dbo].[stg_external_student_financial_aid](
 	[needed_for_67ptc_completion] [decimal](9, 2) NULL,
 	[current_year_financial_aid_award] [char](1) NULL,
 	[sap_status] [char](1) NULL,
-	[fafsa_date] [datetime] NULL,
+	[fafsa_date] [date] NULL,
 	[financial_aid_remaining] [decimal](9, 2) NULL,
 	[original_loan_amount] [decimal](9, 2) NULL,
 	[remaining_loan_amount] [decimal](9, 2) NULL,
