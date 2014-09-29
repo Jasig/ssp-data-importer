@@ -815,10 +815,10 @@ CREATE TABLE stg_external_substitutable_course (
     [source_formatted_course] [nvarchar](35) NOT NULL,
     [source_course_code]  [nvarchar](50),
     [source_course_title][nvarchar](100),
-    [source_credit_hours]  [decimal](9,2),
     [target_formatted_course]  [nvarchar](35) NOT NULL,
     [target_course_code] [nvarchar](50),
     [target_course_title]  [nvarchar](100),
+    [source_credit_hours]  [decimal](9,2),
     [target_credit_hours]  [decimal](9,2),
     [catalog_year_code] [nvarchar](50) NULL
 ) ON [PRIMARY]

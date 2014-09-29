@@ -471,10 +471,10 @@ CREATE TABLE stg_external_substitutable_course (
     source_formatted_course character varying(35) NOT NULL,
     source_course_code  character varying(50) ,
     source_course_title character varying(100) ,
-    source_credit_hours  numeric(9,2) ,
     target_formatted_course  character varying(35) NOT NULL,
     target_course_code character varying(50),
     target_course_title  character varying(100),
+    source_credit_hours  numeric(9,2) ,
     target_credit_hours  numeric(9,2),
     catalog_year_code character varying(50)
 );
