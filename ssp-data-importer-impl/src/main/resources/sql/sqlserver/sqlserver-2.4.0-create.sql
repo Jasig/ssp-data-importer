@@ -445,7 +445,7 @@ SET QUOTED_IDENTIFIER ON
 CREATE TABLE [dbo].[stg_external_person_planning_status](
 	[batch_id] [bigint],
 	[school_id] [nvarchar](50) NOT NULL,
-	[status] [nvarchar](8) NOT NULL,
+	[status] [nvarchar](50) NOT NULL,
 	[status_reason] [nvarchar](255) NULL,
 PRIMARY KEY CLUSTERED 
 (

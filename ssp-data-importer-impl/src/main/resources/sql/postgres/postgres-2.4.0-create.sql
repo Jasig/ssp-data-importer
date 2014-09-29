@@ -306,7 +306,7 @@ CREATE TABLE stg_external_person_note (
 CREATE TABLE stg_external_person_planning_status (
 	batch_id BIGINT ,
     school_id character varying(50) NOT NULL,
-    status character varying(8) NOT NULL,
+    status character varying(50) NOT NULL,
     status_reason character varying(255)
 );
 
