@@ -18,6 +18,12 @@
     under the License.
 
 -->
+Notice
+======
+**`master` is currently very unstable and is not a superset of the current release (1.1.0).
+Please refer to the rel-1-1-patches branch, especially the ssp-data-importer-1-1-0 tag for the latest stable
+code and documention.**
+
 ssp-data-importer
 ==================
 
