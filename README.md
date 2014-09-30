@@ -24,9 +24,29 @@ ssp-data-importer
 `ssp-data-importer` is a tool for importing csv data for the external tables into the SSP database.
 This program inserts data from `csv` files into a database. `csv` files have some latitude in parsing including whitespace, separator, and quote.
 Currently, the program supports only updates and inserts. It is possible to upload partial data updating specific columns.
-When used as a method to update already existing data, the only requirement is that the columns containing key values be supplied.
+When used as a method to update already existing data, the only requirement is that the columns containing primary key values be supplied.
 
 Source code in the `org.jasig.ssp.util.importer.validation.map.metadata` package is based on source code generously shared by the [Jarb Framework](http://jarbframework.org/). Special thanks to Jeroen van Schagen.
+
+Release History
+===============
+
+v1.0.0
+------
+Dec 13, 2013 - Initial release
+
+v1.1.0
+------
+Sept 30, 2014 - Minor maintenance release.
+
+1. DDL support for SSP 2.3.0 - 2.5.2
+1. Workarounds for `external_*` tables lacking primary keys
+
+Re #2, `ssp-data-importer` now generates synthetic primary keys using all available columns for any `stg_external_*` table which lacks a physical primary key. `external_substitutable_course` is the only such table at this time. It cannot be assigned a physical primary key under the current design because columns which should be included allow nulls. This has two consequences for CSV file generators:
+
+1. All `external_substitutable_course` columns must be included in every `external_substitutable_course.csv`, and
+2. That table is essentially "insert-only" because a change to any given column implies a new primary key. Repetitions of the same key are effectively no-ops.
+
 
 High-Level Workflow
 ===================
@@ -43,18 +63,18 @@ It is important that the upload to the input folder be timed to the running of t
 1. Additional validation steps are taken on the complete data set evaluating for inconsistencies and any potential duplications.
 1. The validated staging tables are then used to update/insert (upsert) data into the corresponding `external_*` tables.
 1. A report is generated and emailed giving pertinent information including any validation errors, total lines per table processed etc.
-1. Finally, staging tables are truncated, processing and upset folders are removed and the processed files are archived.
+1. Finally, processing and upsert folders are removed and the processed files are archived.
 
 Pre-Requisites
 ==============
 
 At a minimum you'll need a Java JDK 1.6 install.
-JDK 1.7+ are not supported.
+JDK 1.7+ should work fine beginning with the Importer 1.1.0 release.
 The Java installation process can vary widely from platform to platform, so you're on you're own for that one.
 `ssp-data-importer` can reuse the same Java installation as SSP if installed on the same host.
 
 `ssp-data-importer` must be able to open a JDBC connection to the SSP database and execute DML and DDL statements.
-SSP currently supports Postgres 9.1+ and SQLServer 2008 R2.
+SSP currently supports Postgres 9.1+ and SQLServer 2008 R2, with unofficial support for SQLServer 2012 (i.e. production systems are known to run against SQLServer 2012 but the product is not tested against that version).
 
 To build the application from source you will need a Maven 3+ installation.
 Deployers should not expect to build the application from source, though.
@@ -75,13 +95,13 @@ The download URL pattern for released binaries in Sonatype is:
 
 `https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/{version}/ssp-data-importer-assembly-{version}-bin.{format}`
 
-For example, the `tar.gz` for version 1.0.0 is at:
+For example, the `tar.gz` for version 1.1.0 is at:
 
-https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.tar.gz
+https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.1.0-bin.tar.gz
 
 And the `.zip` is at:
 
-https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.0.0/ssp-data-importer-assembly-1.0.0-bin.zip
+https://oss.sonatype.org/service/local/repositories/releases/content/org/jasig/ssp/util/importer/ssp-data-importer-assembly/1.1.0/ssp-data-importer-assembly-1.1.0-bin.zip
 
 ### Linux Download
 
@@ -124,41 +144,65 @@ Both of these types of tables need to be created out of band. The application wi
 
 **Step 1:** Extract the DDL files for your database platform and SSP version.
 
-At this writing, `ssp-data-importer` only supports SSP 2.1.0 and 2.2.0.
-The 2.1.0 DDL files can be used for both those SSP versions.
+`ssp-data-importer` includes DDL files for setting up and tearing down its `JobRepository` and "Staging" tables, with one pair of db platform-specific DDL files for each supported revison of SSP's `external_*` tables. Use the following table to find the DDL files appropriate for your SSP installation. All paths are relative to the root of the `ssp-data-importer-impl-{version}.jar`:
+
+| SSP Versions | Importer DDL | 
+| ------------ | ------------ |
+| 2.0.0, 2.0.1, 2.1.0, 2.2.0 | <ul><li>`./sql/postgres/postgres-2.1.0-create.sql`</li><li>`./sql/postgres/postgres-2.1.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.1.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.1.0-drop.sql`</li></ul> |
+| 2.3.0 | <ul><li>`./sql/postgres/postgres-2.3.0-create.sql`</li><li>`./sql/postgres/postgres-2.3.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.3.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.3.0-drop.sql`</li></ul> |
+| 2.4.0, 2.4.1, 2.4.2 | <ul><li>`./sql/postgres/postgres-2.4.0-create.sql`</li><li>`./sql/postgres/postgres-2.4.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.4.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.4.0-drop.sql`</li></ul> |
+| 2.5.0, 2.5.1, 2.5.2 | <ul><li>`./sql/postgres/postgres-2.5.0-create.sql`</li><li>`./sql/postgres/postgres-2.5.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-drop.sql`</li></ul> |
+
+In most cases a single pair of `ssp-data-importer` DDL files supports all SSP patch releases within a minor release, and sometimes even across minor releases. If your SSP version isn't listed above, try the DDL for the most recent minor+patch release _below_ your release. E.g. if you're trying SSP 2.6.0 but a pair of DDL files isn't yet specifically targeted at that SSP version, try the 2.5.0 DDL.
+
 The examples below assume you have a command prompt open and your current directory is the `ssp-data-importer` installation directory.
+
+If you're upgrading an existing Importer installation, you'll typically first run the drop DDL scripts specific to your existing install. Then run the create scripts for your new, target SSP version. For example, to upgrade from SSP 2.1.0/2.2.0 to SSP 2.5.x:
 
 For Postgres:
 ```
-# Will extract the file to ./sql/postgres/postgres-2.1.0-create.sql
-$> ${JAVA_HOME}/bin/jar -xf lib/ssp-data-importer-impl-1.0.0.jar sql/postgres/postgres-2.1.0-create.sql
+# Will extract the file to ./sql/postgres/postgres-2.1.0-drop.sql
+$> ${JAVA_HOME}/bin/jar -xf lib/ssp-data-importer-impl-1.1.0.jar sql/postgres/postgres-2.1.0-drop.sql
 ```
 For SQLServer:
 ```
-# Will extract the file to ./sql/sqlserver/sqlserver-2.1.0-create.sql
-$> %JAVA_HOME%\bin\jar -xf lib\ssp-data-importer-impl-1.0.0.jar sql\sqlserver\sqlserver-2.1.0-create.sql
+# Will extract the file to ./sql/sqlserver/sqlserver-2.1.0-drop.sql
+$> %JAVA_HOME%\bin\jar -xf lib\ssp-data-importer-impl-1.1.0.jar sql\sqlserver\sqlserver-2.1.0-drop.sql
 ```
-Or if you are using a JRE which doesn't include the `jar` utility, you can unzip that jar file using your environment's standard zip management tools.
+Or if you are using a JRE which doesn't include the `jar` utility, you can unzip jar files using your environment's standard zip management tools.
 E.g. `unzip` on Linux.
 Or on Windows take a copy of the jar file, rename it to end in `.zip`, and then extract the `sql` file/s using Windows Explorer.
-Note that there are `-drop.sql` files for each version+platform, which will remove objects created by the `-create.sql` scripts.
+
+
+For Postgres:
+```
+# Will extract the file to ./sql/postgres/postgres-2.5.0-create.sql
+$> ${JAVA_HOME}/bin/jar -xf lib/ssp-data-importer-impl-1.1.0.jar sql/postgres/postgres-2.5.0-create.sql
+```
+For SQLServer:
+```
+# Will extract the file to ./sql/sqlserver/sqlserver-2.5.0-create.sql
+$> %JAVA_HOME%\bin\jar -xf lib\ssp-data-importer-impl-1.1.0.jar sql\sqlserver\sqlserver-2.5.0-create.sql
+```
+
 
 **Step 2:** Modify DDL to match your database.
 
-In particular, you may wish to find and replace:
+In particular, you may wish to find and replace the following, depending on the particulars of your database configuration:
 
 1. Usernames: DDL assumes `sspadmin` and `ssp` usernames by default.
-2. Postgres-specific config, e.g. tablespace. See top of `postgres-2.1.0-create.sql`
+2. Postgres-specific config, e.g. tablespace. See top of `postgres-2.5.0-create.sql`
 3. SQLServer schema: find and replace all occurrances of `[dbo]`
 4. SQLServer partition scheme name or file group for indexes (defaults to `[PRIMARY]`)
 
 **Step 3:** Execute DDL
 
-For SQLServer, this likely involves opening a connection to your database using SQLServer Management Studio, pasting your customized `sqlserver-2.1.0-create.sql` into a query window, and running the query window.
+For SQLServer, this likely involves opening a connection to your database using SQLServer Management Studio, pasting your (possibly) customized `sqlserver-2.1.0-drop.sql` into a query window, and running the query window. Then repeat, using your (possibly) customized `sqlserver-2.5.0-create.sql`.
 
 For Postgres, if you have the `psql` command line tool installed:
 ```
-$> psql -h <hostname> -p <port> -U <username> -d <databasename> -f ./sql/postgres/postgres-2.1.0-create.sql
+$> psql -h <hostname> -p <port> -U <username> -d <databasename> -f ./sql/postgres/postgres-2.1.0-drop.sql
+$> psql -h <hostname> -p <port> -U <username> -d <databasename> -f ./sql/postgres/postgres-2.5.0-create.sql
 ```
 
 
@@ -518,7 +562,11 @@ For SSP version 2.2, here are the keys for each external table:
 
 For a complete list of column names and constraints please see the relevant mappings for your version of SSP.
 
-NB: At this writing, only SSP versions 2.0.x, 2.1.x, and 2.2.x are supported.
+[Data Integration Mappings for Version 2.5.x](https://wiki.jasig.org/display/SSP/SSP+v2.5.0+Data+Integration+Mapping)
+
+[Data Integration Mappings for Version 2.4.x](https://wiki.jasig.org/display/SSP/SSP+v2.4.0+Data+Integration+Mapping)
+
+[Data Integration Mappings for Version 2.3.x](https://wiki.jasig.org/display/SSP/SSP+v2.3.0+Data+Integration+Mapping)
 
 [Data Integration Mappings for Version 2.1.0](https://wiki.jasig.org/display/SSP/SSP+v2.1.0+Data+Integration+Mapping) (No change for 2.2.x at this writing.)
 
@@ -582,7 +630,7 @@ The test database must meet several conditions prior to running the tests:
 2. `${batch.jdbc.user}` must be able to execute DML and DDL on it, and
 3. `external_*` tables must already exist in it.
 
-For the 1.0.0 `ssp-data-importer` release, you are responsible for creating the `external_*` tables yourself.
+For the 1.0.0 and 1.1.0 `ssp-data-importer` releases, you are responsible for creating the `external_*` tables yourself.
 The easiest way to do this is to dump these tables from an existing SSP install. On Postgres:
 
 ```bash
@@ -595,7 +643,7 @@ Select all the `external_*` tables and complete the wizard accepting all the def
 Then open that file in SQLServer Management Studio and change the `USE` statement at the top to specify your test database's name.
 Then execute the updated script.
 
-Then create a properties file specifying your test db connection coordinates. E.g.:
+Then create a `ssp-importer.properties` file specifying your test db connection coordinates. E.g. for Postgres:
 
 ```properties
 batch.jdbc.url=jdbc:postgresql://127.0.0.1:5432/${MY_IMPORTER_TEST_DB_NAME}
@@ -604,10 +652,19 @@ batch.jdbc.user=sspadmin
 batch.jdbc.password=sspadmin
 ```
 
-Then specify the location of that file and the database platform type as arguments to the `mvn` command:
+Or SQLServer:
+```properties
+batch.jdbc.url=jdbc:jtds:sqlserver://127.0.0.1:1433/${MY_IMPORTER_TEST_DB_NAME}
+batch.jdbc.driver=net.sourceforge.jtds.jdbc.Driver
+batch.jdbc.user=sspadmin
+batch.jdbc.password=sspadmin
 
 ```
-%> mvn -Dproperties-directory=/path/to/your/config.properties \
+
+Then specify the location of that file and the database platform type as arguments to the `mvn` command. Note that `properties-directory` must point to the _directory_ containing the `ssp-importer.properties` file you created above. And that file _must_ be named `ssp-importer.properties`.
+
+```
+%> mvn -Dproperties-directory=/path/to/your/importer/config/directory \
 -Dspring-profile=[sqlserver|postgres] \
 clean install
 ```
