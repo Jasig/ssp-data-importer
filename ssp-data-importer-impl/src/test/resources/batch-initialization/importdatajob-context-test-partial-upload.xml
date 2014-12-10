@@ -50,18 +50,18 @@
     </bean>
 
     <bean scope="step" id="partialUploadGuard" class="org.jasig.ssp.util.importer.job.tasklet.PartialUploadGuard"
-                                p:resources="file:/tmp/batch-initialization/input/*"
-                                p:directory="file:/tmp/batch-initialization/input"
+                                p:resources="file:${java.io.tmpdir}/batch-initialization/input/*"
+                                p:directory="file:${java.io.tmpdir}/batch-initialization/input"
                                 p:lagTimeBeforeStartInMinutes="2">
                                 <property name="jobOperator" ref="jobOperator"/>
                                 </bean>
 
 
    <bean id="batchFinaliser" class="org.jasig.ssp.util.importer.job.tasklet.BatchFinalizer"
-            p:archiveDirectory="file:/tmp/batch-initialization/archive"
-            p:inputDirectory="file:/tmp/batch-initialization/input"
-            p:upsertDirectory="file:/tmp/batch-initialization/upsert"
-            p:processDirectory="file:/tmp/batch-initialization/process"
+            p:archiveDirectory="file:${java.io.tmpdir}/batch-initialization/archive"
+            p:inputDirectory="file:${java.io.tmpdir}/batch-initialization/input"
+            p:upsertDirectory="file:${java.io.tmpdir}/batch-initialization/upsert"
+            p:processDirectory="file:${java.io.tmpdir}/batch-initialization/process"
             p:batchTitle="Test Batch"
             p:archiveFiles="ALL"
             p:retainInputFiles="false"/>

@@ -42,18 +42,15 @@ public class BatchInitializerCopyTest {
     final private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
 
 
-    final private String processDirectoryPath = "/tmp/batch-initialization/process/";
-    final private String upsertDirectoryPath = "/tmp/batch-initialization/upsert/";
-    final private String inputDirectoryPath = "/tmp/batch-initialization/input/";
-
+    private final String tempDir = System.getProperty("java.io.tmpdir");
+    final private String processDirectoryPath = tempDir + "/batch-initialization/process/";
+    final private String upsertDirectoryPath = tempDir + "/batch-initialization/upsert/";
+    final private String inputDirectoryPath = tempDir + "/batch-initialization/input/";
 
     public BatchInitializerCopyTest() {
         super();
     }
 
-
-
-    @SuppressWarnings("unchecked")
     @Test
     public void testCopyToProcessDirectory() throws Exception {
 
