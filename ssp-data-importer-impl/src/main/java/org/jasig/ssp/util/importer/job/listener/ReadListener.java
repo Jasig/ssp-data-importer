@@ -27,63 +27,62 @@ import org.jasig.ssp.util.importer.job.report.StepType;
 import org.jasig.ssp.util.importer.job.validation.map.metadata.validation.violation.ViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.SkipListener;
+import org.springframework.batch.core.ItemReadListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.core.scope.context.StepContext;
-import org.springframework.batch.core.scope.context.StepSynchronizationManager;
+import org.springframework.batch.item.ExecutionContext;
 
+/**
+ * ReadListener is being leveraged to process read errors as they happen instead of
+ * waiting for a skip listener to process them.  The skip listener waits until right before
+ * a commit to happen to process(which will not happen if a rollback is called).
+ **/
 
-public class ValidationSkipListener implements SkipListener<RawItem, RawItem> {
+public class ReadListener implements ItemReadListener<RawItem> {
 
-    private StepExecution stepExecution;
+    private static final  Logger logger = LoggerFactory.getLogger(ReadListener.class);
+    private ExecutionContext executionContext;
     
-    Logger logger = LoggerFactory.getLogger(ValidationSkipListener.class);
     @Override
-    public void onSkipInRead(Throwable t) {
-        logger.error("ERROR on Upsert Read", t);
+    public void beforeRead() {
     }
 
     @Override
-    public void onSkipInWrite(RawItem item, Throwable t) {
-        logger.error("ERROR on Upsert Read", t);
+    public void afterRead(RawItem item) {
     }
 
+    @Override
+    public void onReadError(Exception e) {
+        if (e.getClass().equals(ViolationException.class)) {
+            ViolationException violation = (ViolationException) e;
+            String EOL = System.getProperty("line.separator");
+            logger.error("ERROR on Read, line:" + violation.getLineNumber() + EOL + e.getMessage());
+        } else {
+            logger.error("ERROR on Read" + e.getMessage());
+        }
+        putErrorInJobContext(e);        
+    }
+    
     @SuppressWarnings("unchecked")
-    @Override
-    public void onSkipInProcess(RawItem item, Throwable t) {
-        logger.error("ERROR on Upsert Process", t);
-        
+    public void putErrorInJobContext(Throwable t) {
         String lineNumber = null;
         if(t instanceof ViolationException)
         {
-            lineNumber = ((ViolationException)t).getLineNumber() != null ? ((ViolationException)t).getLineNumber().toString() : null;
+            lineNumber = ((ViolationException) t).getLineNumber() != null ? ((ViolationException) t).getLineNumber().toString() : null;
         }
-        
-        String fileName = item.getResource().getFilename();
-        String[] tableName = fileName.split("\\.");
-        ErrorEntry error = new ErrorEntry(tableName[0],item.getRecord().toString(),t.getMessage(),StepType.VALIDATE);
+        ErrorEntry error = new ErrorEntry(null, null, t.getMessage(), StepType.READ);
         error.setLineNumber(lineNumber);
-        List<ErrorEntry> errors =(List<ErrorEntry>) stepExecution.getJobExecution().getExecutionContext().get("errors");
-        if(errors == null)
-        {
+        List<ErrorEntry> errors = (List<ErrorEntry>) executionContext.get("errors");
+        if(errors == null) {
             errors = new ArrayList<ErrorEntry>();
-        } 
+        }
         errors.add(error);
-        stepExecution.getJobExecution().getExecutionContext().put("errors", errors);
-    }
-
-    public StepExecution getStepExecution() {
-        return stepExecution;
-    }
-
-    public void setStepExecution(StepExecution stepExecution) {
-        this.stepExecution = stepExecution;
+        executionContext.put("errors", errors);
     }
     
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
-        this.stepExecution = stepExecution;
+        this.executionContext = stepExecution.getJobExecution().getExecutionContext();
     }
 
 }

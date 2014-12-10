@@ -59,7 +59,9 @@
     <bean id="rawItemValidateProcessorListener"
       class="org.jasig.ssp.util.importer.job.listener.RawItemValidateProcessorListener">
     </bean>
-
+    <bean id="readListener" class="org.jasig.ssp.util.importer.job.listener.ReadListener" />
+    <bean id="writeListener" class="org.jasig.ssp.util.importer.job.listener.WriteListener" />
+    
     <bean id="processedRawCsvItemWriter" class="org.jasig.ssp.util.importer.job.csv.RawItemCsvWriter"
           scope="step"
           p:resource="#{stepExecutionContext[fileName]}" >
@@ -76,10 +78,6 @@
     </bean>
 
     <bean id="parsingListener" class="org.jasig.ssp.util.importer.job.listener.ParsingListener"/>
-    <bean id="validationSkipListener" class="org.jasig.ssp.util.importer.job.listener.ValidationSkipListener"/>
-
-
-
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="1"/>
@@ -120,9 +118,10 @@
                     <!-- Step-, chunk-, item-read, item-process, item-write, skip-scoped listeners, if needed. -->
                     <batch:listeners>
                         <batch:listener ref="processedRawCsvItemWriter" />
-                        <batch:listener ref="validationSkipListener" />
                         <batch:listener ref="parsingListener" />
+                        <batch:listener ref="readListener" />
                         <batch:listener ref="rawItemValidateProcessorListener" />
+                        <batch:listener ref="writeListener" />
                     </batch:listeners>
                 </batch:chunk>
             </batch:tasklet>
