@@ -152,6 +152,8 @@ Both of these types of tables need to be created out of band. The application wi
 | 2.3.0 | <ul><li>`./sql/postgres/postgres-2.3.0-create.sql`</li><li>`./sql/postgres/postgres-2.3.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.3.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.3.0-drop.sql`</li></ul> |
 | 2.4.0, 2.4.1, 2.4.2 | <ul><li>`./sql/postgres/postgres-2.4.0-create.sql`</li><li>`./sql/postgres/postgres-2.4.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.4.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.4.0-drop.sql`</li></ul> |
 | 2.5.0, 2.5.1, 2.5.2 | <ul><li>`./sql/postgres/postgres-2.5.0-create.sql`</li><li>`./sql/postgres/postgres-2.5.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-drop.sql`</li></ul> |
+| 2.6 | <ul><li>`./sql/postgres/postgres-2.6.0-create.sql`</li><li>`./sql/postgres/postgres-2.6.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.6.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.6.0-drop.sql`</li></ul> |
+| 2.7 | <ul><li>`./sql/postgres/postgres-2.7.0-create.sql`</li><li>`./sql/postgres/postgres-2.7.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.7.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.7.0-drop.sql`</li></ul> |
 
 In most cases a single pair of `ssp-data-importer` DDL files supports all SSP patch releases within a minor release, and sometimes even across minor releases. If your SSP version isn't listed above, try the DDL for the most recent minor+patch release _below_ your release. E.g. if you're trying SSP 2.6.0 but a pair of DDL files isn't yet specifically targeted at that SSP version, try the 2.5.0 DDL.
 
