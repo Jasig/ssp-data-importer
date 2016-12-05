@@ -888,7 +888,7 @@ CREATE TABLE stg_external_career_decision_status (
   	[code] [nvarchar](2) NOT NULL,
 	PRIMARY KEY CLUSTERED
 (
-	[code] ASC
+	[school_id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ;
