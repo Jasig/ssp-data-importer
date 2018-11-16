@@ -47,6 +47,12 @@ Re #2, `ssp-data-importer` now generates synthetic primary keys using all availa
 1. All `external_substitutable_course` columns must be included in every `external_substitutable_course.csv`, and
 2. That table is essentially "insert-only" because a change to any given column implies a new primary key. Repetitions of the same key are effectively no-ops.
 
+v1.1.1
+------
+Nov 19, 2019 - Minor maintenance release.
+
+1. SSP-3275 - Added From email address as a configuration value to fix an issue with new versions of MS Exchange
+
 
 High-Level Workflow
 ===================
@@ -151,9 +157,11 @@ Both of these types of tables need to be created out of band. The application wi
 | 2.0.0, 2.0.1, 2.1.0, 2.2.0 | <ul><li>`./sql/postgres/postgres-2.1.0-create.sql`</li><li>`./sql/postgres/postgres-2.1.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.1.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.1.0-drop.sql`</li></ul> |
 | 2.3.0 | <ul><li>`./sql/postgres/postgres-2.3.0-create.sql`</li><li>`./sql/postgres/postgres-2.3.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.3.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.3.0-drop.sql`</li></ul> |
 | 2.4.0, 2.4.1, 2.4.2 | <ul><li>`./sql/postgres/postgres-2.4.0-create.sql`</li><li>`./sql/postgres/postgres-2.4.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.4.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.4.0-drop.sql`</li></ul> |
-| 2.5.0, 2.5.1, 2.5.2 | <ul><li>`./sql/postgres/postgres-2.5.0-create.sql`</li><li>`./sql/postgres/postgres-2.5.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-drop.sql`</li></ul> |
+| 2.5.0, 2.5.1, 2.5.2 | <ul><li>`./| 2.7 | <ul><li>`./sql/postgres/postgres-2.7.0-create.sql`</li><li>`./sql/postgres/postgres-2.7.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.7.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.7.0-drop.sql`</li></ul> |
+sql/postgres/postgres-2.5.0-create.sql`</li><li>`./sql/postgres/postgres-2.5.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.5.0-drop.sql`</li></ul> |
 | 2.6 | <ul><li>`./sql/postgres/postgres-2.6.0-create.sql`</li><li>`./sql/postgres/postgres-2.6.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.6.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.6.0-drop.sql`</li></ul> |
 | 2.7 | <ul><li>`./sql/postgres/postgres-2.7.0-create.sql`</li><li>`./sql/postgres/postgres-2.7.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.7.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.7.0-drop.sql`</li></ul> |
+| 2.8 | <ul><li>`./sql/postgres/postgres-2.8.0-create.sql`</li><li>`./sql/postgres/postgres-2.8.0-drop.sql`</li><li>`./sql/sqlserver/sqlserver-2.8.0-create.sql`</li><li>`./sql/sqlserver/sqlserver-2.8.0-drop.sql`</li></ul> |
 
 In most cases a single pair of `ssp-data-importer` DDL files supports all SSP patch releases within a minor release, and sometimes even across minor releases. If your SSP version isn't listed above, try the DDL for the most recent minor+patch release _below_ your release. E.g. if you're trying SSP 2.6.0 but a pair of DDL files isn't yet specifically targeted at that SSP version, try the 2.5.0 DDL.
 
@@ -458,6 +466,9 @@ batch.email.recipients="SSP DATA IMPORTER"<sysadmin@localhost>
 
 # # **REQUIRED IF batch.sentMail=true**
 batch.email.replyTo="SSP DATA IMPORTER"<sysadmin@localhost>
+
+# # **REQUIRED IF batch.sentMail=true** and for certain email servers
+batch.email.from="SSP DATA IMPORTER"<sysadmin@localhost>
 
 #TESTING
 batch.table.input.duplicate=false

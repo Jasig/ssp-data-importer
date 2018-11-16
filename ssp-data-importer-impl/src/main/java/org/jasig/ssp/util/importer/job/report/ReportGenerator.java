@@ -46,6 +46,8 @@ public class ReportGenerator implements JobExecutionListener {
 
     private String replyTo;
 
+    private String from;
+
     private boolean sendEmail;
 
     private boolean filesProcessed = false;
@@ -80,6 +82,9 @@ public class ReportGenerator implements JobExecutionListener {
 
                     if ( !StringUtils.isEmpty(replyTo) ) {
                         mimeMessageHelper.setReplyTo(replyTo);
+                    }
+                    if ( !StringUtils.isEmpty(from) ) {
+                        mimeMessageHelper.setFrom(from);
                     }
                     mimeMessageHelper.setSubject("Data Import Report for SSP Instance: "+batchTitle+" JobId: "+jobExecution.getJobId());
                     mimeMessageHelper.setText(report);
@@ -174,4 +179,11 @@ public class ReportGenerator implements JobExecutionListener {
         this.javaMailSender = javaMailSender;
     }
 
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
 }
